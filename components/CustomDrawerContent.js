@@ -38,90 +38,23 @@ export default function CustomDrawerContent(props) {
           </View>
           <View className="ml-4">
             <Text className="text-white text-xl font-bold">Ma Bibliothèque</Text>
-            <Text className="text-blue-100 text-sm">Organisez vos lectures</Text>
           </View>
         </View>
       </View>
 
-      {/* Section Statistiques rapides */}
-      <View className="bg-white m-4 rounded-lg p-4 shadow-sm">
-        <Text className="text-gray-600 text-xs font-semibold uppercase mb-3">
-          Vue d'ensemble
-        </Text>
 
-        <View className="flex-row justify-between">
-          {/* Total */}
-          <View className="items-center flex-1">
-            <Text className="text-xl font-bold text-gray-800">
-              {stats.totalBooks}
-            </Text>
-            <Text className="text-gray-500 text-xs mt-1">Total</Text>
-          </View>
-
-          {/* Divider */}
-          <View className="w-px bg-gray-200" />
-
-          {/* Lus */}
-          <View className="items-center flex-1">
-            <Text className="text-xl font-bold text-green-600">
-              {stats.readBooks}
-            </Text>
-            <Text className="text-gray-500 text-xs mt-1">Lus</Text>
-          </View>
-
-          {/* Divider */}
-          <View className="w-px bg-gray-200" />
-
-          {/* Wishlist */}
-          <View className="items-center flex-1">
-            <Text className="text-xl font-bold text-red-500">
-              {stats.wishlistBooks}
-            </Text>
-            <Text className="text-gray-500 text-xs mt-1">Wishlist</Text>
-          </View>
-        </View>
-      </View>
 
       {/* Navigation - Liste automatique des écrans */}
       <View className="flex-1 px-2">
-        <Text className="text-gray-600 text-xs font-semibold uppercase px-4 mb-2">
-          Navigation
-        </Text>
+
         <DrawerItemList {...props} />
       </View>
 
       {/* Spacer */}
       <View className="flex-1" />
 
-      {/* Section Liens rapides */}
-      <View className="border-t border-gray-200 p-4">
-        <TouchableOpacity
-          className="flex-row items-center py-3"
-          activeOpacity={0.7}
-          onPress={() => console.log('Statistiques')}
-        >
-          <Ionicons name="stats-chart-outline" size={20} color="#64748b" />
-          <Text className="ml-3 text-gray-700">Statistiques détaillées</Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          className="flex-row items-center py-3"
-          activeOpacity={0.7}
-          onPress={() => console.log('Paramètres')}
-        >
-          <Ionicons name="settings-outline" size={20} color="#64748b" />
-          <Text className="ml-3 text-gray-700">Paramètres</Text>
-        </TouchableOpacity>
 
-        <TouchableOpacity
-          className="flex-row items-center py-3"
-          activeOpacity={0.7}
-          onPress={() => console.log('Aide')}
-        >
-          <Ionicons name="help-circle-outline" size={20} color="#64748b" />
-          <Text className="ml-3 text-gray-700">Aide & Support</Text>
-        </TouchableOpacity>
-      </View>
 
       {/* Footer */}
       <View className="border-t border-gray-200 p-4 bg-gray-100">

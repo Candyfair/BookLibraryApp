@@ -5,17 +5,19 @@
 
 ---
 
-## 🆕 Dernières Mises à Jour (4 décembre 2025)
+## 🆕 Dernières Mises à Jour (5 décembre 2025)
 
 ### ✅ Accomplissements Récents
 
 - **Phase 1 Foundation complétée** : Navigation, écrans, styling, configuration EAS
 - **EAS Build configuré** : Project ID `41b31d57-375b-4256-96ac-ddbe988a1e37`
+- **Nettoyage du projet** : Suppression du dossier `app/` inutilisé (architecture Expo Router obsolète)
 - **Problèmes résolus** :
   - ✅ NativeWind preset configuré
   - ✅ Worklets mismatch résolu (via Development Build)
   - ✅ Build iOS corrigé (suppression packages natifs non configurés)
   - ✅ `appVersionSource: remote` configuré
+  - ✅ Suppression des fichiers `app/` non utilisés (conflit avec React Navigation)
 
 ### 📦 Packages Actuellement Installés
 
@@ -86,6 +88,8 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 | `react-native-safe-area-context` | 5.6.0 | Safe areas (notch, etc.) |
 | `react-native-gesture-handler` | 2.28.0 | Gestion gestures natives |
 | `react-native-reanimated` | 4.1.1 | Animations performantes |
+
+> **Note :** Le projet utilise **React Navigation** (Drawer + Stack) et **non Expo Router**. Un dossier `app/` contenant des fichiers avec Expo Router a été supprimé pour éviter toute confusion.
 
 ### APIs & Services
 
@@ -754,6 +758,24 @@ Ajout dans [eas.json:4](eas.json#L4) :
 
 ---
 
+### ✅ Problème 5 : Dossier `app/` Non Utilisé
+
+**Contexte :**
+- Un dossier `app/` existait avec des fichiers utilisant **Expo Router** (`router.push`, file-based routing)
+- Le projet utilise en réalité **React Navigation** (Drawer + Stack)
+- Les fichiers actifs sont dans `screens/` et chargés via `App.js`
+
+**Solution appliquée :**
+✅ Suppression du dossier `app/` pour éviter la confusion entre deux architectures de navigation parallèles
+
+**Fichiers supprimés :**
+- `app/index.js` - Écran d'accueil alternatif
+- `app/library.js` - Écran bibliothèque alternatif
+- `app/profile.js` - Écran profil alternatif
+- `app/stats.js` - Écran statistiques
+
+---
+
 ## 📝 Conventions de Code
 
 ### Nommage
@@ -820,6 +842,7 @@ export default function MonComposant({ onPress }) {
 - [x] Configuration `appVersionSource: remote`
 - [x] EAS Project ID configuré : `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - [x] Development Build en cours de génération
+- [x] Nettoyage architecture : suppression dossier `app/` (Expo Router non utilisé)
 
 ### Phase 2 : Core Features 🚧 (En cours)
 - [ ] BookService (Google Books + OpenLibrary)
@@ -890,8 +913,8 @@ export default function MonComposant({ onPress }) {
 - **Compte Expo** : @candyfair
 - **Project ID** : `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - **Version actuelle** : 1.0.0 (MVP en développement)
-- **Branche active** : `restart`
-- **Dernière mise à jour** : 4 décembre 2025
+- **Branche active** : `page-cleaning`
+- **Dernière mise à jour** : 5 décembre 2025
 
 ---
 
@@ -909,6 +932,27 @@ Si ce projet évolue vers l'open-source :
 ## 📄 Licence
 
 Projet personnel - Tous droits réservés (pour le MVP)
+
+---
+
+## 📝 Notes Personnelles
+
+> **Section réservée à vos notes, réflexions et TODOs personnels.**
+> Cette section ne sera jamais modifiée par Claude, sauf instruction explicite de votre part.
+
+### Idées & Réflexions
+
+
+
+### TODOs Personnels
+- Ajouter polices
+- Configurer un thème avec couleurs
+- Retirer les headers des pages et utiliser le SafeAreaContext
+
+
+### Questions à Résoudre
+- Est-ce que le menu "Profil" doit être mis dans une Stack pour être accessible depuis l'icône sur les pages, mais invisible dans le drawer ?
+
 
 ---
 

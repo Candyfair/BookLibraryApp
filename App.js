@@ -130,7 +130,7 @@ export default function App() {
       >
         {/* Écran Accueil */}
         <Drawer.Screen
-          name="Accueil"
+          name="Scanner un livre"
           component={AccueilStack}
           options={{
             drawerIcon: ({ color, size }) => (
@@ -141,7 +141,7 @@ export default function App() {
 
         {/* Écran Bibliothèque */}
         <Drawer.Screen
-          name="Bibliothèque"
+          name="Voir mes livres"
           component={BibliothequeStack}
           options={{
             drawerIcon: ({ color, size }) => (
