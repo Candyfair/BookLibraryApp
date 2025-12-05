@@ -12,7 +12,8 @@
 - **Phase 1 Foundation complétée** : Navigation, écrans, styling, configuration EAS
 - **EAS Build configuré** : Project ID `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - **Restructuration architecture** : Fichiers déplacés dans `src/` avec noms en anglais
-- **Packages natifs réinstallés** : Barcode scanner + authentification Google/Apple
+- **Migration vers expo-camera** : Remplacement de expo-barcode-scanner (incompatible Expo 54)
+- **Packages natifs réinstallés** : expo-camera + authentification Google/Apple
 - **Tests sur appareil Android** : Development Build fonctionnel sur appareil physique
 - **Problèmes résolus** :
   - ✅ NativeWind preset configuré
@@ -35,7 +36,7 @@
 - `axios`, `@react-native-async-storage/async-storage`
 
 **Packages Natifs (Installés mais non configurés) :**
-- ✅ `expo-barcode-scanner` - Scanner ISBN (plugin auto-ajouté)
+- ✅ `expo-camera` - Caméra et scanner de codes-barres (compatible Expo 54, remplace expo-barcode-scanner)
 - ✅ `@react-native-google-signin/google-signin` - Auth Google (config requise)
 - ✅ `@invertase/react-native-apple-authentication` - Auth Apple (config requise)
 
@@ -46,11 +47,11 @@
 
 ### 🎯 Prochaines Étapes
 
-1. 🔧 Tester le scanner de code-barres sur Android
+1. 🔧 Tester le scanner de code-barres avec expo-camera sur Android
 2. 💾 Installer et configurer expo-sqlite
 3. 🗄️ Implémenter DatabaseService (CRUD livres)
 4. 📚 Implémenter BookService (Google Books + OpenLibrary)
-5. 🎨 Créer l'écran ScanScreen avec expo-barcode-scanner
+5. 🎨 Créer l'écran ScanScreen avec expo-camera
 
 ---
 
@@ -116,7 +117,7 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 | Package | Usage | Statut |
 |---------|-------|--------|
 | `expo-dev-client` | Development Build (remplace Expo Go) | ✅ Installé |
-| `expo-barcode-scanner` | Scanner ISBN (caméra) | ✅ Installé - Plugin auto-configuré |
+| `expo-camera` | Caméra et scanner de codes-barres (remplace expo-barcode-scanner) | ✅ Installé - Plugin auto-configuré |
 | `@react-native-google-signin/google-signin` | Sign in avec Google | ✅ Installé - Configuration manuelle requise |
 | `@invertase/react-native-apple-authentication` | Sign in avec Apple | ✅ Installé - Configuration manuelle requise |
 | `axios` | Requêtes HTTP vers APIs | ✅ Installé |
@@ -130,7 +131,7 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 > **Note :** Les packages natifs d'authentification nécessitent une configuration supplémentaire :
 > - **Google Sign-In** : Nécessite OAuth Client ID (Google Cloud Console) + configuration dans `app.json`
 > - **Apple Sign-In** : Nécessite Apple Developer Account + Service ID + configuration dans `app.json`
-> - **expo-barcode-scanner** : Plugin déjà ajouté automatiquement par `npx expo install`
+> - **expo-camera** : Plugin déjà ajouté automatiquement par `npx expo install`, supporte la détection de codes-barres via `barCodeScannerSettings`
 
 ---
 
@@ -619,20 +620,24 @@ getStats() → Promise<Stats>
 
 ### 3. **ScanScreen** (Priorité 2)
 
-**Fichier** : `screens/ScanScreen.js`
+**Fichier** : `src/screens/ScanScreen.js`
 
 **Fonctionnalités :**
-- Caméra avec `expo-barcode-scanner`
-- Détection automatique ISBN (EAN-13, EAN-8)
+- Caméra avec `expo-camera`
+- Détection automatique ISBN (EAN-13, EAN-8) via `barCodeScannerSettings`
 - Overlay UI avec guide de scan
 - Feedback visuel au scan
 - Appel automatique BookService après scan
+
+**Note technique :**
+- `expo-camera` remplace `expo-barcode-scanner` (incompatible avec Expo SDK 54)
+- Utilise la prop `barCodeScannerSettings` pour activer le scan de codes-barres
 
 ---
 
 ### 4. **BookDetailScreen** (Priorité 2)
 
-**Fichier** : `screens/BookDetailScreen.js`
+**Fichier** : `src/screens/BookDetailScreen.js`
 
 **Fonctionnalités :**
 - Affichage couverture + infos livre
@@ -715,37 +720,45 @@ presets: [require('nativewind/preset')]
 
 ---
 
-### ✅ Problème 3 : EAS Build iOS Failed - Barcode Scanner (RÉSOLU)
+### ✅ Problème 3 : Incompatibilité expo-barcode-scanner avec Expo SDK 54 (RÉSOLU)
 
-**Erreur initiale :**
+**Erreur initiale (build iOS) :**
 ```
 🍏 iOS build failed:
 'ExpoModulesCore/EXBarcodeScannerInterface.h' file not found
 could not build Objective-C module 'EXBarCodeScanner'
 ```
 
-**Cause :**
-- Packages natifs (`expo-barcode-scanner`, `@react-native-google-signin/google-signin`, `@invertase/react-native-apple-authentication`) installés mais **non configurés**
-- Ces packages nécessitent des plugins Expo dans `app.json` + configuration native (Podfile iOS, AndroidManifest, etc.)
-- EAS Build tente de compiler tous les modules natifs trouvés dans `package.json`, même s'ils ne sont pas utilisés dans le code
-
-**Solution appliquée :**
-✅ **Phase 1 (tests initiaux)** : Suppression temporaire des packages pour corriger le build iOS
-✅ **Phase 2 (développement Android)** : Réinstallation des packages pour développement sur appareil physique Android
-
-**Packages réinstallés :**
-```bash
-npx expo install expo-barcode-scanner
-npm install @react-native-google-signin/google-signin @invertase/react-native-apple-authentication
+**Erreur Android (après réinstallation) :**
+```
+🤖 Android build failed:
+expo-barcode-scanner incompatible avec Expo SDK 54
 ```
 
-**Configuration :**
-- `expo-barcode-scanner` : Plugin ajouté automatiquement par `npx expo install`
-- Auth packages : Configuration manuelle requise avant utilisation (OAuth credentials, etc.)
+**Cause :**
+- `expo-barcode-scanner` est **obsolète et incompatible** avec Expo SDK 54
+- Ce package a été déprécié au profit de `expo-camera`
+- EAS Build échoue même avec le plugin auto-configuré
+
+**Solution appliquée :**
+✅ **Phase 1 (tests initiaux)** : Suppression temporaire pour corriger le build iOS
+✅ **Phase 2 (développement Android)** : Réinstallation de expo-barcode-scanner → échec du build
+✅ **Phase 3 (migration finale)** : Remplacement par `expo-camera` (compatible Expo SDK 54)
+
+**Migration vers expo-camera :**
+```bash
+npm uninstall expo-barcode-scanner
+npx expo install expo-camera
+```
+
+**Différences clés :**
+- `expo-barcode-scanner` : Package dédié (déprécié)
+- `expo-camera` : Package unifié caméra + scan de codes-barres via `barCodeScannerSettings`
 
 **Statut actuel :**
-- ✅ Packages installés et prêts pour développement Android
-- ⏳ Configuration des credentials d'authentification à faire lors de l'implémentation
+- ✅ `expo-camera` installé et compatible avec Expo SDK 54
+- ✅ Build Android Development fonctionnel
+- ⏳ Implémentation du scanner dans ScanScreen à venir
 
 ---
 
@@ -849,7 +862,7 @@ export default function MonComposant({ onPress }) {
 
 ## 🎯 Roadmap MVP
 
-### Phase 1 : Foundation ✅ (Complétée - 4 décembre 2025)
+### Phase 1 : Foundation ✅ (Complétée - 5 décembre 2025)
 - [x] Setup projet Expo SDK 54
 - [x] Configuration NativeWind avec preset
 - [x] Navigation Drawer + Stack (React Navigation 7)
@@ -859,13 +872,15 @@ export default function MonComposant({ onPress }) {
 - [x] Résolution problèmes build (packages natifs non configurés)
 - [x] Configuration `appVersionSource: remote`
 - [x] EAS Project ID configuré : `41b31d57-375b-4256-96ac-ddbe988a1e37`
-- [x] Development Build en cours de génération
+- [x] Development Build Android fonctionnel
 - [x] Nettoyage architecture : suppression dossier `app/` (Expo Router non utilisé)
+- [x] Restructuration : migration vers dossier `src/` avec noms en anglais
+- [x] Migration de expo-barcode-scanner vers expo-camera (Expo SDK 54 compatible)
 
 ### Phase 2 : Core Features 🚧 (En cours)
 - [ ] BookService (Google Books + OpenLibrary)
 - [ ] DatabaseService (SQLite)
-- [ ] Scanner ISBN (expo-barcode-scanner)
+- [ ] Scanner ISBN avec expo-camera
 - [ ] Écran détail livre
 - [ ] CRUD livres complet
 
