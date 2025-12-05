@@ -11,13 +11,17 @@
 
 - **Phase 1 Foundation complétée** : Navigation, écrans, styling, configuration EAS
 - **EAS Build configuré** : Project ID `41b31d57-375b-4256-96ac-ddbe988a1e37`
-- **Nettoyage du projet** : Suppression du dossier `app/` inutilisé (architecture Expo Router obsolète)
+- **Restructuration architecture** : Fichiers déplacés dans `src/` avec noms en anglais
+- **Packages natifs réinstallés** : Barcode scanner + authentification Google/Apple
+- **Tests sur appareil Android** : Development Build fonctionnel sur appareil physique
 - **Problèmes résolus** :
   - ✅ NativeWind preset configuré
   - ✅ Worklets mismatch résolu (via Development Build)
   - ✅ Build iOS corrigé (suppression packages natifs non configurés)
   - ✅ `appVersionSource: remote` configuré
   - ✅ Suppression des fichiers `app/` non utilisés (conflit avec React Navigation)
+  - ✅ Suppression du fichier `Drawer.js` inutilisé (Expo Router)
+  - ✅ Architecture standardisée avec dossier `src/`
 
 ### 📦 Packages Actuellement Installés
 
@@ -30,21 +34,23 @@
 - `expo` (SDK 54.0.26), `expo-dev-client`, `expo-status-bar`
 - `axios`, `@react-native-async-storage/async-storage`
 
-### ⏳ À Installer Plus Tard (Packages Natifs)
+**Packages Natifs (Installés mais non configurés) :**
+- ✅ `expo-barcode-scanner` - Scanner ISBN (plugin auto-ajouté)
+- ✅ `@react-native-google-signin/google-signin` - Auth Google (config requise)
+- ✅ `@invertase/react-native-apple-authentication` - Auth Apple (config requise)
 
-Ces packages ont été retirés temporairement car ils nécessitent une configuration native :
-- `expo-barcode-scanner` - Scanner ISBN
+**À Installer :**
 - `expo-sqlite` - Base de données locale
-- `@react-native-google-signin/google-signin` - Auth Google
-- `@invertase/react-native-apple-authentication` - Auth Apple
+
+> **Note :** Les packages natifs sont installés mais nécessitent une configuration supplémentaire dans `app.json` et des credentials (Google OAuth, Apple Developer) avant utilisation.
 
 ### 🎯 Prochaines Étapes
 
-1. ✅ Attendre la fin du build EAS iOS/Android
-2. 📱 Tester l'app sur téléphone avec Development Build
-3. 🔧 Implémenter BookService (Google Books + OpenLibrary)
-4. 💾 Installer et configurer expo-sqlite
-5. 🗄️ Implémenter DatabaseService
+1. 🔧 Tester le scanner de code-barres sur Android
+2. 💾 Installer et configurer expo-sqlite
+3. 🗄️ Implémenter DatabaseService (CRUD livres)
+4. 📚 Implémenter BookService (Google Books + OpenLibrary)
+5. 🎨 Créer l'écran ScanScreen avec expo-barcode-scanner
 
 ---
 
@@ -110,17 +116,21 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 | Package | Usage | Statut |
 |---------|-------|--------|
 | `expo-dev-client` | Development Build (remplace Expo Go) | ✅ Installé |
+| `expo-barcode-scanner` | Scanner ISBN (caméra) | ✅ Installé - Plugin auto-configuré |
+| `@react-native-google-signin/google-signin` | Sign in avec Google | ✅ Installé - Configuration manuelle requise |
+| `@invertase/react-native-apple-authentication` | Sign in avec Apple | ✅ Installé - Configuration manuelle requise |
 | `axios` | Requêtes HTTP vers APIs | ✅ Installé |
 
 ### À Installer Plus Tard
 
 | Package | Usage | Raison |
 |---------|-------|--------|
-| `expo-barcode-scanner` | Scanner ISBN (caméra) | ⏳ Non installé - Nécessite config native (plugin expo) |
-| `@react-native-google-signin/google-signin` | Sign in avec Google | ⏳ Non installé - Nécessite config native |
-| `@invertase/react-native-apple-authentication` | Sign in avec Apple | ⏳ Non installé - Nécessite config native |
+| `expo-sqlite` | Base de données locale | ⏳ À installer lors de l'implémentation du DatabaseService |
 
-> **Note :** Ces packages ont été temporairement retirés car ils nécessitent une configuration native spécifique (plugins dans `app.json`). Ils seront réinstallés un par un lors de l'implémentation de leurs fonctionnalités respectives.
+> **Note :** Les packages natifs d'authentification nécessitent une configuration supplémentaire :
+> - **Google Sign-In** : Nécessite OAuth Client ID (Google Cloud Console) + configuration dans `app.json`
+> - **Apple Sign-In** : Nécessite Apple Developer Account + Service ID + configuration dans `app.json`
+> - **expo-barcode-scanner** : Plugin déjà ajouté automatiquement par `npx expo install`
 
 ---
 
@@ -137,29 +147,30 @@ BookLibraryApp/
 ├── tailwind.config.js              # Config Tailwind CSS
 ├── global.css                      # Styles Tailwind de base
 │
-├── screens/                        # Écrans de l'application
-│   ├── AccueilScreen.js           # Écran d'accueil (recherche + scan)
-│   ├── BibliothequeScreen.js      # Grille de livres + filtres
-│   └── ProfilScreen.js            # Profil utilisateur + auth
-│
-├── components/                     # Composants réutilisables
-│   └── CustomDrawerContent.js     # Menu drawer personnalisé
-│
-├── services/                       # (À créer) Logique métier
-│   ├── BookService.js             # API Google Books + OpenLibrary
-│   ├── DatabaseService.js         # SQLite (CRUD livres)
-│   ├── AuthService.js             # Authentification Google/Apple
-│   └── StatsService.js            # Calcul statistiques
-│
-├── utils/                          # (À créer) Utilitaires
-│   ├── api.js                     # Config Axios, intercepteurs
-│   ├── normalizer.js              # Normalisation données APIs
-│   └── validators.js              # Validation ISBN, etc.
-│
-├── constants/                      # (À créer) Constantes
-│   ├── colors.js                  # Palette couleurs
-│   ├── genres.js                  # Liste genres prédéfinis
-│   └── statuses.js                # Statuts livres (lu, wishlist, etc.)
+├── src/                            # Code source principal
+│   ├── screens/                    # Écrans de l'application
+│   │   ├── HomeScreen.js           # Écran d'accueil (recherche + scan)
+│   │   ├── LibraryScreen.js        # Grille de livres + filtres
+│   │   └── ProfileScreen.js        # Profil utilisateur + auth
+│   │
+│   ├── components/                 # Composants réutilisables
+│   │   └── CustomDrawerContent.js # Menu drawer personnalisé
+│   │
+│   ├── services/                   # (À créer) Logique métier
+│   │   ├── BookService.js          # API Google Books + OpenLibrary
+│   │   ├── DatabaseService.js      # SQLite (CRUD livres)
+│   │   ├── AuthService.js          # Authentification Google/Apple
+│   │   └── StatsService.js         # Calcul statistiques
+│   │
+│   ├── utils/                      # (À créer) Utilitaires
+│   │   ├── api.js                  # Config Axios, intercepteurs
+│   │   ├── normalizer.js           # Normalisation données APIs
+│   │   └── validators.js           # Validation ISBN, etc.
+│   │
+│   └── constants/                  # (À créer) Constantes
+│       ├── colors.js               # Palette couleurs
+│       ├── genres.js               # Liste genres prédéfinis
+│       └── statuses.js             # Statuts livres (lu, wishlist, etc.)
 │
 ├── assets/                         # Images, icônes, fonts
 │   ├── icon.png
@@ -170,6 +181,12 @@ BookLibraryApp/
 ├── EAS_BUILD_GUIDE.md             # Guide complet EAS Build
 └── CLAUDE.md                       # Ce fichier
 ```
+
+> **Changements récents :**
+> - Tous les fichiers de code déplacés dans `src/`
+> - Noms de fichiers et fonctions en anglais (ex: `HomeScreen`, `LibraryScreen`, `ProfileScreen`)
+> - Textes utilisateur restent en français
+> - Suppression du fichier `Drawer.js` inutilisé à la racine
 
 ---
 
@@ -232,7 +249,7 @@ eas build:cancel             # Annuler un build en cours
 
 ## 📱 Écrans Implémentés
 
-### 1. **Écran Accueil** (`AccueilScreen.js`)
+### 1. **Écran Accueil** (`src/screens/HomeScreen.js`)
 
 **Fonctionnalités :**
 - Barre de recherche textuelle (titre, auteur, ISBN)
@@ -245,7 +262,7 @@ eas build:cancel             # Annuler un build en cours
 
 ---
 
-### 2. **Écran Bibliothèque** (`BibliothequeScreen.js`)
+### 2. **Écran Bibliothèque** (`src/screens/LibraryScreen.js`)
 
 **Fonctionnalités :**
 - Grille 2 colonnes avec FlatList optimisée
@@ -259,7 +276,7 @@ eas build:cancel             # Annuler un build en cours
 
 ---
 
-### 3. **Écran Profil** (`ProfilScreen.js`)
+### 3. **Écran Profil** (`src/screens/ProfileScreen.js`)
 
 **Fonctionnalités :**
 
@@ -279,7 +296,7 @@ eas build:cancel             # Annuler un build en cours
 
 ---
 
-### 4. **Menu Drawer** (`CustomDrawerContent.js`)
+### 4. **Menu Drawer** (`src/components/CustomDrawerContent.js`)
 
 **Fonctionnalités :**
 - Header avec logo et titre
@@ -698,9 +715,9 @@ presets: [require('nativewind/preset')]
 
 ---
 
-### ✅ Problème 3 : EAS Build iOS Failed - Barcode Scanner
+### ✅ Problème 3 : EAS Build iOS Failed - Barcode Scanner (RÉSOLU)
 
-**Erreur :**
+**Erreur initiale :**
 ```
 🍏 iOS build failed:
 'ExpoModulesCore/EXBarcodeScannerInterface.h' file not found
@@ -713,29 +730,22 @@ could not build Objective-C module 'EXBarCodeScanner'
 - EAS Build tente de compiler tous les modules natifs trouvés dans `package.json`, même s'ils ne sont pas utilisés dans le code
 
 **Solution appliquée :**
-✅ Suppression temporaire des packages non utilisés :
-```bash
-npm uninstall expo-barcode-scanner
-npm uninstall @react-native-google-signin/google-signin
-npm uninstall @invertase/react-native-apple-authentication
-```
+✅ **Phase 1 (tests initiaux)** : Suppression temporaire des packages pour corriger le build iOS
+✅ **Phase 2 (développement Android)** : Réinstallation des packages pour développement sur appareil physique Android
 
-**Réinstallation future :**
-Lors de l'implémentation du scanner :
+**Packages réinstallés :**
 ```bash
 npx expo install expo-barcode-scanner
+npm install @react-native-google-signin/google-signin @invertase/react-native-apple-authentication
 ```
-Puis ajouter dans `app.json` :
-```json
-"plugins": [
-  [
-    "expo-barcode-scanner",
-    {
-      "cameraPermission": "Allow $(PRODUCT_NAME) to access camera."
-    }
-  ]
-]
-```
+
+**Configuration :**
+- `expo-barcode-scanner` : Plugin ajouté automatiquement par `npx expo install`
+- Auth packages : Configuration manuelle requise avant utilisation (OAuth credentials, etc.)
+
+**Statut actuel :**
+- ✅ Packages installés et prêts pour développement Android
+- ⏳ Configuration des credentials d'authentification à faire lors de l'implémentation
 
 ---
 
@@ -758,21 +768,28 @@ Ajout dans [eas.json:4](eas.json#L4) :
 
 ---
 
-### ✅ Problème 5 : Dossier `app/` Non Utilisé
+### ✅ Problème 5 : Dossier `app/` et `Drawer.js` Non Utilisés
 
 **Contexte :**
 - Un dossier `app/` existait avec des fichiers utilisant **Expo Router** (`router.push`, file-based routing)
+- Un fichier `Drawer.js` à la racine utilisait également Expo Router
 - Le projet utilise en réalité **React Navigation** (Drawer + Stack)
-- Les fichiers actifs sont dans `screens/` et chargés via `App.js`
+- Les fichiers actifs sont dans `src/screens/` et chargés via `App.js`
 
 **Solution appliquée :**
-✅ Suppression du dossier `app/` pour éviter la confusion entre deux architectures de navigation parallèles
+✅ Suppression du dossier `app/` et du fichier `Drawer.js` pour éviter la confusion entre deux architectures de navigation parallèles
 
 **Fichiers supprimés :**
 - `app/index.js` - Écran d'accueil alternatif
 - `app/library.js` - Écran bibliothèque alternatif
 - `app/profile.js` - Écran profil alternatif
 - `app/stats.js` - Écran statistiques
+- `Drawer.js` - Configuration Expo Router inutilisée
+
+**Restructuration effectuée :**
+- Tous les fichiers déplacés dans `src/`
+- Noms de fichiers et fonctions convertis en anglais
+- Textes utilisateur conservés en français
 
 ---
 
@@ -780,11 +797,12 @@ Ajout dans [eas.json:4](eas.json#L4) :
 
 ### Nommage
 
-- **Fichiers** : PascalCase pour composants (`AccueilScreen.js`), camelCase pour services (`bookService.js`)
-- **Composants** : PascalCase (`CustomDrawerContent`)
+- **Fichiers** : PascalCase pour composants (`HomeScreen.js`), camelCase pour services (`bookService.js`)
+- **Composants** : PascalCase (`HomeScreen`, `CustomDrawerContent`)
 - **Fonctions** : camelCase (`handleSearch`, `fetchFromAPI`)
 - **Constantes** : SCREAMING_SNAKE_CASE (`API_BASE_URL`)
 - **Variables** : camelCase (`searchQuery`, `bookList`)
+- **Langue** : Noms de fichiers/fonctions en anglais, textes UI en français
 
 ### Structure des Composants
 
@@ -941,6 +959,7 @@ Projet personnel - Tous droits réservés (pour le MVP)
 > Cette section ne sera jamais modifiée par Claude, sauf instruction explicite de votre part.
 
 ### Idées & Réflexions
+Librairies à réinstaller :  
 
 
 

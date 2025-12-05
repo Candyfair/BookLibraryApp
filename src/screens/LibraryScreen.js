@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 /**
- * Écran Bibliothèque - Affiche la collection de livres de l'utilisateur
+ * Library Screen - Affiche la collection de livres de l'utilisateur
  *
  * Fonctionnalités :
  * - Grille optimisée de livres (FlatList avec numColumns)
@@ -16,7 +16,7 @@ import { useState } from 'react';
  * - État local pour les filtres
  * - Prêt pour l'intégration avec BookService + SQLite
  */
-export default function BibliothequeScreen({ navigation }) {
+export default function LibraryScreen({ navigation }) {
   // État pour le filtre de statut actif
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -74,7 +74,7 @@ export default function BibliothequeScreen({ navigation }) {
         Ajoutez des livres depuis l'écran d'accueil
       </Text>
       <TouchableOpacity
-        onPress={() => navigation.navigate('Accueil')}
+        onPress={() => navigation.navigate('Scanner un livre')}
         className="mt-6 bg-blue-500 px-6 py-3 rounded-lg flex-row items-center"
         activeOpacity={0.8}
       >
@@ -156,7 +156,7 @@ export default function BibliothequeScreen({ navigation }) {
       {/* Bouton flottant "Ajouter" (visible uniquement si livres présents) */}
       {books.length > 0 && (
         <TouchableOpacity
-          onPress={() => navigation.navigate('Accueil')}
+          onPress={() => navigation.navigate('Scanner un livre')}
           className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
           activeOpacity={0.8}
         >

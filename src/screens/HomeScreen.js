@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 /**
- * Écran Accueil - Point d'entrée principal de l'application
+ * Home Screen - Point d'entrée principal de l'application
  *
  * Fonctionnalités :
  * - Recherche textuelle par titre/auteur/ISBN
@@ -15,7 +15,7 @@ import { useState } from 'react';
  * - État local pour la recherche
  * - Prêt pour l'intégration avec BookService
  */
-export default function AccueilScreen({ navigation }) {
+export default function HomeScreen({ navigation }) {
   // État pour le champ de recherche
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -119,7 +119,7 @@ export default function AccueilScreen({ navigation }) {
 
         {/* Carte Bibliothèque */}
         <TouchableOpacity
-          onPress={() => navigation.navigate('Bibliothèque')}
+          onPress={() => navigation.navigate('Voir mes livres')}
           className="bg-white rounded-lg p-4 mb-3 flex-row items-center shadow-sm"
           activeOpacity={0.7}
         >

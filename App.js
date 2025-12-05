@@ -6,12 +6,12 @@ import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // Import des écrans
-import AccueilScreen from './screens/AccueilScreen';
-import BibliothequeScreen from './screens/BibliothequeScreen';
-import ProfilScreen from './screens/ProfilScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import LibraryScreen from './src/screens/LibraryScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
 // Import du drawer personnalisé
-import CustomDrawerContent from './components/CustomDrawerContent';
+import CustomDrawerContent from './src/components/CustomDrawerContent';
 
 const Drawer = createDrawerNavigator();
 const Stack = createNativeStackNavigator();
@@ -52,12 +52,12 @@ const getScreenOptions = (navigation) => ({
  * Stack Navigator pour l'écran Accueil
  * Permet d'avoir une navigation en stack si besoin de sous-écrans
  */
-function AccueilStack() {
+function HomeStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="AccueilMain"
-        component={AccueilScreen}
+        name="HomeMain"
+        component={HomeScreen}
         options={({ navigation }) => ({
           title: 'Accueil',
           ...getScreenOptions(navigation),
@@ -70,12 +70,12 @@ function AccueilStack() {
 /**
  * Stack Navigator pour l'écran Bibliothèque
  */
-function BibliothequeStack() {
+function LibraryStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="BibliothequeMain"
-        component={BibliothequeScreen}
+        name="LibraryMain"
+        component={LibraryScreen}
         options={({ navigation }) => ({
           title: 'Bibliothèque',
           ...getScreenOptions(navigation),
@@ -88,12 +88,12 @@ function BibliothequeStack() {
 /**
  * Stack Navigator pour l'écran Profil
  */
-function ProfilStack() {
+function ProfileStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="ProfilMain"
-        component={ProfilScreen}
+        name="ProfileMain"
+        component={ProfileScreen}
         options={({ navigation }) => ({
           title: 'Profil',
           ...getScreenOptions(navigation),
@@ -131,7 +131,7 @@ export default function App() {
         {/* Écran Accueil */}
         <Drawer.Screen
           name="Scanner un livre"
-          component={AccueilStack}
+          component={HomeStack}
           options={{
             drawerIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
@@ -142,7 +142,7 @@ export default function App() {
         {/* Écran Bibliothèque */}
         <Drawer.Screen
           name="Voir mes livres"
-          component={BibliothequeStack}
+          component={LibraryStack}
           options={{
             drawerIcon: ({ color, size }) => (
               <Ionicons name="library-outline" size={size} color={color} />
@@ -153,7 +153,7 @@ export default function App() {
         {/* Écran Profil */}
         <Drawer.Screen
           name="Profil"
-          component={ProfilStack}
+          component={ProfileStack}
           options={{
             drawerIcon: ({ color, size }) => (
               <Ionicons name="person-outline" size={size} color={color} />

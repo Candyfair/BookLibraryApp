@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 /**
- * Écran Profil - Gestion du compte utilisateur et paramètres
+ * Profile Screen - Gestion du compte utilisateur et paramètres
  *
  * Fonctionnalités :
  * - Authentification Google & Apple (via Expo AuthSession)
@@ -17,7 +17,7 @@ import { useState } from 'react';
  * - Prêt pour l'intégration Firebase Auth
  * - Design modulaire avec sections
  */
-export default function ProfilScreen({ navigation }) {
+export default function ProfileScreen({ navigation }) {
   // État utilisateur - À remplacer par le contexte AuthService
   const [user, setUser] = useState(null);
 
