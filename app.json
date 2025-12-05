@@ -1,11 +1,12 @@
 {
   "expo": {
     "name": "BookLibraryApp",
-    "slug": "BookLibraryApp",
+    "slug": "book-library-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "scheme": "booklibrary",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -33,6 +34,8 @@
       ]
     },
     "web": {
+      "bundler": "metro",
+      "output": "static",
       "favicon": "./assets/favicon.png"
     },
     "extra": {
