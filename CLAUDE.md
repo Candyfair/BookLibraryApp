@@ -5,13 +5,17 @@
 
 ---
 
-## 🆕 Dernières Mises à Jour (5 décembre 2025)
+## 🆕 Dernières Mises à Jour (7 décembre 2025)
 
 ### ✅ Accomplissements Récents
 
 - **Phase 1 Foundation complétée** : Navigation, écrans, styling, configuration EAS
 - **EAS Build configuré** : Project ID `41b31d57-375b-4256-96ac-ddbe988a1e37`
-- **Restructuration architecture** : Fichiers déplacés dans `src/` avec noms en anglais
+- **Restructuration architecture complète** :
+  - ✅ Fichiers de navigation déplacés dans `src/navigation/`
+  - ✅ Architecture modulaire avec fichiers séparés (RootNavigator, DrawerNavigator, HomeStack, LibraryStack, ProfileStack)
+  - ✅ Noms de fichiers et fonctions en anglais
+  - ✅ Écran Profil masqué du Drawer (accessible uniquement via icône header)
 - **Migration vers expo-camera** : Remplacement de expo-barcode-scanner (incompatible Expo 54)
 - **Packages natifs réinstallés** : expo-camera + authentification Google/Apple
 - **Tests sur appareil Android** : Development Build fonctionnel sur appareil physique
@@ -21,26 +25,35 @@
   - ✅ Build iOS corrigé (suppression packages natifs non configurés)
   - ✅ `appVersionSource: remote` configuré
   - ✅ Suppression des fichiers `app/` non utilisés (conflit avec React Navigation)
-  - ✅ Suppression du fichier `Drawer.js` inutilisé (Expo Router)
+  - ✅ Suppression du fichier `Drawer.js` inutilisé à la racine
   - ✅ Architecture standardisée avec dossier `src/`
+  - ✅ Utilisation de `<Pressable>` au lieu de `<TouchableOpacity>` dans toute la navigation
+  - ✅ Configuration Babel corrigée : `babel-preset-expo` installé
+  - ✅ Plugin `nativewind/babel` retiré (incompatible avec NativeWind v4)
+  - ✅ Tailwind content paths mis à jour (`./src/**`)
+  - ✅ ESLint configuré avec `requireConfigFile: false`
 
 ### 📦 Packages Actuellement Installés
 
 **Navigation & UI :**
+
 - `@react-navigation/native`, `@react-navigation/drawer`, `@react-navigation/native-stack`
 - `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, `react-native-reanimated`
 - `nativewind`, `tailwindcss`
 
 **Expo & Outils :**
+
 - `expo` (SDK 54.0.26), `expo-dev-client`, `expo-status-bar`
 - `axios`, `@react-native-async-storage/async-storage`
 
 **Packages Natifs (Installés mais non configurés) :**
+
 - ✅ `expo-camera` - Caméra et scanner de codes-barres (compatible Expo 54, remplace expo-barcode-scanner)
 - ✅ `@react-native-google-signin/google-signin` - Auth Google (config requise)
 - ✅ `@invertase/react-native-apple-authentication` - Auth Apple (config requise)
 
 **À Installer :**
+
 - `expo-sqlite` - Base de données locale
 
 > **Note :** Les packages natifs sont installés mais nécessitent une configuration supplémentaire dans `app.json` et des credentials (Google OAuth, Apple Developer) avant utilisation.
@@ -76,59 +89,60 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 
 ### Stack Principale
 
-| Technologie | Version | Usage |
-|-------------|---------|-------|
-| **Expo SDK** | 54.0.26 | Framework React Native managé |
-| **React Native** | 0.81.5 | Framework mobile |
-| **React** | 19.1.0 | Librairie UI |
-| **JavaScript** | ES6+ | Langage principal |
-| **NativeWind** | 4.2.1 | Styling (Tailwind CSS pour RN) |
+| Technologie      | Version | Usage                          |
+| ---------------- | ------- | ------------------------------ |
+| **Expo SDK**     | 54.0.26 | Framework React Native managé  |
+| **React Native** | 0.81.5  | Framework mobile               |
+| **React**        | 19.1.0  | Librairie UI                   |
+| **JavaScript**   | ES6+    | Langage principal              |
+| **NativeWind**   | 4.2.1   | Styling (Tailwind CSS pour RN) |
 
 ### Navigation
 
-| Package | Version | Usage |
-|---------|---------|-------|
-| `@react-navigation/native` | 7.1.24 | Core navigation |
-| `@react-navigation/drawer` | 7.7.8 | Menu latéral |
-| `@react-navigation/native-stack` | 7.8.5 | Navigation en stack |
-| `react-native-screens` | 4.16.0 | Optimisation écrans natifs |
-| `react-native-safe-area-context` | 5.6.0 | Safe areas (notch, etc.) |
-| `react-native-gesture-handler` | 2.28.0 | Gestion gestures natives |
-| `react-native-reanimated` | 4.1.1 | Animations performantes |
+| Package                          | Version | Usage                      |
+| -------------------------------- | ------- | -------------------------- |
+| `@react-navigation/native`       | 7.1.24  | Core navigation            |
+| `@react-navigation/drawer`       | 7.7.8   | Menu latéral               |
+| `@react-navigation/native-stack` | 7.8.5   | Navigation en stack        |
+| `react-native-screens`           | 4.16.0  | Optimisation écrans natifs |
+| `react-native-safe-area-context` | 5.6.0   | Safe areas (notch, etc.)   |
+| `react-native-gesture-handler`   | 2.28.0  | Gestion gestures natives   |
+| `react-native-reanimated`        | 4.1.1   | Animations performantes    |
 
 > **Note :** Le projet utilise **React Navigation** (Drawer + Stack) et **non Expo Router**. Un dossier `app/` contenant des fichiers avec Expo Router a été supprimé pour éviter toute confusion.
 
 ### APIs & Services
 
-| API | Usage | Fallback |
-|-----|-------|----------|
-| **Google Books API** | Récupération données livres (titre, auteur, couverture, ISBN, description, etc.) | OpenLibrary |
-| **OpenLibrary API** | API de secours si Google Books ne trouve rien | Création manuelle |
+| API                  | Usage                                                                            | Fallback          |
+| -------------------- | -------------------------------------------------------------------------------- | ----------------- |
+| **Google Books API** | Récupération données livres (titre, auteur, couverture, ISBN, description, etc.) | OpenLibrary       |
+| **OpenLibrary API**  | API de secours si Google Books ne trouve rien                                    | Création manuelle |
 
 ### Stockage & Données
 
-| Package | Usage | Statut |
-|---------|-------|--------|
-| `expo-sqlite` | Base de données locale (livres, notes, statuts) | ⏳ À installer |
-| `@react-native-async-storage/async-storage` | Préférences utilisateur, cache temporaire | ✅ Installé |
+| Package                                     | Usage                                           | Statut         |
+| ------------------------------------------- | ----------------------------------------------- | -------------- |
+| `expo-sqlite`                               | Base de données locale (livres, notes, statuts) | ⏳ À installer |
+| `@react-native-async-storage/async-storage` | Préférences utilisateur, cache temporaire       | ✅ Installé    |
 
 ### Fonctionnalités Natives
 
-| Package | Usage | Statut |
-|---------|-------|--------|
-| `expo-dev-client` | Development Build (remplace Expo Go) | ✅ Installé |
-| `expo-camera` | Caméra et scanner de codes-barres (remplace expo-barcode-scanner) | ✅ Installé - Plugin auto-configuré |
-| `@react-native-google-signin/google-signin` | Sign in avec Google | ✅ Installé - Configuration manuelle requise |
-| `@invertase/react-native-apple-authentication` | Sign in avec Apple | ✅ Installé - Configuration manuelle requise |
-| `axios` | Requêtes HTTP vers APIs | ✅ Installé |
+| Package                                        | Usage                                                             | Statut                                       |
+| ---------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------- |
+| `expo-dev-client`                              | Development Build (remplace Expo Go)                              | ✅ Installé                                  |
+| `expo-camera`                                  | Caméra et scanner de codes-barres (remplace expo-barcode-scanner) | ✅ Installé - Plugin auto-configuré          |
+| `@react-native-google-signin/google-signin`    | Sign in avec Google                                               | ✅ Installé - Configuration manuelle requise |
+| `@invertase/react-native-apple-authentication` | Sign in avec Apple                                                | ✅ Installé - Configuration manuelle requise |
+| `axios`                                        | Requêtes HTTP vers APIs                                           | ✅ Installé                                  |
 
 ### À Installer Plus Tard
 
-| Package | Usage | Raison |
-|---------|-------|--------|
+| Package       | Usage                  | Raison                                                     |
+| ------------- | ---------------------- | ---------------------------------------------------------- |
 | `expo-sqlite` | Base de données locale | ⏳ À installer lors de l'implémentation du DatabaseService |
 
 > **Note :** Les packages natifs d'authentification nécessitent une configuration supplémentaire :
+>
 > - **Google Sign-In** : Nécessite OAuth Client ID (Google Cloud Console) + configuration dans `app.json`
 > - **Apple Sign-In** : Nécessite Apple Developer Account + Service ID + configuration dans `app.json`
 > - **expo-camera** : Plugin déjà ajouté automatiquement par `npx expo install`, supporte la détection de codes-barres via `barCodeScannerSettings`
@@ -139,7 +153,7 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 
 ```
 BookLibraryApp/
-├── App.js                          # Point d'entrée navigation
+├── App.js                          # Point d'entrée (SafeAreaProvider + RootNavigator)
 ├── index.js                        # Enregistrement app Expo
 ├── app.json                        # Config Expo (bundleId, permissions, etc.)
 ├── eas.json                        # Config EAS Build (dev, preview, prod)
@@ -149,6 +163,13 @@ BookLibraryApp/
 ├── global.css                      # Styles Tailwind de base
 │
 ├── src/                            # Code source principal
+│   ├── navigation/                 # Configuration navigation
+│   │   ├── RootNavigator.js        # NavigationContainer + DrawerNavigator
+│   │   ├── DrawerNavigator.js      # Drawer (Home + Library visible, Profil masqué)
+│   │   ├── HomeStack.js            # Stack Accueil + header (burger + profil)
+│   │   ├── LibraryStack.js         # Stack Bibliothèque + header (burger + profil)
+│   │   └── ProfileStack.js         # Stack Profil + header (burger seulement)
+│   │
 │   ├── screens/                    # Écrans de l'application
 │   │   ├── HomeScreen.js           # Écran d'accueil (recherche + scan)
 │   │   ├── LibraryScreen.js        # Grille de livres + filtres
@@ -184,10 +205,13 @@ BookLibraryApp/
 ```
 
 > **Changements récents :**
-> - Tous les fichiers de code déplacés dans `src/`
-> - Noms de fichiers et fonctions en anglais (ex: `HomeScreen`, `LibraryScreen`, `ProfileScreen`)
-> - Textes utilisateur restent en français
-> - Suppression du fichier `Drawer.js` inutilisé à la racine
+>
+> - ✅ **Architecture navigation modulaire** : Fichiers séparés dans `src/navigation/`
+> - ✅ **Headers personnalisés** : Chaque Stack avec boutons (burger + profil sauf ProfileStack)
+> - ✅ **Profil masqué du Drawer** : `drawerItemStyle: { display: 'none' }` (accessible via icône)
+> - ✅ **Composants Pressable** : Remplacement de TouchableOpacity partout
+> - ✅ Noms de fichiers et fonctions en anglais
+> - ✅ Textes utilisateur en français
 
 ---
 
@@ -195,14 +219,14 @@ BookLibraryApp/
 
 ### Palette de Couleurs
 
-| Couleur | Classe Tailwind | Usage |
-|---------|-----------------|-------|
-| **Bleu primaire** | `bg-blue-500` `#3b82f6` | Boutons principaux, liens actifs |
-| **Indigo** | `bg-indigo-500` `#6366f1` | Bouton scanner, accents |
-| **Gris sombre** | `bg-gray-800` `#1e293b` | Headers, texte principal |
-| **Gris clair** | `bg-gray-50` `#f8fafc` | Backgrounds, drawer |
-| **Vert** | `bg-green-500` `#22c55e` | Statut "lu", succès |
-| **Rouge** | `bg-red-500` `#ef4444` | Wishlist, favoris, erreurs |
+| Couleur           | Classe Tailwind           | Usage                            |
+| ----------------- | ------------------------- | -------------------------------- |
+| **Bleu primaire** | `bg-blue-500` `#3b82f6`   | Boutons principaux, liens actifs |
+| **Indigo**        | `bg-indigo-500` `#6366f1` | Bouton scanner, accents          |
+| **Gris sombre**   | `bg-gray-800` `#1e293b`   | Headers, texte principal         |
+| **Gris clair**    | `bg-gray-50` `#f8fafc`    | Backgrounds, drawer              |
+| **Vert**          | `bg-green-500` `#22c55e`  | Statut "lu", succès              |
+| **Rouge**         | `bg-red-500` `#ef4444`    | Wishlist, favoris, erreurs       |
 
 ### Composants Standards
 
@@ -253,6 +277,7 @@ eas build:cancel             # Annuler un build en cours
 ### 1. **Écran Accueil** (`src/screens/HomeScreen.js`)
 
 **Fonctionnalités :**
+
 - Barre de recherche textuelle (titre, auteur, ISBN)
 - Bouton "Rechercher" (appel API Google Books)
 - Bouton "Scanner" (ouverture scanner ISBN)
@@ -266,6 +291,7 @@ eas build:cancel             # Annuler un build en cours
 ### 2. **Écran Bibliothèque** (`src/screens/LibraryScreen.js`)
 
 **Fonctionnalités :**
+
 - Grille 2 colonnes avec FlatList optimisée
 - Filtres horizontaux (Tous, Lus, En cours, Wishlist, Prêtés, Empruntés)
 - Compteur de livres dynamique
@@ -282,11 +308,13 @@ eas build:cancel             # Annuler un build en cours
 **Fonctionnalités :**
 
 **Mode non connecté :**
+
 - Boutons "Continuer avec Google"
 - Boutons "Continuer avec Apple"
 - Message info "Auth optionnelle"
 
 **Mode connecté :**
+
 - Avatar utilisateur (photo ou initiales)
 - Nom et email
 - Statistiques rapides (Total livres, Lus, Wishlist)
@@ -300,13 +328,43 @@ eas build:cancel             # Annuler un build en cours
 ### 4. **Menu Drawer** (`src/components/CustomDrawerContent.js`)
 
 **Fonctionnalités :**
+
 - Header avec logo et titre
 - Statistiques en un coup d'œil (Total, Lus, Wishlist)
-- Navigation automatique (Accueil, Bibliothèque, Profil)
+- Navigation automatique (Accueil, Bibliothèque)
+- Écran Profil masqué (accessible uniquement via icône header)
 - Liens rapides (Statistiques, Paramètres, Aide)
 - Footer avec version
 
 **État actuel :** ✅ Complet
+
+---
+
+### 5. **Architecture Navigation**
+
+**Hiérarchie :**
+
+```
+App.js (SafeAreaProvider)
+  └─ RootNavigator (NavigationContainer)
+      └─ DrawerNavigator
+          ├─ HomeStack
+          │   └─ HomeMain (HomeScreen)
+          ├─ LibraryStack
+          │   └─ LibraryMain (LibraryScreen)
+          └─ ProfileStack (masqué du Drawer)
+              └─ ProfileMain (ProfileScreen)
+```
+
+**Headers personnalisés :**
+
+- **HomeStack & LibraryStack** : Bouton burger (gauche) + icône profil (droite)
+- **ProfileStack** : Bouton burger (gauche) uniquement
+
+**Navigation vers Profil :**
+
+- Depuis Home/Library : Clic sur icône `person-circle-outline` (headerRight)
+- Navigation : `navigation.navigate('Profil')` (nom du Drawer.Screen)
 
 ---
 
@@ -315,6 +373,7 @@ eas build:cancel             # Annuler un build en cours
 ### Profils de Build
 
 #### **Development** (en cours)
+
 ```json
 {
   "developmentClient": true,
@@ -323,16 +382,19 @@ eas build:cancel             # Annuler un build en cours
   "android": { "buildType": "apk" }
 }
 ```
+
 - **Usage** : Développement quotidien
 - **Inclut** : Expo Dev Client, Fast Refresh, Debugging
 - **Output** : APK Android ou .app iOS Simulator
 
 #### **Preview**
+
 - **Usage** : Tests internes avant production
 - **Distribution** : Interne uniquement
 - **Output** : APK optimisé (pas de Dev Client)
 
 #### **Production**
+
 - **Usage** : Publication App Store / Google Play
 - **Output** : Version finale minifiée et signée
 
@@ -346,11 +408,13 @@ eas build:cancel             # Annuler un build en cours
 ### Permissions Configurées
 
 **Android** (`app.json:26-30`) :
+
 - `CAMERA` → Scanner ISBN
 - `READ_EXTERNAL_STORAGE` → Accès images
 - `WRITE_EXTERNAL_STORAGE` → Sauvegarde données
 
 **iOS** :
+
 - Demandées au runtime via plugins Expo
 
 ---
@@ -359,47 +423,47 @@ eas build:cancel             # Annuler un build en cours
 
 ### Table `books`
 
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `id` | INTEGER PRIMARY KEY | ID auto-incrémenté |
-| `isbn` | TEXT UNIQUE | ISBN-10 ou ISBN-13 |
-| `title` | TEXT NOT NULL | Titre du livre |
-| `author` | TEXT | Auteur principal |
-| `description` | TEXT | Résumé du livre |
-| `cover_url` | TEXT | URL image de couverture |
-| `publisher` | TEXT | Éditeur |
-| `published_date` | TEXT | Date de publication |
-| `page_count` | INTEGER | Nombre de pages |
-| `language` | TEXT | Code langue (fr, en, etc.) |
-| `categories` | TEXT | Genres (JSON array) |
-| `created_at` | DATETIME | Date d'ajout dans la bibliothèque |
-| `updated_at` | DATETIME | Dernière modification |
+| Colonne          | Type                | Description                       |
+| ---------------- | ------------------- | --------------------------------- |
+| `id`             | INTEGER PRIMARY KEY | ID auto-incrémenté                |
+| `isbn`           | TEXT UNIQUE         | ISBN-10 ou ISBN-13                |
+| `title`          | TEXT NOT NULL       | Titre du livre                    |
+| `author`         | TEXT                | Auteur principal                  |
+| `description`    | TEXT                | Résumé du livre                   |
+| `cover_url`      | TEXT                | URL image de couverture           |
+| `publisher`      | TEXT                | Éditeur                           |
+| `published_date` | TEXT                | Date de publication               |
+| `page_count`     | INTEGER             | Nombre de pages                   |
+| `language`       | TEXT                | Code langue (fr, en, etc.)        |
+| `categories`     | TEXT                | Genres (JSON array)               |
+| `created_at`     | DATETIME            | Date d'ajout dans la bibliothèque |
+| `updated_at`     | DATETIME            | Dernière modification             |
 
 ### Table `user_book_data`
 
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `id` | INTEGER PRIMARY KEY | ID auto-incrémenté |
-| `book_id` | INTEGER FOREIGN KEY | Référence vers `books.id` |
-| `status` | TEXT | `to_read`, `reading`, `read`, `wishlist` |
-| `is_favorite` | BOOLEAN | Livre favori (0/1) |
-| `personal_rating` | INTEGER | Note personnelle (1-5) |
-| `notes` | TEXT | Notes personnelles |
-| `lent_to` | TEXT | Nom de la personne (si prêté) |
-| `lent_date` | DATETIME | Date du prêt |
-| `borrowed_from` | TEXT | Nom de la personne (si emprunté) |
-| `borrowed_date` | DATETIME | Date de l'emprunt |
-| `read_date` | DATETIME | Date de lecture (si lu) |
+| Colonne           | Type                | Description                              |
+| ----------------- | ------------------- | ---------------------------------------- |
+| `id`              | INTEGER PRIMARY KEY | ID auto-incrémenté                       |
+| `book_id`         | INTEGER FOREIGN KEY | Référence vers `books.id`                |
+| `status`          | TEXT                | `to_read`, `reading`, `read`, `wishlist` |
+| `is_favorite`     | BOOLEAN             | Livre favori (0/1)                       |
+| `personal_rating` | INTEGER             | Note personnelle (1-5)                   |
+| `notes`           | TEXT                | Notes personnelles                       |
+| `lent_to`         | TEXT                | Nom de la personne (si prêté)            |
+| `lent_date`       | DATETIME            | Date du prêt                             |
+| `borrowed_from`   | TEXT                | Nom de la personne (si emprunté)         |
+| `borrowed_date`   | DATETIME            | Date de l'emprunt                        |
+| `read_date`       | DATETIME            | Date de lecture (si lu)                  |
 
 ### Table `reading_sessions` (Future - Statistiques avancées)
 
-| Colonne | Type | Description |
-|---------|------|-------------|
-| `id` | INTEGER PRIMARY KEY | ID auto-incrémenté |
-| `book_id` | INTEGER FOREIGN KEY | Référence vers `books.id` |
-| `start_date` | DATETIME | Début de la session |
-| `end_date` | DATETIME | Fin de la session |
-| `pages_read` | INTEGER | Pages lues |
+| Colonne      | Type                | Description               |
+| ------------ | ------------------- | ------------------------- |
+| `id`         | INTEGER PRIMARY KEY | ID auto-incrémenté        |
+| `book_id`    | INTEGER FOREIGN KEY | Référence vers `books.id` |
+| `start_date` | DATETIME            | Début de la session       |
+| `end_date`   | DATETIME            | Fin de la session         |
+| `pages_read` | INTEGER             | Pages lues                |
 
 ---
 
@@ -408,22 +472,26 @@ eas build:cancel             # Annuler un build en cours
 ### Google Books API
 
 **Endpoint de recherche :**
+
 ```
 GET https://www.googleapis.com/books/v1/volumes?q={query}
 ```
 
 **Paramètres :**
+
 - `q` : Requête (titre, auteur, ISBN)
 - `maxResults` : Nombre de résultats (défaut: 10)
 - `printType` : `books` (exclut magazines)
 - `langRestrict` : `fr` (optionnel)
 
 **Exemple recherche par ISBN :**
+
 ```
 GET https://www.googleapis.com/books/v1/volumes?q=isbn:9782253004226
 ```
 
 **Structure réponse :**
+
 ```json
 {
   "items": [
@@ -455,20 +523,23 @@ GET https://www.googleapis.com/books/v1/volumes?q=isbn:9782253004226
 ### OpenLibrary API
 
 **Endpoint recherche ISBN :**
+
 ```
 GET https://openlibrary.org/isbn/{isbn}.json
 ```
 
 **Endpoint recherche textuelle :**
+
 ```
 GET https://openlibrary.org/search.json?q={query}
 ```
 
 **Structure réponse :**
+
 ```json
 {
   "title": "The Lord of the Rings",
-  "authors": [{"name": "J.R.R. Tolkien"}],
+  "authors": [{ "name": "J.R.R. Tolkien" }],
   "publishers": ["Houghton Mifflin"],
   "publish_date": "1954",
   "number_of_pages": 1178,
@@ -478,6 +549,7 @@ GET https://openlibrary.org/search.json?q={query}
 ```
 
 **Construction URL couverture :**
+
 ```
 https://covers.openlibrary.org/b/id/{cover_id}-L.jpg
 ```
@@ -572,6 +644,7 @@ LIMIT 5
 **Fichier** : `services/BookService.js`
 
 **Méthodes :**
+
 ```javascript
 // Recherche par ISBN
 searchByISBN(isbn) → Promise<Book>
@@ -596,6 +669,7 @@ normalizeBookData(rawData, source) → Book
 **Fichier** : `services/DatabaseService.js`
 
 **Méthodes :**
+
 ```javascript
 // Initialisation DB
 initDatabase() → Promise<void>
@@ -623,6 +697,7 @@ getStats() → Promise<Stats>
 **Fichier** : `src/screens/ScanScreen.js`
 
 **Fonctionnalités :**
+
 - Caméra avec `expo-camera`
 - Détection automatique ISBN (EAN-13, EAN-8) via `barCodeScannerSettings`
 - Overlay UI avec guide de scan
@@ -630,6 +705,7 @@ getStats() → Promise<Stats>
 - Appel automatique BookService après scan
 
 **Note technique :**
+
 - `expo-camera` remplace `expo-barcode-scanner` (incompatible avec Expo SDK 54)
 - Utilise la prop `barCodeScannerSettings` pour activer le scan de codes-barres
 
@@ -640,6 +716,7 @@ getStats() → Promise<Stats>
 **Fichier** : `src/screens/BookDetailScreen.js`
 
 **Fonctionnalités :**
+
 - Affichage couverture + infos livre
 - Boutons action (Marquer comme lu, Ajouter wishlist, etc.)
 - Champs personnalisables (Notes, Rating, Prêt/Emprunt)
@@ -652,6 +729,7 @@ getStats() → Promise<Stats>
 **Fichier** : `services/AuthService.js`
 
 **Méthodes :**
+
 ```javascript
 // Google Sign-In
 loginWithGoogle() → Promise<User>
@@ -673,6 +751,7 @@ getCurrentUser() → User | null
 **Fichier** : `services/StatsService.js`
 
 **Méthodes :**
+
 ```javascript
 // Stats globales
 getGlobalStats() → Promise<Stats>
@@ -691,12 +770,14 @@ getTopGenres(limit) → Promise<Genre[]>
 ### ❌ Problème 1 : Expo Go + Worklets Mismatch
 
 **Erreur :**
+
 ```
 WorkletsError: [Worklets] Mismatch between JavaScript part
 and native part of Worklets (0.6.1 vs 0.5.1)
 ```
 
 **Cause :**
+
 - Expo Go SDK 54 embarque `react-native-worklets-core` 0.5.1
 - `react-native-reanimated` 4.x (dépendance du Drawer) requiert 0.6.1
 
@@ -708,14 +789,16 @@ and native part of Worklets (0.6.1 vs 0.5.1)
 ### ✅ Problème 2 : NativeWind Configuration
 
 **Erreur initiale :**
+
 ```
 Tailwind CSS has not been configured with the NativeWind preset
 ```
 
 **Solution appliquée :**
 Ajout dans [tailwind.config.js:8](tailwind.config.js#L8) :
+
 ```javascript
-presets: [require('nativewind/preset')]
+presets: [require('nativewind/preset')];
 ```
 
 ---
@@ -723,6 +806,7 @@ presets: [require('nativewind/preset')]
 ### ✅ Problème 3 : Incompatibilité expo-barcode-scanner avec Expo SDK 54 (RÉSOLU)
 
 **Erreur initiale (build iOS) :**
+
 ```
 🍏 iOS build failed:
 'ExpoModulesCore/EXBarcodeScannerInterface.h' file not found
@@ -730,12 +814,14 @@ could not build Objective-C module 'EXBarCodeScanner'
 ```
 
 **Erreur Android (après réinstallation) :**
+
 ```
 🤖 Android build failed:
 expo-barcode-scanner incompatible avec Expo SDK 54
 ```
 
 **Cause :**
+
 - `expo-barcode-scanner` est **obsolète et incompatible** avec Expo SDK 54
 - Ce package a été déprécié au profit de `expo-camera`
 - EAS Build échoue même avec le plugin auto-configuré
@@ -746,16 +832,19 @@ expo-barcode-scanner incompatible avec Expo SDK 54
 ✅ **Phase 3 (migration finale)** : Remplacement par `expo-camera` (compatible Expo SDK 54)
 
 **Migration vers expo-camera :**
+
 ```bash
 npm uninstall expo-barcode-scanner
 npx expo install expo-camera
 ```
 
 **Différences clés :**
+
 - `expo-barcode-scanner` : Package dédié (déprécié)
 - `expo-camera` : Package unifié caméra + scan de codes-barres via `barCodeScannerSettings`
 
 **Statut actuel :**
+
 - ✅ `expo-camera` installé et compatible avec Expo SDK 54
 - ✅ Build Android Development fonctionnel
 - ⏳ Implémentation du scanner dans ScanScreen à venir
@@ -765,17 +854,20 @@ npx expo install expo-camera
 ### ✅ Problème 4 : EAS CLI - appVersionSource Warning
 
 **Avertissement :**
+
 ```
 The field "cli.appVersionSource" is not set, but it will be required in the future.
 ```
 
 **Solution appliquée :**
 Ajout dans [eas.json:4](eas.json#L4) :
+
 ```json
 "appVersionSource": "remote"
 ```
 
 **Explication :**
+
 - `"remote"` : EAS gère automatiquement les versions de build
 - `"local"` : Utilise la version depuis `app.json` (manuel)
 
@@ -784,6 +876,7 @@ Ajout dans [eas.json:4](eas.json#L4) :
 ### ✅ Problème 5 : Dossier `app/` et `Drawer.js` Non Utilisés
 
 **Contexte :**
+
 - Un dossier `app/` existait avec des fichiers utilisant **Expo Router** (`router.push`, file-based routing)
 - Un fichier `Drawer.js` à la racine utilisait également Expo Router
 - Le projet utilise en réalité **React Navigation** (Drawer + Stack)
@@ -793,6 +886,7 @@ Ajout dans [eas.json:4](eas.json#L4) :
 ✅ Suppression du dossier `app/` et du fichier `Drawer.js` pour éviter la confusion entre deux architectures de navigation parallèles
 
 **Fichiers supprimés :**
+
 - `app/index.js` - Écran d'accueil alternatif
 - `app/library.js` - Écran bibliothèque alternatif
 - `app/profile.js` - Écran profil alternatif
@@ -800,9 +894,76 @@ Ajout dans [eas.json:4](eas.json#L4) :
 - `Drawer.js` - Configuration Expo Router inutilisée
 
 **Restructuration effectuée :**
+
 - Tous les fichiers déplacés dans `src/`
 - Noms de fichiers et fonctions convertis en anglais
 - Textes utilisateur conservés en français
+
+---
+
+### ✅ Problème 6 : Configuration Babel et NativeWind v4 (RÉSOLU)
+
+**Erreurs rencontrées :**
+
+1. `Cannot find module 'babel-preset-expo'`
+2. `[BABEL] .plugins is not a valid Plugin property`
+3. ESLint : "No Babel config file detected"
+4. Styles Tailwind ne s'appliquent pas
+
+**Causes :**
+
+- Package `babel-preset-expo` manquant (non installé par défaut)
+- Plugin `nativewind/babel` incompatible avec NativeWind v4
+- Tailwind `content` paths pointaient vers `./screens/` au lieu de `./src/`
+- ESLint nécessitait `requireConfigFile: false`
+
+**Solutions appliquées :**
+
+1. **Installation babel-preset-expo** :
+
+```bash
+npm install --save-dev babel-preset-expo
+```
+
+2. **Configuration babel.config.js** :
+
+```javascript
+module.exports = {
+  presets: ['babel-preset-expo'],
+  plugins: [
+    'react-native-reanimated/plugin', // Doit être en dernier
+  ],
+};
+```
+
+**Note :** Le plugin `nativewind/babel` a été **retiré** car incompatible avec NativeWind v4 (qui fonctionne uniquement via Metro)
+
+3. **Correction tailwind.config.js** :
+
+```javascript
+content: [
+  "./App.{js,jsx,ts,tsx}",
+  "./src/**/*.{js,jsx,ts,tsx}", // Avant: ./screens/**, ./components/**
+],
+```
+
+4. **Configuration ESLint** (.eslintrc.js) :
+
+```javascript
+parserOptions: {
+  requireConfigFile: false,
+  babelOptions: {
+    presets: ['@babel/preset-react'],
+  },
+},
+```
+
+**Statut actuel :**
+
+- ✅ Babel fonctionne correctement
+- ✅ NativeWind v4 opérationnel (via Metro uniquement)
+- ✅ Styles Tailwind s'appliquent
+- ✅ ESLint ne génère plus d'erreurs
 
 ---
 
@@ -863,6 +1024,7 @@ export default function MonComposant({ onPress }) {
 ## 🎯 Roadmap MVP
 
 ### Phase 1 : Foundation ✅ (Complétée - 5 décembre 2025)
+
 - [x] Setup projet Expo SDK 54
 - [x] Configuration NativeWind avec preset
 - [x] Navigation Drawer + Stack (React Navigation 7)
@@ -878,6 +1040,7 @@ export default function MonComposant({ onPress }) {
 - [x] Migration de expo-barcode-scanner vers expo-camera (Expo SDK 54 compatible)
 
 ### Phase 2 : Core Features 🚧 (En cours)
+
 - [ ] BookService (Google Books + OpenLibrary)
 - [ ] DatabaseService (SQLite)
 - [ ] Scanner ISBN avec expo-camera
@@ -885,12 +1048,14 @@ export default function MonComposant({ onPress }) {
 - [ ] CRUD livres complet
 
 ### Phase 3 : Enhanced Features
+
 - [ ] Filtres avancés bibliothèque
 - [ ] Gestion prêts/emprunts
 - [ ] Notes et rating personnels
 - [ ] Écran Statistiques
 
 ### Phase 4 : Polish
+
 - [ ] Authentification Google/Apple
 - [ ] Optimisation performances
 - [ ] Gestion d'erreurs robuste
@@ -954,6 +1119,7 @@ export default function MonComposant({ onPress }) {
 ## 🤝 Contribution Future
 
 Si ce projet évolue vers l'open-source :
+
 1. Fork le repo
 2. Créer une branche feature (`git checkout -b feature/AmazingFeature`)
 3. Commit (`git commit -m 'Add AmazingFeature'`)
@@ -974,19 +1140,23 @@ Projet personnel - Tous droits réservés (pour le MVP)
 > Cette section ne sera jamais modifiée par Claude, sauf instruction explicite de votre part.
 
 ### Idées & Réflexions
-Librairies à réinstaller :  
-
-
 
 ### TODOs Personnels
-- Ajouter polices
-- Configurer un thème avec couleurs
-- Retirer les headers des pages et utiliser le SafeAreaContext
 
+- Mettre les appels API en place
+- Prévoir le multilangue
+
+Styles :
+
+- Retirer les headers des pages
+- Modifier et refactoriser le code réutilisé pour afficher les icônes en haut des écrans
+- Formater les écrans avec les textes, mais pas encore d'intégration des images
+- Ajouter polices
+- Configurer un thème avec couleurs (mais pas de dark mode)
 
 ### Questions à Résoudre
-- Est-ce que le menu "Profil" doit être mis dans une Stack pour être accessible depuis l'icône sur les pages, mais invisible dans le drawer ?
 
+- Quelle librairie utiliser pour les appels API ?
 
 ---
 
