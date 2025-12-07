@@ -1148,9 +1148,9 @@ Projet personnel - Tous droits réservés (pour le MVP)
 
 Styles :
 
+- Formater les écrans avec les textes (mais pas encore d'intégration des images)
 - Retirer les headers des pages
 - Modifier et refactoriser le code réutilisé pour afficher les icônes en haut des écrans
-- Formater les écrans avec les textes, mais pas encore d'intégration des images
 - Ajouter polices
 - Configurer un thème avec couleurs (mais pas de dark mode)
 

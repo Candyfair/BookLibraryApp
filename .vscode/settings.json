@@ -8,10 +8,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact"
-  ],
+  "eslint.validate": ["javascript", "javascriptreact"],
   "files.associations": {
     "*.js": "javascriptreact"
   },
@@ -28,5 +25,20 @@
     "editor.tabSize": 2
   },
   "prettier.requireConfig": true,
-  "prettier.useEditorConfig": false
+  "prettier.useEditorConfig": false,
+  "tailwindCSS.experimental.classRegex": [
+    ["className\\s*=\\s*['\"`]([^'\"`]*)['\"`]", "([^'\"`]*)"],
+    ["className\\s*=\\s*\\{['\"`]([^'\"`]*)['\"`]\\}", "([^'\"`]*)"]
+  ],
+  "tailwindCSS.includeLanguages": {
+    "javascript": "javascript",
+    "javascriptreact": "javascriptreact"
+  },
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "headerClassName",
+    "contentContainerClassName",
+    "style"
+  ]
 }

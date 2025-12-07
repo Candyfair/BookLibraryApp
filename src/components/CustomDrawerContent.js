@@ -1,5 +1,8 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+} from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
@@ -37,24 +40,20 @@ export default function CustomDrawerContent(props) {
             <Ionicons name="library" size={32} color="#fff" />
           </View>
           <View className="ml-4">
-            <Text className="text-white text-xl font-bold">Ma Bibliothèque</Text>
+            <Text className="text-white text-xl font-bold">
+              Ma Bibliothèque
+            </Text>
           </View>
         </View>
       </View>
 
-
-
       {/* Navigation - Liste automatique des écrans */}
       <View className="flex-1 px-2">
-
         <DrawerItemList {...props} />
       </View>
 
       {/* Spacer */}
       <View className="flex-1" />
-
-
-
 
       {/* Footer */}
       <View className="border-t border-gray-200 p-4 bg-gray-100">

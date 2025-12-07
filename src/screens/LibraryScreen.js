@@ -1,6 +1,8 @@
 import { View, Text, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Header from '../components/Header';
 
 /**
  * Library Screen - Affiche la collection de livres de l'utilisateur
@@ -85,7 +87,10 @@ export default function LibraryScreen({ navigation }) {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-gray-50">
+      {/* Header */}
+      <Header />
+
       {/* Barre de filtres horizontale */}
       <ScrollView
         horizontal
@@ -163,6 +168,6 @@ export default function LibraryScreen({ navigation }) {
           <Ionicons name="add" size={28} color="#fff" />
         </TouchableOpacity>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
