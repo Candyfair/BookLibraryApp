@@ -19,6 +19,143 @@ Prochains objectifs :
 
 ---
 
+## [1.0.0-dev.2] - 2025-12-07
+
+### ✅ Ajouté
+
+**Composants Réutilisables**
+- Création du composant `<Header />` dans `src/components/Header.js`
+  - Bouton burger : ouvre/ferme le Drawer via `navigation.toggleDrawer()`
+  - Bouton profil : navigue vers ProfileStack via `navigation.navigate('Profil')`
+  - Prop `showProfileButton={false}` pour masquer le bouton profil (utilisé sur ProfileScreen)
+  - Utilise NativeWind (classes Tailwind) pour le styling
+
+**Architecture Navigation**
+- Suppression des headers natifs dans tous les Stacks (`headerShown: false`)
+- Intégration du composant `<Header />` dans tous les écrans (HomeScreen, LibraryScreen, ProfileScreen)
+- Utilisation de `useNavigation()` de `@react-navigation/native` dans Header
+
+### 🔧 Modifié
+
+**Configuration Babel** (babel.config.js)
+- Configuration complète pour NativeWind v4 :
+  ```javascript
+  presets: [
+    ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
+    'nativewind/babel',
+  ]
+  ```
+- Plugin `react-native-reanimated/plugin` maintenu en dernier
+
+**Fichiers Navigation**
+- `src/navigation/HomeStack.js` : `headerShown: false`
+- `src/navigation/LibraryStack.js` : `headerShown: false`
+- `src/navigation/ProfileStack.js` : `headerShown: false`
+- Suppression des fonctions `getScreenOptions` inutilisées
+
+**Fichiers Écrans**
+- `src/screens/HomeScreen.js` : Import et utilisation de `<Header />`
+- `src/screens/LibraryScreen.js` : Import et utilisation de `<Header />`
+- `src/screens/ProfileScreen.js` : Import et utilisation de `<Header showProfileButton={false} />`
+
+### 🐛 Corrigé
+
+**Problème 5 : NativeWind v4 ne fonctionnait pas**
+- **Symptôme** : Classes Tailwind non compilées, styles non appliqués
+- **Cause** : Configuration Babel incomplète pour NativeWind v4
+- **Solution** :
+  - Ajout de `jsxImportSource: 'nativewind'` dans babel-preset-expo
+  - Ajout du preset `nativewind/babel`
+  - Redémarrage Metro avec `--clear` pour régénérer le cache
+- **Résultat** : ✅ NativeWind v4 pleinement fonctionnel
+
+**Problème 6 : Icônes Header empilées verticalement**
+- **Symptôme** : Boutons burger et profil affichés l'un au-dessus de l'autre au lieu d'horizontalement
+- **Cause** : Classe `flex-row` seule insuffisante dans certains contextes
+- **Solution** : Ajout de `flex` + `flex-row` ensemble
+- **Alternative appliquée** : Utilisation de NativeWind après correction configuration Babel
+
+### 📝 Documentation
+
+- Mise à jour CLAUDE.md avec :
+  - Section "Refactorisation navigation" dans Accomplissements Récents
+  - Configuration Babel complète documentée
+  - Ajout du composant Header dans la structure du projet
+  - Note sur NativeWind v4 fonctionnel
+
+---
+
+## [1.0.0-dev.1] - 2025-12-05 à 2025-12-06
+
+### ✅ Ajouté
+
+**Restructuration Architecture**
+- Création du dossier `src/` pour tout le code source
+- Création du dossier `src/navigation/` avec fichiers séparés :
+  - `RootNavigator.js` : NavigationContainer principal
+  - `DrawerNavigator.js` : Configuration Drawer avec écrans
+  - `HomeStack.js` : Stack pour l'écran Accueil avec headers personnalisés
+  - `LibraryStack.js` : Stack pour la Bibliothèque avec headers personnalisés
+  - `ProfileStack.js` : Stack pour le Profil avec header burger uniquement
+- Migration de expo-barcode-scanner vers expo-camera (Expo SDK 54 compatible)
+- Réinstallation packages natifs :
+  - `expo-camera`
+  - `@react-native-google-signin/google-signin`
+  - `@invertase/react-native-apple-authentication`
+
+**Navigation**
+- Headers personnalisés dans chaque Stack :
+  - Bouton burger (gauche) : ouvre/ferme le Drawer
+  - Bouton profil (droite) : navigue vers ProfileStack (sauf ProfileStack)
+- Écran Profil masqué du Drawer via `drawerItemStyle: { display: 'none' }`
+- Accessible uniquement via icône profil dans les headers
+
+### 🔧 Modifié
+
+**Organisation Fichiers**
+- Tous les fichiers en anglais (noms de fichiers + fonctions)
+- Textes utilisateur conservés en français
+- Déplacement écrans dans `src/screens/`
+- Déplacement composants dans `src/components/`
+
+**Navigation**
+- Remplacement de `<TouchableOpacity>` par `<Pressable>` dans tous les fichiers de navigation
+- Configuration Drawer avec statistiques en header
+- ProfileStack avec header burger uniquement (pas de bouton profil)
+
+**Configuration**
+- `tailwind.config.js` : Content paths mis à jour vers `./src/**/*.{js,jsx,ts,tsx}`
+- `.eslintrc.js` : Ajout de `requireConfigFile: false` pour compatibilité Babel
+
+### ❌ Supprimé
+
+**Fichiers Conflictuels**
+- Suppression dossier `app/` contenant des fichiers Expo Router non utilisés
+- Suppression fichier `Drawer.js` à la racine (remplacé par architecture modulaire)
+
+**Packages Temporairement Retirés** (pour corriger builds)
+- `expo-barcode-scanner` : Incompatible Expo SDK 54, remplacé par expo-camera
+
+### 🐛 Corrigé
+
+**Problème 3 (suite) : Migration expo-barcode-scanner**
+- **Phase 1** : Suppression temporaire pour corriger build iOS
+- **Phase 2** : Réinstallation → échec build Android (incompatibilité SDK 54)
+- **Phase 3** : Migration vers `expo-camera` avec support `barCodeScannerSettings`
+- **Résultat** : ✅ Compatible Expo SDK 54, build Android Development fonctionnel
+
+**Problème 4 (résolu complètement)**
+- Tests réussis sur appareil Android physique avec Development Build
+- expo-camera installé et prêt à l'emploi
+
+### 📝 Documentation
+
+- Mise à jour CLAUDE.md avec architecture complète
+- Documentation migration expo-barcode-scanner → expo-camera
+- Ajout section "Structure du Projet" avec arborescence détaillée
+
+---
+
 ## [1.0.0-dev] - 2025-12-04
 
 ### ✅ Ajouté

@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { Pressable, View, StyleSheet } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 /**
@@ -16,7 +16,7 @@ export default function Header({ showProfileButton = true }) {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.container}>
+    <View className="flex flex-row justify-between items-center px-4 py-3 bg-white">
       {/* Bouton Menu Burger */}
       <Pressable onPress={() => navigation.toggleDrawer()}>
         <Ionicons name="menu" size={28} color="#000" />
@@ -31,16 +31,3 @@ export default function Header({ showProfileButton = true }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-  },
-});

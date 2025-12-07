@@ -19,6 +19,12 @@
 - **Migration vers expo-camera** : Remplacement de expo-barcode-scanner (incompatible Expo 54)
 - **Packages natifs réinstallés** : expo-camera + authentification Google/Apple
 - **Tests sur appareil Android** : Development Build fonctionnel sur appareil physique
+- **Refactorisation navigation** :
+  - ✅ Composant `<Header />` réutilisable créé dans `src/components/Header.js`
+  - ✅ Headers natifs des Stacks supprimés (`headerShown: false`)
+  - ✅ Header avec bouton burger (toggle Drawer) + bouton profil (navigation vers ProfileStack)
+  - ✅ Bouton profil masqué sur ProfileScreen via prop `showProfileButton={false}`
+  - ✅ Styles inline (StyleSheet) dans Header pour compatibilité maximale
 - **Problèmes résolus** :
   - ✅ NativeWind preset configuré
   - ✅ Worklets mismatch résolu (via Development Build)
@@ -28,10 +34,13 @@
   - ✅ Suppression du fichier `Drawer.js` inutilisé à la racine
   - ✅ Architecture standardisée avec dossier `src/`
   - ✅ Utilisation de `<Pressable>` au lieu de `<TouchableOpacity>` dans toute la navigation
-  - ✅ Configuration Babel corrigée : `babel-preset-expo` installé
-  - ✅ Plugin `nativewind/babel` retiré (incompatible avec NativeWind v4)
+  - ✅ Configuration Babel complète pour NativeWind v4 :
+    - `babel-preset-expo` avec option `jsxImportSource: 'nativewind'`
+    - Preset `nativewind/babel` ajouté
+    - Plugin `react-native-reanimated/plugin` en dernier
   - ✅ Tailwind content paths mis à jour (`./src/**`)
   - ✅ ESLint configuré avec `requireConfigFile: false`
+  - ✅ **NativeWind v4 fonctionnel** : Classes Tailwind compilées correctement
 
 ### 📦 Packages Actuellement Installés
 
@@ -166,9 +175,9 @@ BookLibraryApp/
 │   ├── navigation/                 # Configuration navigation
 │   │   ├── RootNavigator.js        # NavigationContainer + DrawerNavigator
 │   │   ├── DrawerNavigator.js      # Drawer (Home + Library visible, Profil masqué)
-│   │   ├── HomeStack.js            # Stack Accueil + header (burger + profil)
-│   │   ├── LibraryStack.js         # Stack Bibliothèque + header (burger + profil)
-│   │   └── ProfileStack.js         # Stack Profil + header (burger seulement)
+│   │   ├── HomeStack.js            # Stack Accueil (headerShown: false)
+│   │   ├── LibraryStack.js         # Stack Bibliothèque (headerShown: false)
+│   │   └── ProfileStack.js         # Stack Profil (headerShown: false)
 │   │
 │   ├── screens/                    # Écrans de l'application
 │   │   ├── HomeScreen.js           # Écran d'accueil (recherche + scan)
@@ -176,6 +185,7 @@ BookLibraryApp/
 │   │   └── ProfileScreen.js        # Profil utilisateur + auth
 │   │
 │   ├── components/                 # Composants réutilisables
+│   │   ├── Header.js               # Header réutilisable (burger + profil)
 │   │   └── CustomDrawerContent.js # Menu drawer personnalisé
 │   │
 │   ├── services/                   # (À créer) Logique métier
@@ -207,7 +217,12 @@ BookLibraryApp/
 > **Changements récents :**
 >
 > - ✅ **Architecture navigation modulaire** : Fichiers séparés dans `src/navigation/`
-> - ✅ **Headers personnalisés** : Chaque Stack avec boutons (burger + profil sauf ProfileStack)
+> - ✅ **Composant Header réutilisable** : `<Header />` dans `src/components/Header.js`
+>   - Utilise NativeWind (classes Tailwind)
+>   - Bouton burger : `navigation.toggleDrawer()` (ouvre/ferme le Drawer)
+>   - Bouton profil : `navigation.navigate('Profil')` (navigue vers ProfileStack)
+>   - Prop `showProfileButton={false}` pour masquer le bouton profil (ProfileScreen)
+> - ✅ **Headers natifs supprimés** : `headerShown: false` dans tous les Stacks
 > - ✅ **Profil masqué du Drawer** : `drawerItemStyle: { display: 'none' }` (accessible via icône)
 > - ✅ **Composants Pressable** : Remplacement de TouchableOpacity partout
 > - ✅ Noms de fichiers et fonctions en anglais
