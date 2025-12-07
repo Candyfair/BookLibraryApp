@@ -5,6 +5,12 @@ module.exports = {
     'plugin:prettier/recommended',
   ],
   plugins: ['react', 'react-native', 'prettier'],
+  parserOptions: {
+    requireConfigFile: false,
+    babelOptions: {
+      presets: ['@babel/preset-react'],
+    },
+  },
   env: {
     'react-native/react-native': true,
   },
