@@ -5,13 +5,17 @@
 
 ---
 
-## 🆕 Dernières Mises à Jour (5 décembre 2025)
+## 🆕 Dernières Mises à Jour (7 décembre 2025)
 
 ### ✅ Accomplissements Récents
 
 - **Phase 1 Foundation complétée** : Navigation, écrans, styling, configuration EAS
 - **EAS Build configuré** : Project ID `41b31d57-375b-4256-96ac-ddbe988a1e37`
-- **Restructuration architecture** : Fichiers déplacés dans `src/` avec noms en anglais
+- **Restructuration architecture complète** :
+  - ✅ Fichiers de navigation déplacés dans `src/navigation/`
+  - ✅ Architecture modulaire avec fichiers séparés (RootNavigator, DrawerNavigator, HomeStack, LibraryStack, ProfileStack)
+  - ✅ Noms de fichiers et fonctions en anglais
+  - ✅ Écran Profil masqué du Drawer (accessible uniquement via icône header)
 - **Migration vers expo-camera** : Remplacement de expo-barcode-scanner (incompatible Expo 54)
 - **Packages natifs réinstallés** : expo-camera + authentification Google/Apple
 - **Tests sur appareil Android** : Development Build fonctionnel sur appareil physique
@@ -21,8 +25,9 @@
   - ✅ Build iOS corrigé (suppression packages natifs non configurés)
   - ✅ `appVersionSource: remote` configuré
   - ✅ Suppression des fichiers `app/` non utilisés (conflit avec React Navigation)
-  - ✅ Suppression du fichier `Drawer.js` inutilisé (Expo Router)
+  - ✅ Suppression du fichier `Drawer.js` inutilisé à la racine
   - ✅ Architecture standardisée avec dossier `src/`
+  - ✅ Utilisation de `<Pressable>` au lieu de `<TouchableOpacity>` dans toute la navigation
 
 ### 📦 Packages Actuellement Installés
 
@@ -139,7 +144,7 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 
 ```
 BookLibraryApp/
-├── App.js                          # Point d'entrée navigation
+├── App.js                          # Point d'entrée (SafeAreaProvider + RootNavigator)
 ├── index.js                        # Enregistrement app Expo
 ├── app.json                        # Config Expo (bundleId, permissions, etc.)
 ├── eas.json                        # Config EAS Build (dev, preview, prod)
@@ -149,6 +154,13 @@ BookLibraryApp/
 ├── global.css                      # Styles Tailwind de base
 │
 ├── src/                            # Code source principal
+│   ├── navigation/                 # Configuration navigation
+│   │   ├── RootNavigator.js        # NavigationContainer + DrawerNavigator
+│   │   ├── DrawerNavigator.js      # Drawer (Home + Library visible, Profil masqué)
+│   │   ├── HomeStack.js            # Stack Accueil + header (burger + profil)
+│   │   ├── LibraryStack.js         # Stack Bibliothèque + header (burger + profil)
+│   │   └── ProfileStack.js         # Stack Profil + header (burger seulement)
+│   │
 │   ├── screens/                    # Écrans de l'application
 │   │   ├── HomeScreen.js           # Écran d'accueil (recherche + scan)
 │   │   ├── LibraryScreen.js        # Grille de livres + filtres
@@ -184,10 +196,12 @@ BookLibraryApp/
 ```
 
 > **Changements récents :**
-> - Tous les fichiers de code déplacés dans `src/`
-> - Noms de fichiers et fonctions en anglais (ex: `HomeScreen`, `LibraryScreen`, `ProfileScreen`)
-> - Textes utilisateur restent en français
-> - Suppression du fichier `Drawer.js` inutilisé à la racine
+> - ✅ **Architecture navigation modulaire** : Fichiers séparés dans `src/navigation/`
+> - ✅ **Headers personnalisés** : Chaque Stack avec boutons (burger + profil sauf ProfileStack)
+> - ✅ **Profil masqué du Drawer** : `drawerItemStyle: { display: 'none' }` (accessible via icône)
+> - ✅ **Composants Pressable** : Remplacement de TouchableOpacity partout
+> - ✅ Noms de fichiers et fonctions en anglais
+> - ✅ Textes utilisateur en français
 
 ---
 
@@ -302,11 +316,37 @@ eas build:cancel             # Annuler un build en cours
 **Fonctionnalités :**
 - Header avec logo et titre
 - Statistiques en un coup d'œil (Total, Lus, Wishlist)
-- Navigation automatique (Accueil, Bibliothèque, Profil)
+- Navigation automatique (Accueil, Bibliothèque)
+- Écran Profil masqué (accessible uniquement via icône header)
 - Liens rapides (Statistiques, Paramètres, Aide)
 - Footer avec version
 
 **État actuel :** ✅ Complet
+
+---
+
+### 5. **Architecture Navigation**
+
+**Hiérarchie :**
+```
+App.js (SafeAreaProvider)
+  └─ RootNavigator (NavigationContainer)
+      └─ DrawerNavigator
+          ├─ HomeStack
+          │   └─ HomeMain (HomeScreen)
+          ├─ LibraryStack
+          │   └─ LibraryMain (LibraryScreen)
+          └─ ProfileStack (masqué du Drawer)
+              └─ ProfileMain (ProfileScreen)
+```
+
+**Headers personnalisés :**
+- **HomeStack & LibraryStack** : Bouton burger (gauche) + icône profil (droite)
+- **ProfileStack** : Bouton burger (gauche) uniquement
+
+**Navigation vers Profil :**
+- Depuis Home/Library : Clic sur icône `person-circle-outline` (headerRight)
+- Navigation : `navigation.navigate('Profil')` (nom du Drawer.Screen)
 
 ---
 
