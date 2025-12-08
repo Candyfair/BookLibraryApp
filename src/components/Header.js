@@ -16,7 +16,7 @@ export default function Header({ showProfileButton = true }) {
   const navigation = useNavigation();
 
   return (
-    <View className="flex flex-row justify-between items-center px-4 py-3 bg-white">
+    <View className="flex flex-row justify-between items-center px-4 py-3">
       {/* Bouton Menu Burger */}
       <Pressable onPress={() => navigation.toggleDrawer()}>
         <Ionicons name="menu" size={28} color="#000" />
