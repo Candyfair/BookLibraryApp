@@ -10,7 +10,6 @@ import Header from '../components/Header';
  * Fonctionnalités :
  * - Recherche textuelle par titre/auteur/ISBN
  * - Bouton pour scanner un code-barre ISBN
- * - Liste des derniers livres ajoutés (à implémenter avec SQLite)
  *
  * Architecture :
  * - Utilise nativewind pour le styling (classes Tailwind)

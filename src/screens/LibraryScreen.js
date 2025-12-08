@@ -1,4 +1,11 @@
-import { View, Text, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+  Pressable,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,7 +16,7 @@ import Header from '../components/Header';
  *
  * Fonctionnalités :
  * - Grille optimisée de livres (FlatList avec numColumns)
- * - Filtres par statut (Tous, Lus, À lire, Wishlist, Prêtés, Empruntés)
+ * - Filtres par statut (Wishlist, Prêtés, Empruntés)
  * - Filtres par genre (à implémenter avec les données SQLite)
  * - Compteur de livres
  *
@@ -20,19 +27,29 @@ import Header from '../components/Header';
  */
 export default function LibraryScreen({ navigation }) {
   // État pour le filtre de statut actif
-  const [activeFilter, setActiveFilter] = useState('all');
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [activeGenre, setActiveGenres] = useState('all');
 
   // Données de test - À remplacer par les vrais livres depuis SQLite
   const [books, setBooks] = useState([]);
 
+  // Filtres de genres disponibles
+  const genres = [
+    { id: 'all', label: 'Tout voir' },
+    { id: 'fantasy', label: 'Fantasy' },
+    { id: 'police', label: 'Policier' },
+    { id: 'art', label: 'Art' },
+    { id: 'scifi', label: 'Science-fiction' },
+    { id: 'thriller', label: 'Thriller' },
+    { id: 'essay', label: 'Essai' },
+    { id: 'psycho', label: 'Psychologie' },
+  ];
+
   // Filtres de statut disponibles
   const filters = [
-    { id: 'all', label: 'Tous', icon: 'library' },
-    { id: 'read', label: 'Lus', icon: 'checkmark-circle' },
-    { id: 'reading', label: 'En cours', icon: 'book' },
-    { id: 'wishlist', label: 'Wishlist', icon: 'heart' },
-    { id: 'lent', label: 'Prêtés', icon: 'arrow-forward-circle' },
-    { id: 'borrowed', label: 'Empruntés', icon: 'arrow-back-circle' },
+    { id: 'wishlist', label: 'Wishlist' },
+    { id: 'lent', label: 'Prêtés' },
+    { id: 'borrowed', label: 'Empruntés' },
   ];
 
   /**
@@ -91,40 +108,61 @@ export default function LibraryScreen({ navigation }) {
       {/* Header */}
       <Header />
 
-      {/* Barre de filtres horizontale */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="bg-white border-b border-gray-200"
-        contentContainerClassName="px-4 py-3"
-      >
-        {filters.map((filter) => {
-          const isActive = activeFilter === filter.id;
-          return (
-            <TouchableOpacity
-              key={filter.id}
-              onPress={() => setActiveFilter(filter.id)}
-              className={`mr-3 px-4 py-2 rounded-full flex-row items-center ${
-                isActive ? 'bg-blue-500' : 'bg-gray-100'
-              }`}
-              activeOpacity={0.7}
-            >
-              <Ionicons
-                name={filter.icon}
-                size={16}
-                color={isActive ? '#fff' : '#64748b'}
-              />
-              <Text
-                className={`ml-2 font-semibold ${
-                  isActive ? 'text-white' : 'text-gray-700'
-                }`}
+      {/* Barres de filtres horizontale*/}
+      <View className="mb-8">
+        {/* Genres */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="px-4 py-2"
+        >
+          {genres.map(genre => {
+            const isActiveGenre = activeGenre === genre.id;
+            return (
+              <TouchableOpacity
+                key={genre.id}
+                onPress={() => setActiveGenres(genre.id)}
+                className={`mr-3 flex-row items-center`}
+                activeOpacity={0.7}
               >
-                {filter.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+                <Text
+                  className={`ml-2 font-semibold text-gray-700 ${
+                    isActiveGenre ? 'bg-yellow-400 rounded-full px-4 py-2' : ''
+                  }`}
+                >
+                  {genre.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Autres filtres */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="px-4 py-1"
+        >
+          {filters.map(filter => {
+            const isActive = activeFilter === filter.id;
+            return (
+              <TouchableOpacity
+                key={filter.id}
+                onPress={() => setActiveFilter(filter.id)}
+                className={`ml-2 mr-3 flex-row items-center`}
+              >
+                <View
+                  className={`${isActive ? 'border-b-2 border-yellow-400' : ''}`}
+                >
+                  <Text className="font-semibold text-gray-700">
+                    {filter.label}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
 
       {/* Compteur et options */}
       <View className="bg-white px-6 py-3 flex-row items-center justify-between border-b border-gray-200">
@@ -144,7 +182,7 @@ export default function LibraryScreen({ navigation }) {
       <FlatList
         data={books}
         renderItem={renderBookItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         numColumns={2}
         contentContainerStyle={{
           padding: 8,

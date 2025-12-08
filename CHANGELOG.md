@@ -15,7 +15,43 @@ Prochains objectifs :
 - Implémenter BookService (Google Books + OpenLibrary)
 - Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
+- Créer l'écran ScanScreen avec expo-camera
 - Créer l'écran de détail livre
+
+---
+
+## [1.0.0-dev.3] - 2025-12-08
+
+### 🔧 Modifié
+
+**Refonte UI - HomeScreen**
+- Repositionnement des éléments conformément à la maquette
+- Boutons "Rechercher" et "Scanner un livre" centrés verticalement dans l'écran
+- Suppression des sections "Derniers ajouts" et "Accès rapide" (prévues pour implémentation ultérieure)
+- Layout simplifié pour mettre l'accent sur l'action principale (scan/recherche)
+- Container principal avec `flex: 1` et `justifyContent: 'center'` pour centrage vertical parfait
+
+**Refonte UI - LibraryScreen**
+- Suppression de l'état vide redondant (déjà géré par `ListEmptyComponent` de FlatList)
+- Bouton flottant "+" repositionné : `bottom: 90` au lieu de `80` pour éviter chevauchement avec la navigation
+- Code nettoyé : suppression des éléments commentés et des imports inutiles
+
+### ❌ Supprimé
+
+**HomeScreen**
+- Section "Derniers ajouts" (liste horizontale de 3 livres fictifs)
+- Section "Accès rapide" (raccourcis vers Bibliothèque et Statistiques)
+- Import `Ionicons` non utilisé après suppression des sections
+
+**LibraryScreen**
+- État vide personnalisé redondant (conservé uniquement le `ListEmptyComponent`)
+- Import `Ionicons` non utilisé
+- Code commenté obsolète
+
+### 📝 Documentation
+
+- Mise à jour CLAUDE.md avec les changements UI du 8 décembre
+- Mise à jour CHANGELOG.md avec la version 1.0.0-dev.3
 
 ---
 
