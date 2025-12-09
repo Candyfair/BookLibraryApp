@@ -31,6 +31,7 @@ export default function LibraryScreen({ navigation }) {
   // État pour le filtre de statut actif
   const [activeStatus, setActiveStatus] = useState(null);
   const [activeGenre, setActiveGenres] = useState('all');
+  const [bookmarks, setBookmarks] = useState(false);
 
   // Données de test - À remplacer par les vrais livres depuis SQLite
   const [books, setBooks] = useState([]);
@@ -112,7 +113,7 @@ export default function LibraryScreen({ navigation }) {
 
       {/* Barres de filtres horizontale*/}
       <View className="mb-8">
-        {/* Genres */}
+        {/* Filtres de genres */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -138,27 +139,38 @@ export default function LibraryScreen({ navigation }) {
           })}
         </ScrollView>
 
-        {/* Autres filtres */}
+        {/* Filtres de statuts */}
         <View className="flex flex-row justify-between items-center px-4 py-2">
-          <View className="flex flex-row justify-start">
-            {filters.map(filter => {
-              const isActiveStatus = activeStatus === filter.id;
-              return (
-                <Pressable
-                  key={filter.id}
-                  onPress={() => setActiveStatus(filter.id)}
-                  className={`ml-2 mr-3 flex-row items-center`}
-                >
-                  <View
-                    className={`${isActiveStatus ? 'border-b-2 border-yellow-400' : ''}`}
+          <View className="flex flex-row justify-start items-center">
+            <View className="flex flex-row justify-start">
+              {filters.map(filter => {
+                const isActiveStatus = activeStatus === filter.id;
+                return (
+                  <Pressable
+                    key={filter.id}
+                    onPress={() => setActiveStatus(filter.id)}
+                    className={`ml-2 mr-3 flex-row items-center`}
                   >
-                    <Text className="font-semibold text-gray-700">
-                      {filter.label}
-                    </Text>
-                  </View>
-                </Pressable>
-              );
-            })}
+                    <View
+                      className={`${isActiveStatus ? 'border-b-2 border-yellow-400' : ''}`}
+                    >
+                      <Text className="font-semibold text-gray-700">
+                        {filter.label}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {/* Bouton favoris */}
+            <Pressable onPress={() => setBookmarks(!bookmarks)}>
+              <Ionicons
+                name={bookmarks ? 'heart-sharp' : 'heart-outline'}
+                size={24}
+                color={bookmarks ? '#facc15' : 'black'}
+              />
+            </Pressable>
           </View>
 
           {/* Bouton tri / options (à implémenter) */}
