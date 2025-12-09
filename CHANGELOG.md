@@ -20,6 +20,62 @@ Prochains objectifs :
 
 ---
 
+## [1.0.0-dev.4] - 2025-12-09
+
+### ✅ Ajouté
+
+**Navigation**
+- Création du StatStack dans `src/navigation/StatStack.js`
+- Ajout de l'écran Statistiques dans le DrawerNavigator
+- Nouvelle entrée "Statistiques" visible dans le menu Drawer avec icône `stats-chart`
+
+**Écrans**
+- Création de `src/screens/StatScreen.js` (placeholder temporaire)
+  - Header réutilisable intégré
+  - SafeAreaView pour gestion des zones sûres
+  - Message "(à implémenter)" en attente de la logique de calcul des stats
+
+### 🔧 Modifié
+
+**CustomDrawerContent** (`src/components/CustomDrawerContent.js`)
+- Suppression des statistiques dans le header du drawer
+- Simplification du contenu : titre + navigation + version uniquement
+- Suppression de la section "Liens rapides" (Stats, Paramètres, Aide)
+- Les statistiques sont désormais accessibles via l'écran dédié dans le drawer
+
+**DrawerNavigator** (`src/navigation/DrawerNavigator.js`)
+- Renommage des entrées du drawer pour plus de clarté :
+  - "Accueil" → "Scanner un livre" (icône `barcode-outline`)
+  - "Bibliothèque" → "Voir mes livres" (icône `library-outline`)
+- Ajout de l'entrée "Statistiques" (icône `stats-chart`)
+- Profil reste masqué (`drawerItemStyle: { display: 'none' }`)
+
+### ❌ Supprimé
+
+**CustomDrawerContent**
+- Section statistiques en un coup d'œil (Total livres, Lus, Wishlist)
+- Section "Liens rapides" avec boutons Statistiques, Paramètres, Aide
+- Tous les composants Pressable et imports Ionicons associés
+- Spacer central (simplifié en un seul spacer)
+
+### 📝 Notes Techniques
+
+**Architecture navigation mise à jour :**
+```
+DrawerNavigator
+  ├─ Scanner un livre (HomeStack)
+  ├─ Voir mes livres (LibraryStack)
+  ├─ Statistiques (StatStack) → NOUVEAU
+  └─ Profil (ProfileStack) - masqué
+```
+
+**Drawer simplifié :**
+- Header : Titre uniquement
+- Navigation : Liste automatique des écrans visibles
+- Footer : Version + informations produit
+
+---
+
 ## [1.0.0-dev.3] - 2025-12-08
 
 ### 🔧 Modifié

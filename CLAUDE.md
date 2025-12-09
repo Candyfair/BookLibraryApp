@@ -10,19 +10,23 @@
 ### ✅ Phase 1 Foundation - Complétée
 
 **Architecture & Navigation**
+
 - ✅ Architecture modulaire avec `src/navigation/` (RootNavigator, DrawerNavigator, Stacks séparés)
 - ✅ Composant `<Header />` réutilisable avec navigation Drawer et Profil
 - ✅ Écran Profil masqué du Drawer (accessible uniquement via icône header)
+- ✅ **Nouveau (9 déc)** : Écran Statistiques ajouté au Drawer (placeholder prêt pour implémentation)
 
 **Configuration Technique**
+
 - ✅ EAS Build configuré - Project ID: `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - ✅ NativeWind v4 fonctionnel (Babel + Metro configurés)
 - ✅ Development Build testé avec succès sur Android physique
 - ✅ Migration expo-barcode-scanner → expo-camera (compatibilité Expo SDK 54)
 
 **UI & Écrans**
-- ✅ HomeScreen, LibraryScreen, ProfileScreen implémentés et conformes à la maquette
-- ✅ Menu Drawer personnalisé avec statistiques
+
+- ✅ HomeScreen, LibraryScreen, ProfileScreen, StatScreen implémentés
+- ✅ Menu Drawer simplifié : "Scanner un livre", "Voir mes livres", "Statistiques"
 
 > 📋 Pour l'historique détaillé des changements, voir [CHANGELOG.md](CHANGELOG.md)
 
@@ -158,19 +162,21 @@ BookLibraryApp/
 ├── src/                            # Code source principal
 │   ├── navigation/                 # Configuration navigation
 │   │   ├── RootNavigator.js        # NavigationContainer + DrawerNavigator
-│   │   ├── DrawerNavigator.js      # Drawer (Home + Library visible, Profil masqué)
+│   │   ├── DrawerNavigator.js      # Drawer (Scanner + Library + Stats visible, Profil masqué)
 │   │   ├── HomeStack.js            # Stack Accueil (headerShown: false)
 │   │   ├── LibraryStack.js         # Stack Bibliothèque (headerShown: false)
+│   │   ├── StatStack.js            # Stack Statistiques (headerShown: false)
 │   │   └── ProfileStack.js         # Stack Profil (headerShown: false)
 │   │
 │   ├── screens/                    # Écrans de l'application
 │   │   ├── HomeScreen.js           # Écran d'accueil (recherche + scan)
 │   │   ├── LibraryScreen.js        # Grille de livres + filtres
+│   │   ├── StatScreen.js           # Statistiques (placeholder)
 │   │   └── ProfileScreen.js        # Profil utilisateur + auth
 │   │
 │   ├── components/                 # Composants réutilisables
 │   │   ├── Header.js               # Header réutilisable (burger + profil)
-│   │   └── CustomDrawerContent.js # Menu drawer personnalisé
+│   │   └── CustomDrawerContent.js # Menu drawer simplifié
 │   │
 │   ├── services/                   # (À créer) Logique métier
 │   │   ├── BookService.js          # API Google Books + OpenLibrary
@@ -209,6 +215,9 @@ BookLibraryApp/
 > - ✅ **Headers natifs supprimés** : `headerShown: false` dans tous les Stacks
 > - ✅ **Profil masqué du Drawer** : `drawerItemStyle: { display: 'none' }` (accessible via icône)
 > - ✅ **Composants Pressable** : Remplacement de TouchableOpacity partout
+> - ✅ **Nouveau (9 déc)** : StatStack ajouté avec StatScreen (placeholder)
+> - ✅ **Nouveau (9 déc)** : Drawer simplifié (titre + navigation + version)
+> - ✅ **Nouveau (9 déc)** : Renommage entrées Drawer ("Scanner un livre", "Voir mes livres", "Statistiques")
 > - ✅ Noms de fichiers et fonctions en anglais
 > - ✅ Textes utilisateur en français
 
@@ -279,11 +288,10 @@ eas build:cancel             # Annuler un build en cours
 
 - Barre de recherche textuelle (titre, auteur, ISBN)
 - Bouton "Rechercher" (appel API Google Books)
-- Bouton "Scanner" (ouverture scanner ISBN)
-- Section "Derniers ajouts" (placeholder)
-- Section "Accès rapide" (vers Bibliothèque et Stats)
+- Bouton "Scanner un livre" (ouverture scanner ISBN)
+- Design centré verticalement (maquette respectée)
 
-**État actuel :** ✅ UI complète, logique API à implémenter
+**État actuel :** ✅ UI complète et conforme à la maquette, logique API à implémenter
 
 ---
 
@@ -324,22 +332,33 @@ eas build:cancel             # Annuler un build en cours
 
 ---
 
-### 4. **Menu Drawer** (`src/components/CustomDrawerContent.js`)
+### 4. **Écran Statistiques** (`src/screens/StatScreen.js`)
 
 **Fonctionnalités :**
 
-- Header avec logo et titre
-- Statistiques en un coup d'œil (Total, Lus, Wishlist)
-- Navigation automatique (Accueil, Bibliothèque)
-- Écran Profil masqué (accessible uniquement via icône header)
-- Liens rapides (Statistiques, Paramètres, Aide)
-- Footer avec version
+- Placeholder temporaire avec titre "Statistiques (à implémenter)"
+- Header réutilisable intégré
+- SafeAreaView pour gestion des zones sûres
+- Architecture cohérente avec les autres écrans
 
-**État actuel :** ✅ Complet
+**État actuel :** ✅ Structure créée, contenu à implémenter avec StatsService
 
 ---
 
-### 5. **Architecture Navigation**
+### 5. **Menu Drawer** (`src/components/CustomDrawerContent.js`)
+
+**Fonctionnalités :**
+
+- Header avec titre "Ma Bibliothèque"
+- Navigation automatique (Scanner un livre, Voir mes livres, Statistiques)
+- Écran Profil masqué (accessible uniquement via icône header)
+- Footer avec version et informations produit
+
+**État actuel :** ✅ Complet et simplifié
+
+---
+
+### 6. **Architecture Navigation**
 
 **Hiérarchie :**
 
@@ -347,17 +366,19 @@ eas build:cancel             # Annuler un build en cours
 App.js (SafeAreaProvider)
   └─ RootNavigator (NavigationContainer)
       └─ DrawerNavigator
-          ├─ HomeStack
+          ├─ HomeStack ("Scanner un livre")
           │   └─ HomeMain (HomeScreen)
-          ├─ LibraryStack
+          ├─ LibraryStack ("Voir mes livres")
           │   └─ LibraryMain (LibraryScreen)
+          ├─ StatStack ("Statistiques") → NOUVEAU
+          │   └─ Statistics (StatScreen)
           └─ ProfileStack (masqué du Drawer)
               └─ ProfileMain (ProfileScreen)
 ```
 
 **Headers personnalisés :**
 
-- **HomeStack & LibraryStack** : Bouton burger (gauche) + icône profil (droite)
+- **HomeStack, LibraryStack & StatStack** : Bouton burger (gauche) + icône profil (droite)
 - **ProfileStack** : Bouton burger (gauche) uniquement
 
 **Navigation vers Profil :**
@@ -1111,7 +1132,7 @@ export default function MonComposant({ onPress }) {
 - **Project ID** : `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - **Version actuelle** : 1.0.0 (MVP en développement)
 - **Branche active** : `page-cleaning`
-- **Dernière mise à jour** : 8 décembre 2025
+- **Dernière mise à jour** : 9 décembre 2025
 
 ---
 
@@ -1140,8 +1161,6 @@ Projet personnel - Tous droits réservés (pour le MVP)
 
 ### Idées & Réflexions
 
-### TODOs Personnels
-
 Fonctions :
 
 - Mettre les appels API en place
@@ -1149,7 +1168,6 @@ Fonctions :
 
 Pré-formattage :
 
-- Formater les écrans avec les textes (mais pas encore d'intégration des images)
 - Mettre en place un toggle pour déselectionner un genre/filtre
 
 Styles :
@@ -1157,6 +1175,17 @@ Styles :
 - Ajouter polices
 - Configurer les couleurs du thème (mais pas de dark mode)
 - Convertir le titre "Ma bibliothèque" en SVG pour la page de scanner, afin qu'il soit toujours à la bonne taille qu'elle que soit la résolution d'écran
+
+Maquette :
+
+- Ecran Statistiques à créer
+
+### TODOs Personnels
+
+NEXT :
+
+- Intégrer liens vers vues filtrées au Drawer
+- Remplacer écrans login + profil par modales
 
 ### Questions à Résoudre
 
