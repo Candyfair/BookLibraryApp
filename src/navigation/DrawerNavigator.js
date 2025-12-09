@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 // Stacks
 import HomeStack from './HomeStack';
 import LibraryStack from './LibraryStack';
+import StatStack from './StatStack';
 import ProfileStack from './ProfileStack';
 
 // Composants
@@ -34,7 +35,7 @@ export default function DrawerNavigator() {
         component={HomeStack}
         options={{
           drawerIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+            <Ionicons name="barcode-outline" size={size} color={color} />
           ),
         }}
       />
@@ -44,6 +45,15 @@ export default function DrawerNavigator() {
         options={{
           drawerIcon: ({ color, size }) => (
             <Ionicons name="library-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Statistiques"
+        component={StatStack}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart" size={size} color={color} />
           ),
         }}
       />

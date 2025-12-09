@@ -40,5 +40,19 @@
     "headerClassName",
     "contentContainerClassName",
     "style"
-  ]
+  ],
+  // Configuration Colorize
+  "colorize.languages": [
+    "javascript",
+    "javascriptreact",
+    "json",
+    "css"
+  ],
+  "colorize.colorized_colors": [
+    "HEXA",
+    "RGB",
+    "HSL"
+  ],
+  "colorize.enable_search_variables": true,
+  "colorize.decoration_type": "background"
 }

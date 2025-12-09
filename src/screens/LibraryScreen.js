@@ -6,9 +6,11 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+
+// Composants
 import Header from '../components/Header';
 
 /**
@@ -27,7 +29,7 @@ import Header from '../components/Header';
  */
 export default function LibraryScreen({ navigation }) {
   // État pour le filtre de statut actif
-  const [activeFilter, setActiveFilter] = useState(null);
+  const [activeStatus, setActiveStatus] = useState(null);
   const [activeGenre, setActiveGenres] = useState('all');
 
   // Données de test - À remplacer par les vrais livres depuis SQLite
@@ -140,15 +142,15 @@ export default function LibraryScreen({ navigation }) {
         <View className="flex flex-row justify-between items-center px-4 py-2">
           <View className="flex flex-row justify-start">
             {filters.map(filter => {
-              const isActiveFilter = activeFilter === filter.id;
+              const isActiveStatus = activeStatus === filter.id;
               return (
                 <Pressable
                   key={filter.id}
-                  onPress={() => setActiveFilter(filter.id)}
+                  onPress={() => setActiveStatus(filter.id)}
                   className={`ml-2 mr-3 flex-row items-center`}
                 >
                   <View
-                    className={`${isActiveFilter ? 'border-b-2 border-yellow-400' : ''}`}
+                    className={`${isActiveStatus ? 'border-b-2 border-yellow-400' : ''}`}
                   >
                     <Text className="font-semibold text-gray-700">
                       {filter.label}

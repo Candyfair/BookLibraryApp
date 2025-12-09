@@ -3,15 +3,13 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import { Ionicons } from '@expo/vector-icons';
 
 /**
  * Composant CustomDrawerContent - Menu latéral personnalisé
  *
  * Fonctionnalités :
- * - Header avec titre et icône
+ * - Header avec titre
  * - Liste des pages de navigation (automatique via DrawerItemList)
- * - Section statistiques rapides
  * - Footer avec version et liens
  *
  * Architecture :
@@ -20,13 +18,6 @@ import { Ionicons } from '@expo/vector-icons';
  * - Sections modulaires
  */
 export default function CustomDrawerContent(props) {
-  // Statistiques fictives - À remplacer par les vraies données SQLite
-  const stats = {
-    totalBooks: 0,
-    readBooks: 0,
-    wishlistBooks: 0,
-  };
-
   return (
     <DrawerContentScrollView
       {...props}
@@ -34,17 +25,8 @@ export default function CustomDrawerContent(props) {
       className="bg-gray-50"
     >
       {/* Header du drawer */}
-      <View className="bg-blue-500 p-6 pb-8">
-        <View className="flex-row items-center mb-3">
-          <View className="bg-white/20 rounded-full p-2">
-            <Ionicons name="library" size={32} color="#fff" />
-          </View>
-          <View className="ml-4">
-            <Text className="text-white text-xl font-bold">
-              Ma Bibliothèque
-            </Text>
-          </View>
-        </View>
+      <View className="p-6 pb-8">
+        <Text className="text-2xl font-bold">Ma Bibliothèque</Text>
       </View>
 
       {/* Navigation - Liste automatique des écrans */}

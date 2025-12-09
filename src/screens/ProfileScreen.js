@@ -1,7 +1,16 @@
-import { View, Text, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Composants
 import Header from '../components/Header';
 
 /**
@@ -58,22 +67,18 @@ export default function ProfileScreen({ navigation }) {
    * TODO: Intégrer avec AuthService
    */
   const handleLogout = () => {
-    Alert.alert(
-      'Déconnexion',
-      'Êtes-vous sûr de vouloir vous déconnecter ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Déconnexion',
-          style: 'destructive',
-          onPress: () => {
-            setUser(null);
-            console.log('Déconnexion');
-            // TODO: AuthService.logout()
-          },
+    Alert.alert('Déconnexion', 'Êtes-vous sûr de vouloir vous déconnecter ?', [
+      { text: 'Annuler', style: 'cancel' },
+      {
+        text: 'Déconnexion',
+        style: 'destructive',
+        onPress: () => {
+          setUser(null);
+          console.log('Déconnexion');
+          // TODO: AuthService.logout()
         },
-      ]
-    );
+      },
+    ]);
   };
 
   /**
@@ -96,8 +101,8 @@ export default function ProfileScreen({ navigation }) {
               Bienvenue !
             </Text>
             <Text className="text-gray-600 text-center mb-8">
-              Connectez-vous pour synchroniser vos données et profiter de toutes les
-              fonctionnalités
+              Connectez-vous pour synchroniser vos données et profiter de toutes
+              les fonctionnalités
             </Text>
 
             {/* Bouton Google */}
@@ -148,19 +153,19 @@ export default function ProfileScreen({ navigation }) {
       <ScrollView className="flex-1 bg-gray-50">
         {/* Header profil */}
         <View className="bg-white p-6 items-center border-b border-gray-200">
-        {/* Avatar */}
-        {user.photoURL ? (
-          <Image
-            source={{ uri: user.photoURL }}
-            className="w-24 h-24 rounded-full mb-4"
-          />
-        ) : (
-          <View className="w-24 h-24 bg-blue-500 rounded-full items-center justify-center mb-4">
-            <Text className="text-white text-3xl font-bold">
-              {user.displayName?.charAt(0) || 'U'}
-            </Text>
-          </View>
-        )}
+          {/* Avatar */}
+          {user.photoURL ? (
+            <Image
+              source={{ uri: user.photoURL }}
+              className="w-24 h-24 rounded-full mb-4"
+            />
+          ) : (
+            <View className="w-24 h-24 bg-blue-500 rounded-full items-center justify-center mb-4">
+              <Text className="text-white text-3xl font-bold">
+                {user.displayName?.charAt(0) || 'U'}
+              </Text>
+            </View>
+          )}
 
           <Text className="text-xl font-bold text-gray-800">
             {user.displayName || 'Utilisateur'}
@@ -245,7 +250,11 @@ export default function ProfileScreen({ navigation }) {
             className="flex-row items-center p-4"
             activeOpacity={0.7}
           >
-            <Ionicons name="information-circle-outline" size={24} color="#64748b" />
+            <Ionicons
+              name="information-circle-outline"
+              size={24}
+              color="#64748b"
+            />
             <Text className="flex-1 ml-4 text-gray-800">À propos</Text>
             <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
           </TouchableOpacity>
