@@ -119,11 +119,10 @@ export default function LibraryScreen({ navigation }) {
           {genres.map(genre => {
             const isActiveGenre = activeGenre === genre.id;
             return (
-              <TouchableOpacity
+              <Pressable
                 key={genre.id}
                 onPress={() => setActiveGenres(genre.id)}
                 className={`mr-3 flex-row items-center`}
-                activeOpacity={0.7}
               >
                 <Text
                   className={`ml-2 font-semibold text-gray-700 ${
@@ -132,50 +131,40 @@ export default function LibraryScreen({ navigation }) {
                 >
                   {genre.label}
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             );
           })}
         </ScrollView>
 
         {/* Autres filtres */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerClassName="px-4 py-1"
-        >
-          {filters.map(filter => {
-            const isActive = activeFilter === filter.id;
-            return (
-              <TouchableOpacity
-                key={filter.id}
-                onPress={() => setActiveFilter(filter.id)}
-                className={`ml-2 mr-3 flex-row items-center`}
-              >
-                <View
-                  className={`${isActive ? 'border-b-2 border-yellow-400' : ''}`}
+        <View className="flex flex-row justify-between items-center px-4 py-2">
+          <View className="flex flex-row justify-start">
+            {filters.map(filter => {
+              const isActiveFilter = activeFilter === filter.id;
+              return (
+                <Pressable
+                  key={filter.id}
+                  onPress={() => setActiveFilter(filter.id)}
+                  className={`ml-2 mr-3 flex-row items-center`}
                 >
-                  <Text className="font-semibold text-gray-700">
-                    {filter.label}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </ScrollView>
-      </View>
+                  <View
+                    className={`${isActiveFilter ? 'border-b-2 border-yellow-400' : ''}`}
+                  >
+                    <Text className="font-semibold text-gray-700">
+                      {filter.label}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
+          </View>
 
-      {/* Compteur et options */}
-      <View className="bg-white px-6 py-3 flex-row items-center justify-between border-b border-gray-200">
-        <Text className="text-gray-600">
-          <Text className="font-bold text-gray-800">{books.length}</Text> livre
-          {books.length > 1 ? 's' : ''}
-        </Text>
-
-        {/* Bouton tri / options (à implémenter) */}
-        <TouchableOpacity className="flex-row items-center">
-          <Ionicons name="swap-vertical" size={18} color="#64748b" />
-          <Text className="text-gray-600 ml-2 text-sm">Trier</Text>
-        </TouchableOpacity>
+          {/* Bouton tri / options (à implémenter) */}
+          <Pressable className="flex-row items-center">
+            <Ionicons name="swap-vertical" size={18} color="#64748b" />
+            <Text className="text-gray-600 ml-2 text-sm">Trier</Text>
+          </Pressable>
+        </View>
       </View>
 
       {/* Grille de livres */}
