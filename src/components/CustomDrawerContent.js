@@ -1,8 +1,17 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+/* eslint-disable react/no-unstable-nested-components */
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Pressable,
+} from 'react-native';
 import {
   DrawerContentScrollView,
+  DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
+import { Ionicons } from '@expo/vector-icons';
 
 /**
  * Composant CustomDrawerContent - Menu latéral personnalisé
@@ -18,6 +27,18 @@ import {
  * - Sections modulaires
  */
 export default function CustomDrawerContent(props) {
+  const { state, descriptors, navigation } = props;
+
+  const SubMenuItem = ({ icon, label, filter, indented = true }) => (
+    <Pressable
+      onPress={() => navigation.navigate('Library', { filter })}
+      className={`flex-row items-center py-3 px-6 ${indented ? 'pl-12' : ''}`}
+    >
+      <Ionicons name={icon} size={20} color="#6b7280" />
+      <Text className="ml-3 text-gray-700">{label}</Text>
+    </Pressable>
+  );
+
   return (
     <DrawerContentScrollView
       {...props}
@@ -29,9 +50,56 @@ export default function CustomDrawerContent(props) {
         <Text className="text-2xl font-bold">Ma Bibliothèque</Text>
       </View>
 
-      {/* Navigation - Liste automatique des écrans */}
+      {/* Items du Drawer */}
       <View className="flex-1 px-2">
-        <DrawerItemList {...props} />
+        {state.routes.map((route, i) => {
+          const focused = i === state.index;
+          const { drawerIcon } = descriptors[route.key].options;
+
+          if (route.name === 'AddBook') {
+            return (
+              <DrawerItem
+                key={route.key}
+                label="Scanner un livre"
+                onPress={() => navigation.navigate('AddBook')}
+                icon={drawerIcon}
+              />
+            );
+          }
+
+          if (route.name === 'Library') {
+            return (
+              <View key={route.key}>
+                <DrawerItem
+                  label="Voir mes livres"
+                  onPress={() => navigation.navigate('Library')}
+                  icon={drawerIcon}
+                />
+
+                <SubMenuItem label="Favoris" filter="favorite" />
+                <SubMenuItem label="Prêtés" filter="lent" />
+                <SubMenuItem label="Empruntés" filter="borrowed" />
+                <SubMenuItem
+                  icon={'heart-outline'}
+                  label="Ma wishlist"
+                  filter="wishlist"
+                  indented={false}
+                />
+              </View>
+            );
+          }
+
+          if (route.name === 'Stats') {
+            return (
+              <DrawerItem
+                key={route.key}
+                label="Statistiques"
+                onPress={() => navigation.navigate('Stats')}
+                icon={drawerIcon}
+              />
+            );
+          }
+        })}
       </View>
 
       {/* Spacer */}

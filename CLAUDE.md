@@ -1163,8 +1163,8 @@ Projet personnel - Tous droits réservés (pour le MVP)
 
 Fonctions :
 
-- Mettre les appels API en place
 - Prévoir le multilangue
+- Mettre les filtres en place (les sous-menus du drawer ne les activent pas encore)
 
 Pré-formattage :
 
@@ -1184,8 +1184,8 @@ Maquette :
 
 NEXT :
 
-- Intégrer liens vers vues filtrées au Drawer
 - Remplacer écrans login + profil par modales
+- Mettre les appels API en place (pour l'appel de livres)
 
 ### Questions à Résoudre
 

@@ -20,6 +20,68 @@ Prochains objectifs :
 
 ---
 
+## [1.0.0-dev.5] - 2025-12-11
+
+### ✅ Ajouté
+
+**Navigation - Sous-menus de Filtres dans le Drawer**
+- Ajout de 4 sous-menus de filtres entre "Voir mes livres" et "Statistiques" :
+  - ⭐ **Favoris** : Filtre `favorite` (indenté)
+  - 📤 **Prêtés** : Filtre `lent` (indenté)
+  - 📥 **Empruntés** : Filtre `borrowed` (indenté)
+  - 🎁 **Ma wishlist** : Filtre `wishlist` (non indenté, au même niveau que les items principaux)
+- Navigation vers LibraryScreen avec paramètre `filter` correspondant
+- Composant `SubMenuItem` réutilisable avec prop `indented={true|false}`
+
+### 🔧 Modifié
+
+**CustomDrawerContent** (`src/components/CustomDrawerContent.js`)
+- Refactorisation complète : remplacement de `<DrawerItemList />` par rendu manuel des items
+- Mapping sur `state.routes` pour contrôler l'ordre et insérer les sous-menus
+- Extraction de `drawerIcon` depuis `descriptors[route.key].options`
+- Ajout de la prop `focused` aux `DrawerItem` pour coloration de l'item actif
+- Composant `SubMenuItem` avec gestion conditionnelle de l'indentation via classe `pl-12`
+- Labels hardcodés en français pour cohérence avec le reste de l'UI
+
+**DrawerNavigator** (`src/navigation/DrawerNavigator.js`)
+- Renommage des `name` des Drawer.Screen pour conventions en anglais :
+  - "Scanner un livre" → `AddBook`
+  - "Voir mes livres" → `Library`
+  - "Statistiques" → `Statistics`
+  - "Profil" → `Profil` (inchangé)
+- Les labels affichés restent en français (gérés dans CustomDrawerContent)
+
+### 📝 Notes Techniques
+
+**Architecture Drawer mise à jour :**
+```
+CustomDrawerContent
+  ├─ Scanner un livre (AddBook)
+  ├─ Voir mes livres (Library)
+  │   ├─ Favoris (indenté)
+  │   ├─ Prêtés (indenté)
+  │   ├─ Empruntés (indenté)
+  │   └─ Ma wishlist (non indenté) → NOUVEAU
+  └─ Statistiques (Statistics)
+```
+
+**Système de navigation avec filtres :**
+- Clic sur un sous-menu : `navigation.navigate('Library', { filter: 'favorite' })`
+- LibraryScreen recevra le paramètre via `route.params?.filter`
+- Implémentation du filtrage côté LibraryScreen à venir (Phase 2)
+
+**Composant SubMenuItem :**
+```javascript
+<SubMenuItem
+  label="Favoris"
+  filter="favorite"
+  icon="star"
+  indented={true}  // Optionnel, true par défaut
+/>
+```
+
+---
+
 ## [1.0.0-dev.4] - 2025-12-09
 
 ### ✅ Ajouté

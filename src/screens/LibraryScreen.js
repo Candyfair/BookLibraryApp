@@ -10,6 +10,9 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
+// Navigation
+import { useRoute } from '@react-navigation/native';
+
 // Composants
 import Header from '../components/Header';
 
@@ -28,9 +31,14 @@ import Header from '../components/Header';
  * - Prêt pour l'intégration avec BookService + SQLite
  */
 export default function LibraryScreen({ navigation }) {
+  // Récupère le paramètre de navigation
+  const route = useRoute();
+  const initialStatusFilter = route.params?.filter || 'all';
+
   // État pour le filtre de statut actif
-  const [activeStatus, setActiveStatus] = useState(null);
-  const [activeGenre, setActiveGenres] = useState('all');
+  const [activeStatusFilter, setActiveStatusFilter] =
+    useState(initialStatusFilter);
+  const [activeGenresFilter, setActiveGenresFilter] = useState('all');
   const [bookmarks, setBookmarks] = useState(false);
 
   // Données de test - À remplacer par les vrais livres depuis SQLite
@@ -96,7 +104,7 @@ export default function LibraryScreen({ navigation }) {
         Ajoutez des livres depuis l'écran d'accueil
       </Text>
       <TouchableOpacity
-        onPress={() => navigation.navigate('Scanner un livre')}
+        onPress={() => navigation.navigate('AddBook')}
         className="mt-6 bg-blue-500 px-6 py-3 rounded-lg flex-row items-center"
         activeOpacity={0.8}
       >
@@ -120,16 +128,18 @@ export default function LibraryScreen({ navigation }) {
           contentContainerClassName="px-4 py-2"
         >
           {genres.map(genre => {
-            const isActiveGenre = activeGenre === genre.id;
+            const isActiveGenresFilter = activeGenresFilter === genre.id;
             return (
               <Pressable
                 key={genre.id}
-                onPress={() => setActiveGenres(genre.id)}
+                onPress={() => setActiveGenresFilter(genre.id)}
                 className={`mr-3 flex-row items-center`}
               >
                 <Text
                   className={`ml-2 font-semibold text-gray-700 ${
-                    isActiveGenre ? 'bg-yellow-400 rounded-full px-4 py-2' : ''
+                    isActiveGenresFilter
+                      ? 'bg-yellow-400 rounded-full px-4 py-2'
+                      : ''
                   }`}
                 >
                   {genre.label}
@@ -144,15 +154,15 @@ export default function LibraryScreen({ navigation }) {
           <View className="flex flex-row justify-start items-center">
             <View className="flex flex-row justify-start">
               {filters.map(filter => {
-                const isActiveStatus = activeStatus === filter.id;
+                const isActiveStatusFilter = activeStatusFilter === filter.id;
                 return (
                   <Pressable
                     key={filter.id}
-                    onPress={() => setActiveStatus(filter.id)}
+                    onPress={() => setActiveStatusFilter(filter.id)}
                     className={`ml-2 mr-3 flex-row items-center`}
                   >
                     <View
-                      className={`${isActiveStatus ? 'border-b-2 border-yellow-400' : ''}`}
+                      className={`${isActiveStatusFilter ? 'border-b-2 border-yellow-400' : ''}`}
                     >
                       <Text className="font-semibold text-gray-700">
                         {filter.label}
@@ -202,7 +212,7 @@ export default function LibraryScreen({ navigation }) {
       {/* Bouton flottant "Ajouter" (visible uniquement si livres présents) */}
       {books.length > 0 && (
         <TouchableOpacity
-          onPress={() => navigation.navigate('Scanner un livre')}
+          onPress={() => navigation.navigate('AddBook')}
           className="absolute bottom-6 right-6 bg-blue-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
           activeOpacity={0.8}
         >

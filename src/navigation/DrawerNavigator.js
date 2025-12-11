@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -31,7 +32,7 @@ export default function DrawerNavigator() {
       }}
     >
       <Drawer.Screen
-        name="Scanner un livre"
+        name="AddBook"
         component={HomeStack}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -40,7 +41,7 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Voir mes livres"
+        name="Library"
         component={LibraryStack}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -49,7 +50,7 @@ export default function DrawerNavigator() {
         }}
       />
       <Drawer.Screen
-        name="Statistiques"
+        name="Stats"
         component={StatStack}
         options={{
           drawerIcon: ({ color, size }) => (
