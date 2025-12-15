@@ -1184,7 +1184,8 @@ Maquette :
 
 NEXT :
 
-- Remplacer écrans login + profil par modales
+- Télécharger nouveau build de dev
+- Remplacer écrans login + profil par bottom sheet -> installé @gorhom/bottom-sheet
 - Mettre les appels API en place (pour l'appel de livres)
 
 ### Questions à Résoudre
