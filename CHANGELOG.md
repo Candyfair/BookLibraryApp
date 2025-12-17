@@ -20,6 +20,154 @@ Prochains objectifs :
 
 ---
 
+## [1.0.0-dev.6] - 2025-12-17
+
+### ✅ Ajouté
+
+**UI/UX - Bottom Sheet pour Login et Profil**
+- Migration complète de l'écran Profil vers une **BottomSheet** (@gorhom/bottom-sheet)
+- Création de `ProfileBottomSheet` component (`src/components/ProfileBottomSheet.js`)
+- Création de `ProfileBottomSheetContext` pour gestion globale de l'état (`src/contexts/ProfileBottomSheetContext.js`)
+- Bottom sheet accessible depuis n'importe quel écran via l'icône profil du Header
+- Ouverture directe à 92% de la hauteur d'écran (laisse visible le header avec icônes)
+- Animation fluide à l'ouverture et à la fermeture
+
+**Architecture & Configuration**
+- Ajout de `BottomSheetModalProvider` dans `App.js` (requis par @gorhom/bottom-sheet)
+- Ajout de `GestureHandlerRootView` pour supporter les gestures de la bottom sheet
+- Context Provider pattern pour état global accessible depuis toute l'app
+
+### 🔧 Modifié
+
+**Header Component** (`src/components/Header.js`)
+- Remplacement de `navigation.navigate('Profil')` par `openBottomSheet()`
+- Intégration du hook `useProfileBottomSheet()` pour accès au Context
+- L'icône profil ouvre maintenant la bottom sheet au lieu de naviguer vers ProfileStack
+
+**App.js**
+- Restructuration de la hiérarchie des Providers :
+  ```
+  GestureHandlerRootView
+    └─ SafeAreaProvider
+        └─ BottomSheetModalProvider
+            └─ ProfileBottomSheetProvider
+                ├─ RootNavigator
+                └─ ProfileBottomSheet
+  ```
+
+**ProfileBottomSheet Component** (`src/components/ProfileBottomSheet.js`)
+- Utilisation de `BottomSheetModal` au lieu de `BottomSheet` (meilleure performance)
+- Utilisation de `BottomSheetScrollView` pour scrolling optimisé
+- Optimisation avec `useMemo` pour snapPoints (évite re-création)
+- Optimisation avec `useCallback` pour tous les handlers (évite re-renders)
+- Backdrop personnalisé avec `BottomSheetBackdrop` (overlay semi-transparent)
+- Configuration `pressBehavior="close"` (clic dehors ferme la sheet)
+- Styles inline via StyleSheet au lieu de styles inline directs (performance)
+- Séparation claire des responsabilités :
+  - `closeBottomSheet()` : Démarre l'animation de fermeture
+  - `onDismiss={handleDismiss}` : Met à jour l'état après l'animation
+
+### 🎨 Optimisations Performance
+
+**Gestion des animations**
+- Prop `index={0}` pour ouverture directe au premier snapPoint (92%)
+- Méthodes `present()` et `dismiss()` au lieu de `expand()` et `close()`
+- Callback `onDismiss` séparé de `closeBottomSheet` pour éviter re-render pendant l'animation
+- Configuration `enableDismissOnClose={true}` pour fermeture fluide
+- Désactivation de `enableOverDrag` pour éviter glitches visuels
+
+**Optimisations React**
+- `useMemo(() => ['92%'], [])` pour snapPoints
+- `useCallback` pour tous les handlers (renderBackdrop, handleLogin, handleLogout, etc.)
+- Styles via StyleSheet.create() au lieu d'objets inline
+- `showsVerticalScrollIndicator={false}` pour réduire les re-renders
+
+### 📝 Architecture Technique
+
+**ProfileBottomSheetContext API :**
+```javascript
+const {
+  bottomSheetRef,        // Ref vers la BottomSheetModal
+  isOpen,                // État d'ouverture (boolean)
+  openBottomSheet,       // Ouvre la bottom sheet
+  closeBottomSheet,      // Ferme la bottom sheet
+  handleDismiss,         // Callback après fermeture (onDismiss)
+} = useProfileBottomSheet();
+```
+
+**Workflow d'ouverture/fermeture :**
+1. Clic sur icône profil → `openBottomSheet()`
+2. `present()` appelé → Animation d'ouverture démarre
+3. Bottom sheet s'ouvre à `index={0}` (snapPoint 92%)
+4. Clic dehors ou swipe down → `closeBottomSheet()`
+5. `dismiss()` appelé → Animation de fermeture démarre
+6. Animation terminée → `onDismiss` callback → `handleDismiss()` → `setIsOpen(false)`
+
+**BottomSheetModal vs BottomSheet :**
+- `BottomSheet` : Monté dès le départ, toujours présent dans le DOM
+- `BottomSheetModal` : Monté uniquement à l'ouverture (⚡ meilleure performance)
+- Méthodes différentes : `present()/dismiss()` vs `expand()/close()`
+
+### 🐛 Corrections
+
+**Animations saccadées à l'ouverture**
+- ❌ Problème : Contenu visible avant l'animation
+- ✅ Solution : Migration vers `BottomSheetModal` (contenu monté uniquement à l'ouverture)
+
+**Animations saccadées à la fermeture**
+- ❌ Problème : `onDismiss={closeBottomSheet}` causait un re-render pendant l'animation
+- ✅ Solution : Séparation `closeBottomSheet()` (animation) et `handleDismiss()` (état)
+
+**Backdrop clignotant**
+- ❌ Problème : `renderBackdrop` recréé à chaque render
+- ✅ Solution : Encapsulation dans `useCallback` avec dependencies array vide
+
+**Ouverture à mi-hauteur au lieu de 92%**
+- ❌ Problème : Pas d'index spécifié, ouverture par défaut
+- ✅ Solution : Ajout de la prop `index={0}` sur BottomSheetModal
+
+### 📦 Configuration
+
+**SnapPoints :**
+- `['92%']` : Plein écran avec header visible (icônes burger + profil)
+- Ajustable via modification du pourcentage dans `ProfileBottomSheet.js:31`
+
+**Backdrop :**
+- Opacité : 0.5
+- Couleur : Noir semi-transparent
+- Comportement : Clic dehors ferme la bottom sheet
+
+**Indicateur de poignée :**
+- Couleur : `#94a3b8` (gris ardoise)
+- Largeur : 40px
+- Position : Centré en haut de la bottom sheet
+
+### 🔄 Impact sur ProfileScreen.js
+
+**État actuel :**
+- ProfileScreen.js existe toujours mais n'est plus accessible via navigation
+- ProfileStack reste dans le DrawerNavigator mais est masqué (`drawerItemStyle: { display: 'none' }`)
+- Tout le contenu de ProfileScreen a été réutilisé dans ProfileBottomSheet
+
+**Prochaines étapes (optionnel) :**
+- Possibilité de supprimer ProfileStack du DrawerNavigator
+- Possibilité de supprimer ProfileScreen.js (logique migrée dans BottomSheet)
+
+### 🧪 Tests Effectués
+
+- ✅ Ouverture de la bottom sheet depuis HomeScreen
+- ✅ Ouverture de la bottom sheet depuis LibraryScreen
+- ✅ Ouverture de la bottom sheet depuis StatScreen
+- ✅ Fermeture par swipe down
+- ✅ Fermeture par clic sur backdrop
+- ✅ Fermeture par bouton close (icône X)
+- ✅ Animation fluide à l'ouverture (92% sans saccades)
+- ✅ Animation fluide à la fermeture (contenu disparaît avec la sheet)
+- ✅ Pas de clignotement du backdrop
+- ✅ Pas de contenu visible avant l'animation
+
+---
+
 ## [1.0.0-dev.5] - 2025-12-11
 
 ### ✅ Ajouté

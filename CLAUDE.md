@@ -13,8 +13,9 @@
 
 - ✅ Architecture modulaire avec `src/navigation/` (RootNavigator, DrawerNavigator, Stacks séparés)
 - ✅ Composant `<Header />` réutilisable avec navigation Drawer et Profil
-- ✅ Écran Profil masqué du Drawer (accessible uniquement via icône header)
-- ✅ **Nouveau (9 déc)** : Écran Statistiques ajouté au Drawer (placeholder prêt pour implémentation)
+- ✅ **Nouveau (17 déc)** : ProfileBottomSheet - Migration du profil vers une bottom sheet modale
+- ✅ Context API pour gestion globale de la bottom sheet (`ProfileBottomSheetContext`)
+- ✅ Écran Statistiques ajouté au Drawer (placeholder prêt pour implémentation)
 
 **Configuration Technique**
 
@@ -22,11 +23,14 @@
 - ✅ NativeWind v4 fonctionnel (Babel + Metro configurés)
 - ✅ Development Build testé avec succès sur Android physique
 - ✅ Migration expo-barcode-scanner → expo-camera (compatibilité Expo SDK 54)
+- ✅ Bottom Sheet implémentée avec @gorhom/bottom-sheet (animations fluides)
 
 **UI & Écrans**
 
-- ✅ HomeScreen, LibraryScreen, ProfileScreen, StatScreen implémentés
+- ✅ HomeScreen, LibraryScreen, StatScreen implémentés
+- ✅ ProfileBottomSheet (remplace ProfileScreen pour l'UI)
 - ✅ Menu Drawer simplifié : "Scanner un livre", "Voir mes livres", "Statistiques"
+- ✅ Bottom sheet profil ouverte à 92% (laisse visible le header)
 
 > 📋 Pour l'historique détaillé des changements, voir [CHANGELOG.md](CHANGELOG.md)
 
@@ -37,6 +41,7 @@
 - `@react-navigation/native`, `@react-navigation/drawer`, `@react-navigation/native-stack`
 - `react-native-screens`, `react-native-safe-area-context`, `react-native-gesture-handler`, `react-native-reanimated`
 - `nativewind`, `tailwindcss`
+- `@gorhom/bottom-sheet` - Bottom sheets avec animations natives
 
 **Expo & Outils :**
 
@@ -107,6 +112,38 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 | `react-native-reanimated`        | 4.1.1   | Animations performantes    |
 
 > **Note :** Le projet utilise **React Navigation** (Drawer + Stack) et **non Expo Router**. Un dossier `app/` contenant des fichiers avec Expo Router a été supprimé pour éviter toute confusion.
+
+### UI Components & Modals
+
+| Package                | Version | Usage                                        |
+| ---------------------- | ------- | -------------------------------------------- |
+| `@gorhom/bottom-sheet` | 5.2.8   | Bottom sheets avec animations natives fluide |
+
+**ProfileBottomSheet Architecture :**
+
+```
+ProfileBottomSheetContext (src/contexts/)
+  ├─ État global : isOpen, bottomSheetRef
+  ├─ Méthodes : openBottomSheet(), closeBottomSheet(), handleDismiss()
+  └─ Hook : useProfileBottomSheet()
+
+ProfileBottomSheet Component (src/components/)
+  ├─ BottomSheetModal (de @gorhom/bottom-sheet)
+  ├─ BottomSheetScrollView (scrolling optimisé)
+  ├─ BottomSheetBackdrop (overlay semi-transparent)
+  ├─ Ouverture : index={0}, snapPoints={['92%']}
+  ├─ Mode non connecté : Boutons Google/Apple Sign-In
+  └─ Mode connecté : Profil + Stats + Paramètres + Déconnexion
+```
+
+**Utilisation depuis n'importe quel écran :**
+
+```javascript
+import { useProfileBottomSheet } from '../contexts/ProfileBottomSheetContext';
+
+const { openBottomSheet } = useProfileBottomSheet();
+<Pressable onPress={openBottomSheet}>Ouvrir profil</Pressable>;
+```
 
 ### APIs & Services
 
@@ -1184,7 +1221,6 @@ Maquette :
 
 NEXT :
 
-- Télécharger nouveau build de dev
 - Remplacer écrans login + profil par bottom sheet -> installé @gorhom/bottom-sheet
 - Mettre les appels API en place (pour l'appel de livres)
 
