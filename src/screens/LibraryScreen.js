@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 // Navigation
 import { useRoute } from '@react-navigation/native';
 
-// Composants
+// Components
 import Header from '../components/Header';
 
 /**

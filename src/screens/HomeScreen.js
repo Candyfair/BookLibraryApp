@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Button } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,8 +19,9 @@ import Header from '../components/Header';
  * - Prêt pour l'intégration avec BookService
  */
 export default function HomeScreen({ navigation }) {
-  // État pour le champ de recherche
   const [searchQuery, setSearchQuery] = useState('');
+
+  // État pour le champ de recherche
 
   /**
    * Gère la soumission de la recherche
@@ -39,7 +40,7 @@ export default function HomeScreen({ navigation }) {
    */
   const handleScanPress = () => {
     console.log('Ouverture du scanner');
-    // TODO: navigation.navigate('Scan')
+    navigation.navigate('Scan');
   };
 
   return (
