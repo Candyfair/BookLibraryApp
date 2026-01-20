@@ -3,25 +3,47 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { searchByISBN } from '../services/BookService';
 
 export default function ScanScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedISBN, setScannedISBN] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [bookData, setBookData] = useState(null);
+  const [error, setError] = useState(null);
 
   // Gestion du scan de code-barres
-  const handleBarcodeScanned = ({ data }) => {
+  const handleBarcodeScanned = async ({ data }) => {
     if (scanned) return;
     setScanned(true);
     setScannedISBN(data);
-    // TODO: Appeler BookService avec l'ISBN
-    // navigation.navigate('BookDetail', { isbn: data });
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const book = await searchByISBN(data);
+
+      if (book) {
+        setBookData(book);
+        console.log('Livre trouvé :', book.title, ' - ', book.author);
+      } else {
+        setError('Livre non trouvé dans les bases de données');
+      }
+    } catch (err) {
+      setError('Erreur lors de la recherche. Vérifiez votre connexion.');
+      console.error('Erreur API: ', err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Réinitialiser le scan
   const handleScanAgain = () => {
     setScanned(false);
     setScannedISBN(null);
+    setBookData(null);
+    setError(null);
   };
 
   // État de chargement initial
@@ -154,6 +176,28 @@ export default function ScanScreen({ navigation }) {
                   </Text>
                 </View>
               </View>
+
+              {/* Affichage du résultat */}
+              {scanned && (
+                <View className="mx-6">
+                  {isLoading ? (
+                    <View className="bg-gray-800 rounded-lg py-4 items-center">
+                      <Text className="text-white">Recherche en cours...</Text>
+                    </View>
+                  ) : error ? (
+                    <View className="bg-red-500 rounded-lg py-3 px-4 mb-3">
+                      <Text className="text-white">{error}</Text>
+                    </View>
+                  ) : bookData ? (
+                    <View className="bg-green-500 rounded-lg py-3 px-4 mb-3">
+                      <Text className="text-white font-semibold">
+                        {bookData.title}
+                      </Text>
+                      <Text className="text-white/80">{bookData.author}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              )}
 
               {/* Bouton scanner à nouveau */}
               <Pressable

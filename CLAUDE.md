@@ -32,6 +32,26 @@
 - ✅ Menu Drawer simplifié : "Scanner un livre", "Voir mes livres", "Statistiques"
 - ✅ Bottom sheet profil ouverte à 92% (laisse visible le header)
 
+### ✅ Scanner + API - Intégration complète (20 jan 2026)
+
+**Fonctionnalités :**
+
+- ✅ **ScanScreen** connecté au **BookService** - Appel API automatique après scan
+- ✅ Recherche du livre via `searchByISBN(isbn)` dès détection du code-barres
+- ✅ Feedback visuel pendant la recherche (indicateur de chargement)
+- ✅ Affichage du résultat : titre + auteur si trouvé, message d'erreur sinon
+- ✅ Gestion des erreurs réseau et livres non trouvés
+
+**Flux complet :**
+
+```
+Scan ISBN → searchByISBN() → Google Books API → (fallback OpenLibrary) → Affichage résultat
+```
+
+**Prochaine étape :** Créer BookDetailScreen pour afficher les détails complets et permettre l'ajout à la bibliothèque
+
+---
+
 ### ✅ Scanner de Code-Barres - Implémenté (19 jan 2026)
 
 **Fonctionnalités :**
@@ -99,8 +119,6 @@ const books = await searchByQuery('Le Seigneur des Anneaux', 10);
 }
 ```
 
-**Prochaine étape :** Connecter le scanner au BookService pour récupérer les données du livre via l'ISBN détecté
-
 ### 🔧 Configuration Prettier - Mise à jour (20 jan 2026)
 
 - Changement de `"arrowParens": "avoid"` vers `"arrowParens": "always"`
@@ -136,7 +154,7 @@ const books = await searchByQuery('Le Seigneur des Anneaux', 10);
 
 ### 🎯 Prochaines Étapes
 
-1. 🔗 Connecter le scanner au BookService (appel `searchByISBN` après scan)
+1. ~~🔗 Connecter le scanner au BookService (appel `searchByISBN` après scan)~~ ✅
 2. 📖 Créer l'écran BookDetailScreen (affichage résultat du scan)
 3. 💾 Installer et configurer expo-sqlite
 4. 🗄️ Implémenter DatabaseService (CRUD livres)
@@ -831,7 +849,7 @@ getStats() → Promise<Stats>
 - ✅ Overlay UI avec cadre de visée et coins décoratifs
 - ✅ Feedback visuel au scan (message vert + ISBN affiché)
 - ✅ Gestion des permissions caméra
-- ⏳ Appel automatique BookService après scan (à connecter)
+- ✅ Appel automatique BookService après scan (connecté le 20 jan 2026)
 
 ---
 
@@ -1166,7 +1184,8 @@ export default function MonComposant({ onPress }) {
 ### Phase 2 : Core Features 🚧 (En cours)
 
 - [x] Scanner ISBN avec expo-camera (✅ 19 jan 2026)
-- [ ] BookService (Google Books + OpenLibrary)
+- [x] BookService (Google Books + OpenLibrary) (✅ 20 jan 2026)
+- [x] Connexion Scanner → BookService (✅ 20 jan 2026)
 - [ ] DatabaseService (SQLite)
 - [ ] Écran détail livre (BookDetailScreen)
 - [ ] CRUD livres complet
@@ -1235,8 +1254,8 @@ export default function MonComposant({ onPress }) {
 - **Compte Expo** : @candyfair
 - **Project ID** : `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - **Version actuelle** : 1.0.0 (MVP en développement)
-- **Branche active** : `page-cleaning`
-- **Dernière mise à jour** : 9 décembre 2025
+- **Branche active** : `create-modal`
+- **Dernière mise à jour** : 20 janvier 2026
 
 ---
 

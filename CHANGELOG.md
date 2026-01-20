@@ -15,7 +15,61 @@ Prochains objectifs :
 - Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
 - Créer l'écran de détail livre (BookDetailScreen)
-- Connecter le scanner au BookService
+
+---
+
+## [1.0.0-dev.9] - 2026-01-20
+
+### ✅ Ajouté
+
+**Scanner - Intégration API** (`src/screens/ScanScreen.js`)
+- Connexion du scanner au `BookService.searchByISBN()`
+- Appel automatique à l'API après détection d'un code-barres
+- Nouveaux états pour gérer le flux de recherche :
+  - `isLoading` : Indicateur de chargement pendant l'appel API
+  - `bookData` : Données du livre récupéré
+  - `error` : Message d'erreur si livre non trouvé ou problème réseau
+
+**Feedback utilisateur après scan :**
+- Affichage "Recherche en cours..." pendant l'appel API
+- Affichage du titre et auteur si livre trouvé (bandeau vert)
+- Affichage du message d'erreur si livre non trouvé (bandeau rouge)
+- Réinitialisation complète des états lors du "Scanner à nouveau"
+
+### 📝 Notes Techniques
+
+**Flux complet du scan :**
+1. Détection ISBN par la caméra (`onBarcodeScanned`)
+2. `handleBarcodeScanned` déclenche `searchByISBN(isbn)`
+3. Google Books API appelée en premier
+4. Si non trouvé, fallback vers OpenLibrary API
+5. Résultat affiché à l'utilisateur (succès ou erreur)
+
+**Code de la fonction handleBarcodeScanned :**
+```javascript
+const handleBarcodeScanned = async ({ data }) => {
+  if (scanned) return;
+  setScanned(true);
+  setScannedISBN(data);
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const book = await searchByISBN(data);
+    if (book) {
+      setBookData(book);
+    } else {
+      setError('Livre non trouvé dans les bases de données');
+    }
+  } catch (err) {
+    setError('Erreur lors de la recherche. Vérifiez votre connexion.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+```
+
+**Prochaine étape :** Créer BookDetailScreen pour afficher les détails complets et permettre l'ajout à la bibliothèque
 
 ---
 
