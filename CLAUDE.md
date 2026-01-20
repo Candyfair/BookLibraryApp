@@ -5,7 +5,7 @@
 
 ---
 
-## 🆕 Dernières Mises à Jour (Décembre 2025)
+## 🆕 Dernières Mises à Jour (Janvier 2026)
 
 ### ✅ Phase 1 Foundation - Complétée
 
@@ -31,6 +31,34 @@
 - ✅ ProfileBottomSheet (remplace ProfileScreen pour l'UI)
 - ✅ Menu Drawer simplifié : "Scanner un livre", "Voir mes livres", "Statistiques"
 - ✅ Bottom sheet profil ouverte à 92% (laisse visible le header)
+
+### ✅ Scanner de Code-Barres - Implémenté (19 jan 2026)
+
+**Fonctionnalités :**
+
+- ✅ **ScanScreen** (`src/screens/ScanScreen.js`) - Écran complet de scan ISBN
+- ✅ Intégration `expo-camera` avec `CameraView` et `useCameraPermissions`
+- ✅ Détection automatique des codes-barres EAN-13 et EAN-8 (ISBN)
+- ✅ Gestion des permissions caméra avec écran dédié (demande explicite à l'utilisateur)
+- ✅ UI du scanner : cadre de visée avec coins décoratifs, ligne de scan, instructions
+- ✅ Feedback visuel au scan réussi (message de confirmation vert avec ISBN détecté)
+- ✅ Bouton "Scanner à nouveau" pour réinitialiser le scan
+- ✅ Navigation : bouton retour intégré dans l'overlay
+
+**Architecture technique :**
+
+```javascript
+// Utilisation de expo-camera
+import { CameraView, useCameraPermissions } from 'expo-camera';
+
+// Configuration du scanner
+barcodeScannerSettings={{
+  barcodeTypes: ['ean13', 'ean8'],
+}}
+onBarcodeScanned={handleBarcodeScanned}
+```
+
+**Prochaine étape :** Connecter le scanner au BookService pour récupérer les données du livre via l'ISBN détecté
 
 > 📋 Pour l'historique détaillé des changements, voir [CHANGELOG.md](CHANGELOG.md)
 
@@ -62,11 +90,11 @@
 
 ### 🎯 Prochaines Étapes
 
-1. 🔧 Tester le scanner de code-barres avec expo-camera sur Android
+1. 📚 Implémenter BookService (Google Books + OpenLibrary) - connecter au scanner
 2. 💾 Installer et configurer expo-sqlite
 3. 🗄️ Implémenter DatabaseService (CRUD livres)
-4. 📚 Implémenter BookService (Google Books + OpenLibrary)
-5. 🎨 Créer l'écran ScanScreen avec expo-camera
+4. 📖 Créer l'écran BookDetailScreen (affichage résultat du scan)
+5. 🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde
 
 ---
 
@@ -1098,10 +1126,10 @@ export default function MonComposant({ onPress }) {
 
 ### Phase 2 : Core Features 🚧 (En cours)
 
+- [x] Scanner ISBN avec expo-camera (✅ 19 jan 2026)
 - [ ] BookService (Google Books + OpenLibrary)
 - [ ] DatabaseService (SQLite)
-- [ ] Scanner ISBN avec expo-camera
-- [ ] Écran détail livre
+- [ ] Écran détail livre (BookDetailScreen)
 - [ ] CRUD livres complet
 
 ### Phase 3 : Enhanced Features

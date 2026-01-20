@@ -35,6 +35,8 @@ export default function ScanScreen({ navigation }) {
   }
 
   // Écran de demande de permission
+  // TODO: Tester l'affichage de cet écran
+  //
   if (!permission.granted) {
     return (
       <SafeAreaView className="flex-1 bg-gray-50 justify-center items-center px-8">
