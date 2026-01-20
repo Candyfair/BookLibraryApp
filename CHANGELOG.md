@@ -12,11 +12,107 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/).
 ### 🎯 Phase en cours : Core Features (Phase 2)
 
 Prochains objectifs :
-- Implémenter BookService (Google Books + OpenLibrary)
 - Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
-- Créer l'écran ScanScreen avec expo-camera
-- Créer l'écran de détail livre
+- Créer l'écran de détail livre (BookDetailScreen)
+- Connecter le scanner au BookService
+
+---
+
+## [1.0.0-dev.8] - 2026-01-20
+
+### ✅ Ajouté
+
+**Services - BookService** (`src/services/BookService.js`)
+- Implémentation complète du service de recherche de livres
+- Intégration **Google Books API** comme source principale
+- Intégration **OpenLibrary API** comme fallback
+- Fonctions exportées :
+  - `searchByISBN(isbn)` : Recherche par ISBN (Google Books puis OpenLibrary)
+  - `searchByQuery(query, maxResults)` : Recherche textuelle
+  - `fetchFromGoogleBooks(query, maxResults)` : Appel direct Google Books
+  - `fetchFromOpenLibrary(isbn)` : Appel direct OpenLibrary
+- Normalisation des données des deux APIs vers un format commun :
+  ```javascript
+  {
+    id, isbn, title, author, description, coverUrl,
+    publisher, publishedDate, pageCount, language,
+    categories, source
+  }
+  ```
+- Conversion automatique des URLs de couverture en HTTPS
+- Gestion des erreurs avec fallback automatique
+
+### 🔧 Modifié
+
+**Configuration Prettier** (`.prettierrc`)
+- Changement de `"arrowParens": "avoid"` vers `"arrowParens": "always"`
+- Les fonctions fléchées ont maintenant toujours des parenthèses autour des paramètres
+
+### 📝 Notes Techniques
+
+**Workflow de recherche :**
+1. `searchByISBN(isbn)` appelle d'abord Google Books avec `isbn:{isbn}`
+2. Si aucun résultat, fallback vers OpenLibrary `/isbn/{isbn}.json`
+3. Les données sont normalisées vers un format unifié
+
+**Normalisation Google Books :**
+- Extraction ISBN-13 prioritaire, sinon ISBN-10
+- Conversion des URLs de couverture HTTP → HTTPS
+- Gestion des auteurs multiples (jointure avec virgule)
+
+**Normalisation OpenLibrary :**
+- Construction URL couverture via cover ID
+- Extraction de la description (string ou objet avec `.value`)
+- Limitation des catégories à 5 maximum
+
+---
+
+## [1.0.0-dev.7] - 2026-01-19
+
+### ✅ Ajouté
+
+**Scanner ISBN** (`src/screens/ScanScreen.js`)
+- Écran complet de scan de codes-barres ISBN
+- Intégration `expo-camera` avec `CameraView` et `useCameraPermissions`
+- Détection automatique des codes-barres **EAN-13** et **EAN-8**
+- Gestion complète des permissions caméra :
+  - Écran de demande de permission avec bouton explicite
+  - Message d'erreur si permission refusée
+- Interface utilisateur du scanner :
+  - Cadre de visée avec coins décoratifs
+  - Ligne de scan animée (indication visuelle)
+  - Instructions textuelles pour l'utilisateur
+- Feedback visuel au scan réussi :
+  - Message de confirmation vert avec ISBN détecté
+  - Bouton "Scanner à nouveau" pour réinitialiser
+- Navigation : bouton retour intégré dans l'overlay
+
+### 📝 Notes Techniques
+
+**Configuration expo-camera pour le scan :**
+```javascript
+<CameraView
+  style={StyleSheet.absoluteFillObject}
+  facing="back"
+  barcodeScannerSettings={{
+    barcodeTypes: ['ean13', 'ean8'],
+  }}
+  onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+/>
+```
+
+**Gestion des permissions :**
+```javascript
+const [permission, requestPermission] = useCameraPermissions();
+
+// Trois états possibles :
+// 1. permission === null : Chargement
+// 2. permission.granted === false : Demande de permission
+// 3. permission.granted === true : Affichage du scanner
+```
+
+**Prochaine étape :** Connecter `handleBarcodeScanned` au `BookService.searchByISBN()`
 
 ---
 

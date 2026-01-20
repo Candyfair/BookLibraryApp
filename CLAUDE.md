@@ -58,7 +58,53 @@ barcodeScannerSettings={{
 onBarcodeScanned={handleBarcodeScanned}
 ```
 
+### ✅ BookService - Implémenté (20 jan 2026)
+
+**Fonctionnalités :**
+
+- ✅ **BookService** (`src/services/BookService.js`) - Service complet de recherche de livres
+- ✅ Intégration **Google Books API** comme source principale
+- ✅ Intégration **OpenLibrary API** comme fallback automatique
+- ✅ Normalisation des données vers un format unifié
+- ✅ Gestion des erreurs avec fallback automatique
+
+**API disponible :**
+
+```javascript
+import { searchByISBN, searchByQuery } from '../services/BookService';
+
+// Recherche par ISBN (Google Books puis OpenLibrary en fallback)
+const book = await searchByISBN('9782253004226');
+
+// Recherche textuelle (titre, auteur, etc.)
+const books = await searchByQuery('Le Seigneur des Anneaux', 10);
+```
+
+**Format de données normalisé :**
+
+```javascript
+{
+  id: string,           // ID unique (Google ou OpenLibrary)
+  isbn: string | null,  // ISBN-13 ou ISBN-10
+  title: string,        // Titre du livre
+  author: string,       // Auteur(s) séparés par virgule
+  description: string | null,
+  coverUrl: string | null,  // URL HTTPS de la couverture
+  publisher: string | null,
+  publishedDate: string | null,
+  pageCount: number | null,
+  language: string | null,
+  categories: string[],
+  source: 'google_books' | 'open_library'
+}
+```
+
 **Prochaine étape :** Connecter le scanner au BookService pour récupérer les données du livre via l'ISBN détecté
+
+### 🔧 Configuration Prettier - Mise à jour (20 jan 2026)
+
+- Changement de `"arrowParens": "avoid"` vers `"arrowParens": "always"`
+- Les fonctions fléchées ont maintenant toujours des parenthèses autour des paramètres
 
 > 📋 Pour l'historique détaillé des changements, voir [CHANGELOG.md](CHANGELOG.md)
 
@@ -90,10 +136,10 @@ onBarcodeScanned={handleBarcodeScanned}
 
 ### 🎯 Prochaines Étapes
 
-1. 📚 Implémenter BookService (Google Books + OpenLibrary) - connecter au scanner
-2. 💾 Installer et configurer expo-sqlite
-3. 🗄️ Implémenter DatabaseService (CRUD livres)
-4. 📖 Créer l'écran BookDetailScreen (affichage résultat du scan)
+1. 🔗 Connecter le scanner au BookService (appel `searchByISBN` après scan)
+2. 📖 Créer l'écran BookDetailScreen (affichage résultat du scan)
+3. 💾 Installer et configurer expo-sqlite
+4. 🗄️ Implémenter DatabaseService (CRUD livres)
 5. 🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde
 
 ---
@@ -724,27 +770,24 @@ LIMIT 5
 
 ## 🚧 Modules à Implémenter
 
-### 1. **BookService** (Priorité 1)
+### 1. ~~**BookService**~~ ✅ Implémenté (20 jan 2026)
 
-**Fichier** : `services/BookService.js`
+**Fichier** : `src/services/BookService.js`
 
-**Méthodes :**
+**Méthodes disponibles :**
 
 ```javascript
-// Recherche par ISBN
-searchByISBN(isbn) → Promise<Book>
+import { searchByISBN, searchByQuery, fetchFromGoogleBooks, fetchFromOpenLibrary } from '../services/BookService';
+
+// Recherche par ISBN (Google Books + OpenLibrary fallback)
+const book = await searchByISBN('9782253004226');
 
 // Recherche textuelle
-searchByQuery(query) → Promise<Book[]>
+const books = await searchByQuery('Le Seigneur des Anneaux', 10);
 
-// Appel Google Books
-fetchFromGoogleBooks(query) → Promise<RawData>
-
-// Appel OpenLibrary (fallback)
-fetchFromOpenLibrary(query) → Promise<RawData>
-
-// Normalisation données
-normalizeBookData(rawData, source) → Book
+// Appels directs aux APIs
+const googleResults = await fetchFromGoogleBooks('tolkien', 5);
+const openLibResult = await fetchFromOpenLibrary('9782253004226');
 ```
 
 ---
@@ -777,26 +820,22 @@ getStats() → Promise<Stats>
 
 ---
 
-### 3. **ScanScreen** (Priorité 2)
+### 3. ~~**ScanScreen**~~ ✅ Implémenté (19 jan 2026)
 
 **Fichier** : `src/screens/ScanScreen.js`
 
-**Fonctionnalités :**
+**Fonctionnalités implémentées :**
 
-- Caméra avec `expo-camera`
-- Détection automatique ISBN (EAN-13, EAN-8) via `barCodeScannerSettings`
-- Overlay UI avec guide de scan
-- Feedback visuel au scan
-- Appel automatique BookService après scan
-
-**Note technique :**
-
-- `expo-camera` remplace `expo-barcode-scanner` (incompatible avec Expo SDK 54)
-- Utilise la prop `barCodeScannerSettings` pour activer le scan de codes-barres
+- ✅ Caméra avec `expo-camera` (`CameraView` + `useCameraPermissions`)
+- ✅ Détection automatique ISBN (EAN-13, EAN-8) via `barcodeScannerSettings`
+- ✅ Overlay UI avec cadre de visée et coins décoratifs
+- ✅ Feedback visuel au scan (message vert + ISBN affiché)
+- ✅ Gestion des permissions caméra
+- ⏳ Appel automatique BookService après scan (à connecter)
 
 ---
 
-### 4. **BookDetailScreen** (Priorité 2)
+### 4. **BookDetailScreen** (Priorité 1 - Prochaine étape)
 
 **Fichier** : `src/screens/BookDetailScreen.js`
 
