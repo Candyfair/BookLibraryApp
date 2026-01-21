@@ -12,9 +12,72 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/).
 ### 🎯 Phase en cours : Core Features (Phase 2)
 
 Prochains objectifs :
+- Créer l'écran de détail livre (BookDetailScreen)
 - Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
-- Créer l'écran de détail livre (BookDetailScreen)
+
+---
+
+## [1.0.0-dev.10] - 2026-01-21
+
+### ✅ Ajouté
+
+**HomeScreen - Recherche textuelle complète** (`src/screens/HomeScreen.js`)
+- Intégration de `searchByQuery()` pour la recherche par titre/auteur
+- Affichage des résultats de recherche avec :
+  - Couverture du livre (ou placeholder gris si absente)
+  - Titre (2 lignes max)
+  - Auteur (1 ligne max)
+  - Description (4 lignes max avec ellipsis)
+- Indicateur de chargement "Recherche en cours..."
+- Gestion des erreurs avec message rouge
+- Pagination avec bouton "Charger plus" (20 résultats par page)
+- États de chargement séparés pour recherche initiale et chargement supplémentaire
+
+**BookService - Support de la pagination** (`src/services/BookService.js`)
+- Ajout du paramètre `startIndex` pour la pagination dans `searchByQuery()` et `fetchFromGoogleBooks()`
+- Retour enrichi avec `totalItems` et `hasMore` pour gérer la pagination côté client
+- Structure de retour : `{ items: Array, totalItems: number, hasMore: boolean }`
+
+### 🔧 Modifié
+
+**BookService** (`src/services/BookService.js`)
+- `searchByQuery(query, maxResults, startIndex)` : Nouveau paramètre `startIndex` (défaut: 0)
+- `fetchFromGoogleBooks(query, maxResults, startIndex)` : Nouveau paramètre `startIndex` (défaut: 0)
+- Retour modifié pour inclure les métadonnées de pagination
+
+### 📝 Notes Techniques
+
+**Pagination Google Books API :**
+- `startIndex` : Index de départ pour les résultats
+- `maxResults` : Nombre de résultats par page (max 40)
+- `totalItems` : Nombre total de résultats disponibles
+
+**Nouveaux états HomeScreen :**
+```javascript
+const [searched, setSearched] = useState(false);      // Recherche effectuée
+const [bookList, setBookList] = useState([]);         // Liste des livres
+const [hasMore, setHasMore] = useState(false);        // Plus de résultats disponibles
+const [error, setError] = useState(null);             // Message d'erreur
+const [isLoading, setIsLoading] = useState(false);    // Chargement initial
+const [isLoadingMore, setIsLoadingMore] = useState(false); // Chargement pagination
+```
+
+**Fonction handleLoadMore :**
+```javascript
+const handleLoadMore = async () => {
+  if (isLoadingMore || !hasMore) return;
+  setIsLoadingMore(true);
+
+  const result = await searchByQuery(searchQuery, RESULTS_PER_PAGE, bookList.length);
+  setBookList(prev => [...prev, ...result.items]);
+  setHasMore(result.hasMore);
+
+  setIsLoadingMore(false);
+};
+```
+
+**Prochaine étape :** Créer BookDetailScreen pour afficher les détails complets et permettre l'ajout à la bibliothèque
 
 ---
 

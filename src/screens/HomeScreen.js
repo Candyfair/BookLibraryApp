@@ -1,10 +1,18 @@
-import { View, Text, TextInput, TouchableOpacity, Button } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
 // Composants
 import Header from '../components/Header';
+import { searchByQuery } from '../services/BookService';
 
 /**
  * Home Screen - Point d'entrée principal de l'application
@@ -20,6 +28,14 @@ import Header from '../components/Header';
  */
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searched, setSearched] = useState(false);
+  const [bookList, setBookList] = useState([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const RESULTS_PER_PAGE = 20;
 
   // État pour le champ de recherche
 
@@ -27,16 +43,57 @@ export default function HomeScreen({ navigation }) {
    * Gère la soumission de la recherche
    * TODO: Intégrer avec BookService pour rechercher dans Google Books / OpenLibrary
    */
-  const handleSearch = () => {
+  const handleSearch = async () => {
+    setSearched(true);
+    setIsLoading(true);
+    setError(null);
+    setBookList([]);
+    setHasMore(false);
+
     if (searchQuery.trim()) {
-      console.log('Recherche :', searchQuery);
-      // TODO: Navigation vers résultats ou appel API
+      try {
+        const result = await searchByQuery(searchQuery, RESULTS_PER_PAGE, 0);
+
+        if (result.items.length > 0) {
+          setBookList(result.items);
+          setHasMore(result.hasMore);
+        } else {
+          setError('Aucun livre trouvé dans les bases de données');
+        }
+      } catch (err) {
+        setError('Erreur lors de la recherche. Vérifiez votre connexion.');
+        console.error('Erreur API: ', err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore) return;
+
+    setIsLoadingMore(true);
+
+    try {
+      const result = await searchByQuery(
+        searchQuery,
+        RESULTS_PER_PAGE,
+        bookList.length
+      );
+
+      if (result.items.length > 0) {
+        setBookList(prev => [...prev, ...result.items]);
+        setHasMore(result.hasMore);
+      }
+    } catch (err) {
+      console.error('Erreur lors du chargement:', err.message);
+    } finally {
+      setIsLoadingMore(false);
     }
   };
 
   /**
    * Ouvre le scanner de code-barre
-   * TODO: Navigation vers ScanScreen avec expo-barcode-scanner
    */
   const handleScanPress = () => {
     console.log('Ouverture du scanner');
@@ -84,6 +141,73 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Affichage des résultats */}
+        {searched && (
+          <>
+            <ScrollView
+              className="flex-1 mt-4"
+              showsVerticalScrollIndicator={false}
+            >
+              {isLoading ? (
+                <View className="bg-gray-800 rounded-lg py-4 items-center">
+                  <Text className="text-white">Recherche en cours...</Text>
+                </View>
+              ) : error ? (
+                <View className="bg-red-500 rounded-lg py-3 px-4 mb-3">
+                  <Text className="text-white">{error}</Text>
+                </View>
+              ) : bookList.length > 0 ? (
+                <View>
+                  {bookList.map((book, i) => {
+                    return (
+                      <View className="mb-3 flex flex-row gap-3" key={i}>
+                        {book.coverUrl ? (
+                          <Image
+                            source={{ uri: book.coverUrl }}
+                            style={{ width: 100, height: 138 }}
+                          />
+                        ) : (
+                          <View
+                            className="bg-gray-300"
+                            style={{ width: 100, height: 138 }}
+                          />
+                        )}
+                        <View className="flex-1 flex-col">
+                          <Text className="font-semibold" numberOfLines={2}>
+                            {book.title}
+                          </Text>
+                          <Text className="text-gray-600" numberOfLines={1}>
+                            {book.author}
+                          </Text>
+                          <Text
+                            className="text-gray-500 text-sm mt-1"
+                            numberOfLines={4}
+                            ellipsizeMode="tail"
+                          >
+                            {book.description}
+                          </Text>
+                        </View>
+                      </View>
+                    );
+                  })}
+                  {hasMore && (
+                    <TouchableOpacity
+                      onPress={handleLoadMore}
+                      className="bg-gray-200 rounded-lg py-3 items-center mb-4"
+                      activeOpacity={0.8}
+                      disabled={isLoadingMore}
+                    >
+                      <Text className="text-gray-700 font-semibold">
+                        {isLoadingMore ? 'Chargement...' : 'Charger plus'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              ) : null}
+            </ScrollView>
+          </>
+        )}
 
         {/* Titre de l'application - En bas */}
         <View className="items-start">

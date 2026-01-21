@@ -7,6 +7,25 @@
 
 ## 🆕 Dernières Mises à Jour (Janvier 2026)
 
+### ✅ Recherche textuelle complète - Implémenté (21 jan 2026)
+
+**HomeScreen - Recherche avec affichage des résultats :**
+
+- ✅ Intégration de `searchByQuery()` dans la barre de recherche
+- ✅ Affichage des résultats avec couverture, titre, auteur et description
+- ✅ Indicateur de chargement "Recherche en cours..."
+- ✅ Gestion des erreurs avec message explicite
+- ✅ Pagination avec bouton "Charger plus" (20 résultats par page)
+- ✅ États de chargement séparés (recherche initiale vs pagination)
+
+**BookService - Support de la pagination :**
+
+- ✅ `searchByQuery(query, maxResults, startIndex)` : Nouveau paramètre `startIndex`
+- ✅ `fetchFromGoogleBooks(query, maxResults, startIndex)` : Nouveau paramètre `startIndex`
+- ✅ Retour enrichi : `{ items: Array, totalItems: number, hasMore: boolean }`
+
+---
+
 ### ✅ Phase 1 Foundation - Complétée
 
 **Architecture & Navigation**
@@ -96,8 +115,12 @@ import { searchByISBN, searchByQuery } from '../services/BookService';
 // Recherche par ISBN (Google Books puis OpenLibrary en fallback)
 const book = await searchByISBN('9782253004226');
 
-// Recherche textuelle (titre, auteur, etc.)
-const books = await searchByQuery('Le Seigneur des Anneaux', 10);
+// Recherche textuelle avec pagination
+const result = await searchByQuery('Le Seigneur des Anneaux', 20, 0);
+// result = { items: Book[], totalItems: number, hasMore: boolean }
+
+// Charger plus de résultats (pagination)
+const moreResults = await searchByQuery('Le Seigneur des Anneaux', 20, 20);
 ```
 
 **Format de données normalisé :**
@@ -416,11 +439,13 @@ eas build:cancel             # Annuler un build en cours
 **Fonctionnalités :**
 
 - Barre de recherche textuelle (titre, auteur, ISBN)
-- Bouton "Rechercher" (appel API Google Books)
+- Recherche via `searchByQuery()` avec affichage des résultats
+- Affichage des livres : couverture, titre, auteur, description
+- Pagination avec bouton "Charger plus" (20 résultats par page)
+- Indicateur de chargement et gestion des erreurs
 - Bouton "Scanner un livre" (ouverture scanner ISBN)
-- Design centré verticalement (maquette respectée)
 
-**État actuel :** ✅ UI complète et conforme à la maquette, logique API à implémenter
+**État actuel :** ✅ Recherche textuelle complète avec pagination (21 jan 2026)
 
 ---
 
@@ -1186,8 +1211,9 @@ export default function MonComposant({ onPress }) {
 - [x] Scanner ISBN avec expo-camera (✅ 19 jan 2026)
 - [x] BookService (Google Books + OpenLibrary) (✅ 20 jan 2026)
 - [x] Connexion Scanner → BookService (✅ 20 jan 2026)
-- [ ] DatabaseService (SQLite)
+- [x] Recherche textuelle avec pagination (✅ 21 jan 2026)
 - [ ] Écran détail livre (BookDetailScreen)
+- [ ] DatabaseService (SQLite)
 - [ ] CRUD livres complet
 
 ### Phase 3 : Enhanced Features
@@ -1255,7 +1281,7 @@ export default function MonComposant({ onPress }) {
 - **Project ID** : `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - **Version actuelle** : 1.0.0 (MVP en développement)
 - **Branche active** : `create-modal`
-- **Dernière mise à jour** : 20 janvier 2026
+- **Dernière mise à jour** : 21 janvier 2026
 
 ---
 

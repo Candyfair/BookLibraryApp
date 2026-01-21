@@ -21,7 +21,8 @@ const normalizeGoogleBooksData = (item) => {
     title: volumeInfo.title || 'Titre inconnu',
     author: volumeInfo.authors?.join(', ') || 'Auteur inconnu',
     description: volumeInfo.description || null,
-    coverUrl: volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || null,
+    coverUrl:
+      volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || null,
     publisher: volumeInfo.publisher || null,
     publishedDate: volumeInfo.publishedDate || null,
     pageCount: volumeInfo.pageCount || null,
@@ -89,13 +90,21 @@ export const searchByISBN = async (isbn) => {
 /**
  * Recherche des livres par requête textuelle (titre, auteur, etc.)
  * @param {string} query - Texte de recherche
- * @param {number} maxResults - Nombre maximum de résultats (défaut: 10)
- * @returns {Promise<Array>} Liste de livres normalisés
+ * @param {number} maxResults - Nombre maximum de résultats (défaut: 20, max: 40)
+ * @param {number} startIndex - Index de départ pour la pagination (défaut: 0)
+ * @returns {Promise<{items: Array, totalItems: number, hasMore: boolean}>} Liste de livres normalisés avec infos de pagination
  */
-export const searchByQuery = async (query, maxResults = 10) => {
+export const searchByQuery = async (query, maxResults = 20, startIndex = 0) => {
   try {
-    const results = await fetchFromGoogleBooks(query, maxResults);
-    return results || [];
+    const results = await fetchFromGoogleBooks(query, maxResults, startIndex);
+    if (!results) {
+      return { items: [], totalItems: 0, hasMore: false };
+    }
+    return {
+      items: results.items,
+      totalItems: results.totalItems,
+      hasMore: startIndex + results.items.length < results.totalItems,
+    };
   } catch (error) {
     console.error('Erreur lors de la recherche textuelle:', error.message);
     throw error;
@@ -105,24 +114,33 @@ export const searchByQuery = async (query, maxResults = 10) => {
 /**
  * Récupère des livres depuis Google Books API
  * @param {string} query - Requête de recherche
- * @param {number} maxResults - Nombre maximum de résultats
- * @returns {Promise<Array|null>} Liste de livres normalisés ou null
+ * @param {number} maxResults - Nombre maximum de résultats (max 40)
+ * @param {number} startIndex - Index de départ pour la pagination (défaut: 0)
+ * @returns {Promise<{items: Array, totalItems: number}|null>} Liste de livres normalisés avec le total ou null
  */
-export const fetchFromGoogleBooks = async (query, maxResults = 10) => {
+export const fetchFromGoogleBooks = async (
+  query,
+  maxResults = 20,
+  startIndex = 0
+) => {
   try {
     const response = await axios.get(GOOGLE_BOOKS_API_URL, {
       params: {
         q: query,
-        maxResults,
+        maxResults: Math.min(maxResults, 40), // Limite API Google Books
+        startIndex,
         printType: 'books',
       },
     });
 
     if (!response.data.items || response.data.items.length === 0) {
-      return null;
+      return { items: [], totalItems: response.data.totalItems || 0 };
     }
 
-    return response.data.items.map(normalizeGoogleBooksData);
+    return {
+      items: response.data.items.map(normalizeGoogleBooksData),
+      totalItems: response.data.totalItems || 0,
+    };
   } catch (error) {
     if (error.response?.status === 404) {
       return null;

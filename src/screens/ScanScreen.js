@@ -1,8 +1,10 @@
-import { Text, View, Pressable, StyleSheet } from 'react-native';
+import { Text, View, Pressable, StyleSheet, Image } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+
+// API
 import { searchByISBN } from '../services/BookService';
 
 export default function ScanScreen({ navigation }) {
@@ -26,7 +28,6 @@ export default function ScanScreen({ navigation }) {
 
       if (book) {
         setBookData(book);
-        console.log('Livre trouvé :', book.title, ' - ', book.author);
       } else {
         setError('Livre non trouvé dans les bases de données');
       }
@@ -189,7 +190,8 @@ export default function ScanScreen({ navigation }) {
                       <Text className="text-white">{error}</Text>
                     </View>
                   ) : bookData ? (
-                    <View className="bg-green-500 rounded-lg py-3 px-4 mb-3">
+                    <View className="bg-slate-500 rounded-lg py-3 px-4 mb-3">
+                      <Image source={bookData.coverURL} />
                       <Text className="text-white font-semibold">
                         {bookData.title}
                       </Text>
