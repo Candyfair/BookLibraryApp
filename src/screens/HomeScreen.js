@@ -10,6 +10,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 
+// Context
+import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
+
 // Composants
 import Header from '../components/Header';
 import { searchByQuery } from '../services/BookService';
@@ -37,7 +40,7 @@ export default function HomeScreen({ navigation }) {
 
   const RESULTS_PER_PAGE = 20;
 
-  // État pour le champ de recherche
+  const { openBookDetail } = useBookDetailBottomSheet();
 
   /**
    * Gère la soumission de la recherche
@@ -82,7 +85,7 @@ export default function HomeScreen({ navigation }) {
       );
 
       if (result.items.length > 0) {
-        setBookList(prev => [...prev, ...result.items]);
+        setBookList((prev) => [...prev, ...result.items]);
         setHasMore(result.hasMore);
       }
     } catch (err) {
@@ -182,15 +185,34 @@ export default function HomeScreen({ navigation }) {
                           </Text>
                           <Text
                             className="text-gray-500 text-sm mt-1"
-                            numberOfLines={4}
+                            numberOfLines={2}
                             ellipsizeMode="tail"
                           >
                             {book.description}
                           </Text>
+
+                          {/* Boutons d'actions */}
+                          <View className="flex-row gap-2 mt-2">
+                            <TouchableOpacity
+                              onPress={() => openBookDetail(book)}
+                              className="flex-1 bg-blue-500 rounded-lg py-2 items-center"
+                            >
+                              <Text className="text-white text-sm font-semibold">
+                                Détails
+                              </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity className="flex-1 bg-blue-500 rounded-lg py-2 items-center">
+                              <Text className="text-white text-sm font-semibold">
+                                Ajouter
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
                         </View>
                       </View>
                     );
                   })}
+
                   {hasMore && (
                     <TouchableOpacity
                       onPress={handleLoadMore}
