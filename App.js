@@ -9,6 +9,8 @@ import RootNavigator from './src/navigation/RootNavigator';
 // Context & Components
 import { ProfileBottomSheetProvider } from './src/contexts/ProfileBottomSheetContext';
 import ProfileBottomSheet from './src/components/ProfileBottomSheet';
+import { BookDetailBottomSheetProvider } from './src/contexts/BookDetailBottomSheetContext';
+import BookDetailBottomSheet from './src/components/BookDetailBottomSheet';
 
 export default function App() {
   return (
@@ -16,8 +18,11 @@ export default function App() {
       <SafeAreaProvider>
         <BottomSheetModalProvider>
           <ProfileBottomSheetProvider>
-            <RootNavigator />
-            <ProfileBottomSheet />
+            <BookDetailBottomSheetProvider>
+              <RootNavigator />
+              <ProfileBottomSheet />
+              <BookDetailBottomSheet />
+            </BookDetailBottomSheetProvider>
           </ProfileBottomSheetProvider>
         </BottomSheetModalProvider>
       </SafeAreaProvider>
