@@ -187,15 +187,27 @@ const moreResults = await searchByQuery('Le Seigneur des Anneaux', 20, 20);
 - `expo` (SDK 54.0.26), `expo-dev-client`, `expo-status-bar`
 - `axios`, `@react-native-async-storage/async-storage`
 
+**Base de données :**
+
+- `expo-sqlite` - Base de données locale SQLite
+
+**Worklets :**
+
+- `react-native-worklets` - Runtime worklets pour React Native
+- `react-native-worklets-core` - Core worklets (requis par reanimated)
+
 **Packages Natifs (Installés mais non configurés) :**
 
 - ✅ `expo-camera` - Caméra et scanner de codes-barres (compatible Expo 54, remplace expo-barcode-scanner)
 - ✅ `@react-native-google-signin/google-signin` - Auth Google (config requise)
 - ✅ `@invertase/react-native-apple-authentication` - Auth Apple (config requise)
 
-**À Installer :**
+**Qualité de code (devDependencies) :**
 
-- `expo-sqlite` - Base de données locale
+- `eslint` + `@react-native/eslint-config` - Linting
+- `eslint-config-prettier`, `eslint-plugin-prettier` - Intégration ESLint/Prettier
+- `eslint-plugin-react`, `eslint-plugin-react-native` - Règles React/RN
+- `prettier` - Formatage de code
 
 > **Note :** Les packages natifs sont installés mais nécessitent une configuration supplémentaire dans `app.json` et des credentials (Google OAuth, Apple Developer) avant utilisation.
 
@@ -203,7 +215,7 @@ const moreResults = await searchByQuery('Le Seigneur des Anneaux', 20, 20);
 
 1. ~~🔗 Connecter le scanner au BookService (appel `searchByISBN` après scan)~~ ✅
 2. ~~📖 Créer la modale BookDetailBottomSheet (affichage détails livre)~~ ✅
-3. 💾 Installer et configurer expo-sqlite
+3. ~~💾 Installer et configurer expo-sqlite~~ ✅
 4. 🗄️ Implémenter DatabaseService (CRUD livres)
 5. 🔗 Brancher le bouton "Ajouter" sur le DatabaseService
 6. 🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde
@@ -250,6 +262,8 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 | `react-native-safe-area-context` | 5.6.0   | Safe areas (notch, etc.)   |
 | `react-native-gesture-handler`   | 2.28.0  | Gestion gestures natives   |
 | `react-native-reanimated`        | 4.1.1   | Animations performantes    |
+| `react-native-worklets`         | 0.5.1   | Runtime worklets           |
+| `react-native-worklets-core`    | 1.6.2   | Core worklets (reanimated) |
 
 > **Note :** Le projet utilise **React Navigation** (Drawer + Stack) et **non Expo Router**. Un dossier `app/` contenant des fichiers avec Expo Router a été supprimé pour éviter toute confusion.
 
@@ -307,7 +321,9 @@ BookDetailBottomSheet Component (src/components/)
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
 const { openBookDetail } = useBookDetailBottomSheet();
-<TouchableOpacity onPress={() => openBookDetail(book)}>Détails</TouchableOpacity>;
+<TouchableOpacity onPress={() => openBookDetail(book)}>
+  Détails
+</TouchableOpacity>;
 ```
 
 ### APIs & Services
@@ -321,7 +337,7 @@ const { openBookDetail } = useBookDetailBottomSheet();
 
 | Package                                     | Usage                                           | Statut         |
 | ------------------------------------------- | ----------------------------------------------- | -------------- |
-| `expo-sqlite`                               | Base de données locale (livres, notes, statuts) | ⏳ À installer |
+| `expo-sqlite`                               | Base de données locale (livres, notes, statuts) | ✅ Installé    |
 | `@react-native-async-storage/async-storage` | Préférences utilisateur, cache temporaire       | ✅ Installé    |
 
 ### Fonctionnalités Natives
@@ -333,12 +349,21 @@ const { openBookDetail } = useBookDetailBottomSheet();
 | `@react-native-google-signin/google-signin`    | Sign in avec Google                                               | ✅ Installé - Configuration manuelle requise |
 | `@invertase/react-native-apple-authentication` | Sign in avec Apple                                                | ✅ Installé - Configuration manuelle requise |
 | `axios`                                        | Requêtes HTTP vers APIs                                           | ✅ Installé                                  |
+| `expo-sqlite`                                  | Base de données locale SQLite                                     | ✅ Installé                                  |
 
-### À Installer Plus Tard
+### Qualité de Code (devDependencies)
 
-| Package       | Usage                  | Raison                                                     |
-| ------------- | ---------------------- | ---------------------------------------------------------- |
-| `expo-sqlite` | Base de données locale | ⏳ À installer lors de l'implémentation du DatabaseService |
+| Package                        | Version | Usage                           |
+| ------------------------------ | ------- | ------------------------------- |
+| `eslint`                       | 8.57.1  | Linting JavaScript/React        |
+| `@react-native/eslint-config`  | 0.82.1  | Config ESLint pour React Native |
+| `eslint-config-prettier`       | 10.1.8  | Désactive règles conflictuelles |
+| `eslint-plugin-prettier`       | 5.5.4   | Intégration Prettier/ESLint     |
+| `eslint-plugin-react`          | 7.37.5  | Règles ESLint pour React        |
+| `eslint-plugin-react-native`   | 5.0.0   | Règles ESLint pour React Native |
+| `prettier`                     | 3.7.4   | Formatage de code               |
+| `babel-preset-expo`            | 54.0.8  | Preset Babel pour Expo          |
+| `tailwindcss`                  | 3.4.0   | Framework CSS utilitaire        |
 
 > **Note :** Les packages natifs d'authentification nécessitent une configuration supplémentaire :
 >
@@ -877,7 +902,12 @@ LIMIT 5
 **Méthodes disponibles :**
 
 ```javascript
-import { searchByISBN, searchByQuery, fetchFromGoogleBooks, fetchFromOpenLibrary } from '../services/BookService';
+import {
+  searchByISBN,
+  searchByQuery,
+  fetchFromGoogleBooks,
+  fetchFromOpenLibrary,
+} from '../services/BookService';
 
 // Recherche par ISBN (Google Books + OpenLibrary fallback)
 const book = await searchByISBN('9782253004226');
@@ -938,6 +968,7 @@ getStats() → Promise<Stats>
 ### 4. ~~**BookDetailScreen**~~ → **BookDetailBottomSheet** ✅ Implémenté (26 jan 2026)
 
 **Fichiers** :
+
 - `src/components/BookDetailBottomSheet.js` - Composant bottom sheet
 - `src/contexts/BookDetailBottomSheetContext.js` - Context API
 
@@ -1375,6 +1406,12 @@ Projet personnel - Tous droits réservés (pour le MVP)
 > **Section réservée à vos notes, réflexions et TODOs personnels.**
 > Cette section ne sera jamais modifiée par Claude, sauf instruction explicite de votre part.
 
+### TODOs Personnels
+
+- Quand le scan trouve un titre, il faut faire une recherche par titre plutôt que le laisser trouver l'ISBN (trop d'échec !)
+  - Aussi : pourquoi est-ce que l'auteur est toujours "inconnu" lors d'une recherche ISBN ?
+  - Logger le résultat d'une recherche par ISBN pour comprendre ce qui est récupéré
+
 ### Idées & Réflexions
 
 Fonctions :
@@ -1390,22 +1427,15 @@ Styles :
 
 - Ajouter polices
 - Configurer les couleurs du thème (mais pas de dark mode)
-- Convertir le titre "Ma bibliothèque" en SVG pour la page de scanner, afin qu'il soit toujours à la bonne taille qu'elle que soit la résolution d'écran
+- Convertir le titre "Ma bibliothèque" en SVG pour la page d'accueil, afin qu'il soit toujours à la bonne taille quelle que soit la résolution d'écran
 
 Maquette :
 
 - Ecran Statistiques à créer
 
-### TODOs Personnels
-
-NEXT :
-
-- Remplacer écrans login + profil par bottom sheet -> installé @gorhom/bottom-sheet
-- Mettre les appels API en place (pour l'appel de livres)
-
 ### Questions à Résoudre
 
-- Quelle librairie utiliser pour les appels API ?
+- Quand le scan ne trouve pas les ISBN, faut-il faire plutôt une recherche par titre ?
 
 ---
 

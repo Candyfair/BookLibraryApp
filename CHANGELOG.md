@@ -12,9 +12,48 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/).
 ### 🎯 Phase en cours : Core Features (Phase 2)
 
 Prochains objectifs :
-- Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
 - Brancher le bouton "Ajouter" sur le DatabaseService
+
+---
+
+## [1.0.0-dev.12] - 2026-01-26
+
+### 📦 Ajouté
+
+**Nouvelles dépendances installées :**
+
+- `expo-sqlite` (~16.0.10) - Base de données locale SQLite pour le stockage des livres
+- `react-native-worklets` (0.5.1) - Runtime worklets pour React Native
+- `react-native-worklets-core` (^1.6.2) - Core worklets (requis par reanimated)
+
+**Outils de qualité de code (devDependencies) :**
+
+- `eslint` (^8.57.1) - Linting JavaScript/React
+- `@react-native/eslint-config` (^0.82.1) - Configuration ESLint pour React Native
+- `eslint-config-prettier` (^10.1.8) - Désactive les règles ESLint conflictuelles avec Prettier
+- `eslint-plugin-prettier` (^5.5.4) - Intégration Prettier comme règle ESLint
+- `eslint-plugin-react` (^7.37.5) - Règles ESLint spécifiques React
+- `eslint-plugin-react-native` (^5.0.0) - Règles ESLint spécifiques React Native
+- `prettier` (^3.7.4) - Formatage automatique du code
+
+### 🔧 Modifié
+
+**package.json**
+- Ajout de scripts lint et format :
+  - `lint` : `eslint .`
+  - `lint:fix` : `eslint . --fix`
+  - `format` : `prettier --write "**/*.{js,jsx,json,md}"`
+  - `format:check` : `prettier --check "**/*.{js,jsx,json,md}"`
+
+### 📝 Notes Techniques
+
+**expo-sqlite** est maintenant installé et prêt pour l'implémentation du DatabaseService.
+
+**Configuration ESLint & Prettier :**
+- ESLint configuré avec les règles React Native standard
+- Prettier intégré via `eslint-plugin-prettier` pour un formatage cohérent
+- `arrowParens: "always"` configuré dans Prettier
 
 ---
 
@@ -828,21 +867,40 @@ DrawerNavigator
 - react-native-safe-area-context: ~5.6.0
 - react-native-gesture-handler: ~2.28.0
 - react-native-reanimated: ~4.1.1
+- @gorhom/bottom-sheet: ^5.2.8
 
 **Styling**
 - nativewind: ^4.2.1
-- tailwindcss: ^3.4.18
+- tailwindcss: ^3.4.0
 
 **Expo & Core**
 - expo: ~54.0.26
 - expo-dev-client: ~6.0.19
 - expo-status-bar: ~3.0.8
+- expo-camera: ~17.0.10
+- expo-sqlite: ~16.0.10
 - react: 19.1.0
 - react-native: 0.81.5
+- react-native-worklets: 0.5.1
+- react-native-worklets-core: ^1.6.2
 
 **Utilitaires**
 - axios: ^1.13.2
 - @react-native-async-storage/async-storage: ^2.2.0
+
+**Authentification (non configurés)**
+- @react-native-google-signin/google-signin: ^16.0.0
+- @invertase/react-native-apple-authentication: ^2.5.0
+
+**DevDependencies**
+- babel-preset-expo: ^54.0.8
+- eslint: ^8.57.1
+- @react-native/eslint-config: ^0.82.1
+- eslint-config-prettier: ^10.1.8
+- eslint-plugin-prettier: ^5.5.4
+- eslint-plugin-react: ^7.37.5
+- eslint-plugin-react-native: ^5.0.0
+- prettier: ^3.7.4
 
 ---
 

@@ -8,18 +8,18 @@ Installer `expo-sqlite` et implémenter le `DatabaseService` pour permettre l'aj
 
 ## Fichiers à créer
 
-| Fichier | Description |
-| --- | --- |
+| Fichier                           | Description                                                                        |
+| --------------------------------- | ---------------------------------------------------------------------------------- |
 | `src/services/DatabaseService.js` | Service CRUD complet (init DB, ajout, lecture, mise à jour, suppression de livres) |
 
 ## Fichiers à modifier
 
-| Fichier | Modification |
-| --- | --- |
-| `src/screens/HomeScreen.js` | Brancher le bouton "Ajouter" sur `DatabaseService.addBook()` |
-| `src/components/BookDetailBottomSheet.js` | Ajouter un bouton "Ajouter à ma bibliothèque" qui appelle `DatabaseService.addBook()` |
-| `src/screens/LibraryScreen.js` | Remplacer les données fictives par les livres issus de SQLite via `DatabaseService.getAllBooks()` |
-| `App.js` | Appeler `DatabaseService.initDatabase()` au démarrage de l'application |
+| Fichier                                   | Modification                                                                                      |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `src/screens/HomeScreen.js`               | Brancher le bouton "Ajouter" sur `DatabaseService.addBook()`                                      |
+| `src/components/BookDetailBottomSheet.js` | Ajouter un bouton "Ajouter à ma bibliothèque" qui appelle `DatabaseService.addBook()`             |
+| `src/screens/LibraryScreen.js`            | Remplacer les données fictives par les livres issus de SQLite via `DatabaseService.getAllBooks()` |
+| `App.js`                                  | Appeler `DatabaseService.initDatabase()` au démarrage de l'application                            |
 
 ---
 
@@ -27,8 +27,8 @@ Installer `expo-sqlite` et implémenter le `DatabaseService` pour permettre l'aj
 
 ### 1. Installer expo-sqlite
 
-- Installer le package avec `npx expo install expo-sqlite`
-- Vérifier la compatibilité avec Expo SDK 54
+- ✅ Installer le package avec `npx expo install expo-sqlite`
+- ✅ Vérifier la compatibilité avec Expo SDK 54
 
 ### 2. Créer le DatabaseService
 
@@ -71,34 +71,34 @@ Installer `expo-sqlite` et implémenter le `DatabaseService` pour permettre l'aj
 
 ### Table `books`
 
-| Colonne | Type | Description |
-| --- | --- | --- |
-| `id` | INTEGER PRIMARY KEY | ID auto-incrémenté |
-| `isbn` | TEXT UNIQUE | ISBN-10 ou ISBN-13 |
-| `title` | TEXT NOT NULL | Titre du livre |
-| `author` | TEXT | Auteur principal |
-| `description` | TEXT | Résumé du livre |
-| `cover_url` | TEXT | URL image de couverture |
-| `publisher` | TEXT | Éditeur |
-| `published_date` | TEXT | Date de publication |
-| `page_count` | INTEGER | Nombre de pages |
-| `language` | TEXT | Code langue (fr, en, etc.) |
-| `categories` | TEXT | Genres (JSON array) |
-| `created_at` | DATETIME | Date d'ajout |
-| `updated_at` | DATETIME | Dernière modification |
+| Colonne          | Type                | Description                |
+| ---------------- | ------------------- | -------------------------- |
+| `id`             | INTEGER PRIMARY KEY | ID auto-incrémenté         |
+| `isbn`           | TEXT UNIQUE         | ISBN-10 ou ISBN-13         |
+| `title`          | TEXT NOT NULL       | Titre du livre             |
+| `author`         | TEXT                | Auteur principal           |
+| `description`    | TEXT                | Résumé du livre            |
+| `cover_url`      | TEXT                | URL image de couverture    |
+| `publisher`      | TEXT                | Éditeur                    |
+| `published_date` | TEXT                | Date de publication        |
+| `page_count`     | INTEGER             | Nombre de pages            |
+| `language`       | TEXT                | Code langue (fr, en, etc.) |
+| `categories`     | TEXT                | Genres (JSON array)        |
+| `created_at`     | DATETIME            | Date d'ajout               |
+| `updated_at`     | DATETIME            | Dernière modification      |
 
 ### Table `user_book_data`
 
-| Colonne | Type | Description |
-| --- | --- | --- |
-| `id` | INTEGER PRIMARY KEY | ID auto-incrémenté |
-| `book_id` | INTEGER FOREIGN KEY | Référence vers `books.id` |
-| `status` | TEXT | `to_read`, `reading`, `read`, `wishlist` |
-| `is_favorite` | BOOLEAN | Livre favori (0/1) |
-| `personal_rating` | INTEGER | Note personnelle (1-5) |
-| `notes` | TEXT | Notes personnelles |
-| `lent_to` | TEXT | Nom de la personne (si prêté) |
-| `lent_date` | DATETIME | Date du prêt |
-| `borrowed_from` | TEXT | Nom de la personne (si emprunté) |
-| `borrowed_date` | DATETIME | Date de l'emprunt |
-| `read_date` | DATETIME | Date de lecture (si lu) |
+| Colonne           | Type                | Description                              |
+| ----------------- | ------------------- | ---------------------------------------- |
+| `id`              | INTEGER PRIMARY KEY | ID auto-incrémenté                       |
+| `book_id`         | INTEGER FOREIGN KEY | Référence vers `books.id`                |
+| `status`          | TEXT                | `to_read`, `reading`, `read`, `wishlist` |
+| `is_favorite`     | BOOLEAN             | Livre favori (0/1)                       |
+| `personal_rating` | INTEGER             | Note personnelle (1-5)                   |
+| `notes`           | TEXT                | Notes personnelles                       |
+| `lent_to`         | TEXT                | Nom de la personne (si prêté)            |
+| `lent_date`       | DATETIME            | Date du prêt                             |
+| `borrowed_from`   | TEXT                | Nom de la personne (si emprunté)         |
+| `borrowed_date`   | DATETIME            | Date de l'emprunt                        |
+| `read_date`       | DATETIME            | Date de lecture (si lu)                  |
