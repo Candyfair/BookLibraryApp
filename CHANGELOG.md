@@ -12,9 +12,90 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/).
 ### 🎯 Phase en cours : Core Features (Phase 2)
 
 Prochains objectifs :
-- Créer l'écran de détail livre (BookDetailScreen)
 - Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
+- Brancher le bouton "Ajouter" sur le DatabaseService
+
+---
+
+## [1.0.0-dev.11] - 2026-01-26
+
+### ✅ Ajouté
+
+**Modale détail livre - BookDetailBottomSheet** (`src/components/BookDetailBottomSheet.js`)
+- Création d'une bottom sheet modale réutilisable pour afficher les détails d'un livre
+- Même pattern que `ProfileBottomSheet` : `BottomSheetModal` à 92%, backdrop semi-transparent, swipe down pour fermer
+- Affichage conditionnel des informations du livre :
+  - Couverture (Image centrée, 150x220)
+  - Titre et auteur (centré)
+  - Description complète (scrollable)
+  - Catégories sous forme de badges bleus
+- Bouton fermer (icône close-circle-outline)
+- Composant accessible depuis n'importe quel écran via le hook `useBookDetailBottomSheet()`
+
+**Context API - BookDetailBottomSheetContext** (`src/contexts/BookDetailBottomSheetContext.js`)
+- Nouveau Context pour gérer l'état global de la modale détail livre
+- Provider `BookDetailBottomSheetProvider` avec :
+  - `selectedBook` : livre actuellement affiché dans la modale
+  - `openBookDetail(book)` : stocke le livre et ouvre la bottom sheet
+  - `closeBookDetail()` : ferme la bottom sheet
+  - `handleDismiss()` : nettoie `selectedBook` après fermeture
+- Hook `useBookDetailBottomSheet()` pour accès depuis n'importe quel composant
+
+**HomeScreen - Boutons d'actions** (`src/screens/HomeScreen.js`)
+- Ajout de 2 boutons d'action par résultat de recherche :
+  - **"Détails"** : ouvre la modale `BookDetailBottomSheet` avec `openBookDetail(book)`
+  - **"Ajouter"** : placeholder pour l'ajout en base de données locale (à brancher sur DatabaseService)
+- Intégration du hook `useBookDetailBottomSheet()` dans HomeScreen
+- Description des résultats réduite à 2 lignes (au lieu de 4) pour laisser place aux boutons
+
+### 🔧 Modifié
+
+**App.js**
+- Ajout de `BookDetailBottomSheetProvider` dans la hiérarchie des Providers
+- Ajout du composant `BookDetailBottomSheet` au niveau racine
+- Nouvelle hiérarchie :
+  ```
+  GestureHandlerRootView
+    └─ SafeAreaProvider
+        └─ BottomSheetModalProvider
+            └─ ProfileBottomSheetProvider
+                └─ BookDetailBottomSheetProvider
+                    ├─ RootNavigator
+                    ├─ ProfileBottomSheet
+                    └─ BookDetailBottomSheet
+  ```
+
+**HomeScreen** (`src/screens/HomeScreen.js`)
+- Import du hook `useBookDetailBottomSheet` depuis le Context
+- Ajout de `openBookDetail` pour ouvrir la modale au clic sur "Détails"
+- Réduction du `numberOfLines` de la description de 4 à 2 dans la liste de résultats
+
+### 📝 Notes Techniques
+
+**Architecture Bottom Sheets :**
+L'application utilise maintenant 2 bottom sheets modales gérées par Context API :
+1. `ProfileBottomSheet` : Profil utilisateur / Login
+2. `BookDetailBottomSheet` : Détails d'un livre
+
+Les deux suivent le même pattern :
+- Context avec Provider + Hook
+- `BottomSheetModal` de `@gorhom/bottom-sheet`
+- Montées au niveau racine (`App.js`)
+- Accessibles depuis n'importe quel écran
+
+**BookDetailBottomSheetContext API :**
+```javascript
+const {
+  bottomSheetRef,        // Ref vers la BottomSheetModal
+  selectedBook,          // Livre actuellement sélectionné (ou null)
+  openBookDetail,        // Ouvre la modale avec un livre : openBookDetail(book)
+  closeBookDetail,       // Ferme la modale
+  handleDismiss,         // Callback après fermeture (nettoie selectedBook)
+} = useBookDetailBottomSheet();
+```
+
+**Prochaine étape :** Installer expo-sqlite et implémenter DatabaseService pour brancher le bouton "Ajouter"
 
 ---
 

@@ -7,6 +7,30 @@
 
 ## 🆕 Dernières Mises à Jour (Janvier 2026)
 
+### ✅ Modale détail livre + boutons d'actions - Implémenté (26 jan 2026)
+
+**BookDetailBottomSheet - Modale réutilisable de détail livre :**
+
+- ✅ Création de `BookDetailBottomSheet` (`src/components/BookDetailBottomSheet.js`) - Bottom sheet modale affichant les détails d'un livre
+- ✅ Création de `BookDetailBottomSheetContext` (`src/contexts/BookDetailBottomSheetContext.js`) - Context API pour gestion globale
+- ✅ Hook `useBookDetailBottomSheet()` avec `openBookDetail(book)`, `closeBookDetail()`, `handleDismiss()`
+- ✅ Affichage : couverture, titre, auteur, description, catégories (badges)
+- ✅ Même pattern que ProfileBottomSheet (`BottomSheetModal`, snapPoints 92%, backdrop)
+- ✅ Réutilisable depuis n'importe quel écran via le hook
+
+**HomeScreen - Boutons d'actions par résultat de recherche :**
+
+- ✅ Bouton "Détails" : ouvre la modale `BookDetailBottomSheet` avec le livre sélectionné
+- ✅ Bouton "Ajouter" : placeholder pour l'ajout en base de données locale (à brancher sur DatabaseService)
+- ✅ Intégration du hook `useBookDetailBottomSheet()` dans HomeScreen
+
+**App.js - Intégration du Provider :**
+
+- ✅ Ajout de `BookDetailBottomSheetProvider` dans la hiérarchie des Providers
+- ✅ Ajout du composant `BookDetailBottomSheet` au niveau racine
+
+---
+
 ### ✅ Recherche textuelle complète - Implémenté (21 jan 2026)
 
 **HomeScreen - Recherche avec affichage des résultats :**
@@ -178,10 +202,11 @@ const moreResults = await searchByQuery('Le Seigneur des Anneaux', 20, 20);
 ### 🎯 Prochaines Étapes
 
 1. ~~🔗 Connecter le scanner au BookService (appel `searchByISBN` après scan)~~ ✅
-2. 📖 Créer l'écran BookDetailScreen (affichage résultat du scan)
+2. ~~📖 Créer la modale BookDetailBottomSheet (affichage détails livre)~~ ✅
 3. 💾 Installer et configurer expo-sqlite
 4. 🗄️ Implémenter DatabaseService (CRUD livres)
-5. 🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde
+5. 🔗 Brancher le bouton "Ajouter" sur le DatabaseService
+6. 🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde
 
 ---
 
@@ -260,6 +285,31 @@ const { openBottomSheet } = useProfileBottomSheet();
 <Pressable onPress={openBottomSheet}>Ouvrir profil</Pressable>;
 ```
 
+**BookDetailBottomSheet Architecture :**
+
+```
+BookDetailBottomSheetContext (src/contexts/)
+  ├─ État global : selectedBook, bottomSheetRef
+  ├─ Méthodes : openBookDetail(book), closeBookDetail(), handleDismiss()
+  └─ Hook : useBookDetailBottomSheet()
+
+BookDetailBottomSheet Component (src/components/)
+  ├─ BottomSheetModal (de @gorhom/bottom-sheet)
+  ├─ BottomSheetScrollView (scrolling optimisé)
+  ├─ BottomSheetBackdrop (overlay semi-transparent)
+  ├─ Ouverture : index={0}, snapPoints={['92%']}
+  └─ Contenu : couverture, titre, auteur, description, catégories
+```
+
+**Utilisation depuis n'importe quel écran :**
+
+```javascript
+import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
+
+const { openBookDetail } = useBookDetailBottomSheet();
+<TouchableOpacity onPress={() => openBookDetail(book)}>Détails</TouchableOpacity>;
+```
+
 ### APIs & Services
 
 | API                  | Usage                                                                            | Fallback          |
@@ -328,7 +378,13 @@ BookLibraryApp/
 │   │
 │   ├── components/                 # Composants réutilisables
 │   │   ├── Header.js               # Header réutilisable (burger + profil)
-│   │   └── CustomDrawerContent.js # Menu drawer simplifié
+│   │   ├── CustomDrawerContent.js  # Menu drawer simplifié
+│   │   ├── ProfileBottomSheet.js   # Bottom sheet profil/login
+│   │   └── BookDetailBottomSheet.js # Bottom sheet détail livre
+│   │
+│   ├── contexts/                   # Contexts React (état global)
+│   │   ├── ProfileBottomSheetContext.js    # Context bottom sheet profil
+│   │   └── BookDetailBottomSheetContext.js # Context bottom sheet détail livre
 │   │
 │   ├── services/                   # (À créer) Logique métier
 │   │   ├── BookService.js          # API Google Books + OpenLibrary
@@ -441,11 +497,12 @@ eas build:cancel             # Annuler un build en cours
 - Barre de recherche textuelle (titre, auteur, ISBN)
 - Recherche via `searchByQuery()` avec affichage des résultats
 - Affichage des livres : couverture, titre, auteur, description
+- Boutons d'actions par résultat : "Détails" (ouvre modale) + "Ajouter" (placeholder DB)
 - Pagination avec bouton "Charger plus" (20 résultats par page)
 - Indicateur de chargement et gestion des erreurs
 - Bouton "Scanner un livre" (ouverture scanner ISBN)
 
-**État actuel :** ✅ Recherche textuelle complète avec pagination (21 jan 2026)
+**État actuel :** ✅ Recherche + boutons d'actions + modale détail (26 jan 2026)
 
 ---
 
@@ -878,16 +935,25 @@ getStats() → Promise<Stats>
 
 ---
 
-### 4. **BookDetailScreen** (Priorité 1 - Prochaine étape)
+### 4. ~~**BookDetailScreen**~~ → **BookDetailBottomSheet** ✅ Implémenté (26 jan 2026)
 
-**Fichier** : `src/screens/BookDetailScreen.js`
+**Fichiers** :
+- `src/components/BookDetailBottomSheet.js` - Composant bottom sheet
+- `src/contexts/BookDetailBottomSheetContext.js` - Context API
 
-**Fonctionnalités :**
+**Fonctionnalités implémentées :**
 
-- Affichage couverture + infos livre
+- ✅ Bottom sheet modale réutilisable (même pattern que ProfileBottomSheet)
+- ✅ Affichage couverture, titre, auteur, description, catégories
+- ✅ Accessible via `openBookDetail(book)` depuis n'importe quel écran
+- ✅ Bouton fermer, swipe down, tap backdrop pour fermer
+
+**Fonctionnalités à venir :**
+
 - Boutons action (Marquer comme lu, Ajouter wishlist, etc.)
 - Champs personnalisables (Notes, Rating, Prêt/Emprunt)
-- Édition/Suppression livre
+- Métadonnées complètes (éditeur, pages, langue, date)
+- Édition/Suppression livre (après DatabaseService)
 
 ---
 
@@ -1212,7 +1278,8 @@ export default function MonComposant({ onPress }) {
 - [x] BookService (Google Books + OpenLibrary) (✅ 20 jan 2026)
 - [x] Connexion Scanner → BookService (✅ 20 jan 2026)
 - [x] Recherche textuelle avec pagination (✅ 21 jan 2026)
-- [ ] Écran détail livre (BookDetailScreen)
+- [x] Modale détail livre (BookDetailBottomSheet) (✅ 26 jan 2026)
+- [x] Boutons d'actions dans les résultats de recherche (✅ 26 jan 2026)
 - [ ] DatabaseService (SQLite)
 - [ ] CRUD livres complet
 
@@ -1281,7 +1348,7 @@ export default function MonComposant({ onPress }) {
 - **Project ID** : `41b31d57-375b-4256-96ac-ddbe988a1e37`
 - **Version actuelle** : 1.0.0 (MVP en développement)
 - **Branche active** : `create-modal`
-- **Dernière mise à jour** : 21 janvier 2026
+- **Dernière mise à jour** : 26 janvier 2026
 
 ---
 
