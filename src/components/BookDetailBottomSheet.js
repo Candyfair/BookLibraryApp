@@ -111,6 +111,19 @@ export default function BookDetailBottomSheet() {
               {selectedBook.author}
             </Text>
 
+            {/* Bouton Ajouter à ma bibliothèque */}
+            <TouchableOpacity
+              onPress={() => {
+                console.log('Ajouter à ma bibliothèque:', selectedBook);
+              }}
+              className="bg-indigo-500 rounded-lg py-3 mt-4 items-center"
+              activeOpacity={0.8}
+            >
+              <Text className="text-white font-semibold text-base">
+                Ajouter à ma bibliothèque
+              </Text>
+            </TouchableOpacity>
+
             {/* Métadonnées (éditeur, pages, langue, date) */}
             {/* ... champs affichés conditionnellement selon leur existence ... */}
 

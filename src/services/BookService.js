@@ -71,12 +71,15 @@ export const searchByISBN = async (isbn) => {
     // Essayer Google Books d'abord
     const googleResult = await fetchFromGoogleBooks(`isbn:${isbn}`);
     if (googleResult && googleResult.length > 0) {
+      console.log('googleResult =', googleResult);
+
       return googleResult[0];
     }
 
     // Fallback vers OpenLibrary
     const openLibraryResult = await fetchFromOpenLibrary(isbn);
     if (openLibraryResult) {
+      console.log('openLibraryResult =', openLibraryResult);
       return openLibraryResult;
     }
 
