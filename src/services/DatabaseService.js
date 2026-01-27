@@ -69,3 +69,158 @@ export function addBook(book) {
 
   return result.lastInsertRowId;
 }
+
+/**
+ * Normalise une ligne SQLite (snake_case) vers le format JS (camelCase)
+ * @param {Object} row - Ligne brute de SQLite
+ * @returns {Object} Livre au format normalisé
+ */
+function normalizeRow(row) {
+  return {
+    id: row.id,
+    isbn: row.isbn,
+    title: row.title,
+    author: row.author,
+    description: row.description,
+    coverUrl: row.cover_url,
+    publisher: row.publisher,
+    publishedDate: row.published_date,
+    pageCount: row.page_count,
+    language: row.language,
+    categories: JSON.parse(row.categories || '[]'),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+/**
+ * Récupère un livre par son ID
+ * @param {number} id - ID du livre
+ * @returns {Object|null} Livre normalisé ou null si non trouvé
+ */
+export function getBookById(id) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const row = db.getFirstSync('SELECT * FROM books WHERE id = ?', [id]);
+  return row ? normalizeRow(row) : null;
+}
+
+/**
+ * Récupère tous les livres de la bibliothèque
+ * @returns {Array} Liste de livres normalisés
+ */
+export function getAllBooks() {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const rows = db.getAllSync('SELECT * FROM books ORDER BY created_at DESC');
+  return rows.map(normalizeRow);
+}
+
+/**
+ * Récupère les livres filtrés par statut
+ * @param {string} status - Statut du livre (to_read, reading, read, wishlist)
+ * @returns {Array} Liste de livres normalisés
+ */
+export function getBooksByStatus(status) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const rows = db.getAllSync(
+    `SELECT b.* FROM books b
+     INNER JOIN user_book_data ubd ON ubd.book_id = b.id
+     WHERE ubd.status = ?
+     ORDER BY b.created_at DESC`,
+    [status]
+  );
+  return rows.map(normalizeRow);
+}
+
+/**
+ * Met à jour un livre existant
+ * @param {number} id - ID du livre
+ * @param {Object} data - Champs à mettre à jour (format camelCase)
+ * @returns {number} Nombre de lignes modifiées
+ */
+export function updateBook(id, data) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const fieldMap = {
+    isbn: 'isbn',
+    title: 'title',
+    author: 'author',
+    description: 'description',
+    coverUrl: 'cover_url',
+    publisher: 'publisher',
+    publishedDate: 'published_date',
+    pageCount: 'page_count',
+    language: 'language',
+    categories: 'categories',
+  };
+
+  const setClauses = [];
+  const values = [];
+
+  for (const [jsKey, sqlColumn] of Object.entries(fieldMap)) {
+    if (jsKey in data) {
+      setClauses.push(`${sqlColumn} = ?`);
+      const value =
+        jsKey === 'categories'
+          ? JSON.stringify(data[jsKey] || [])
+          : data[jsKey];
+      values.push(value);
+    }
+  }
+
+  if (setClauses.length === 0) {
+    return 0;
+  }
+
+  setClauses.push('updated_at = CURRENT_TIMESTAMP');
+  values.push(id);
+
+  const result = db.runSync(
+    `UPDATE books SET ${setClauses.join(', ')} WHERE id = ?`,
+    values
+  );
+
+  return result.changes;
+}
+
+/**
+ * Supprime un livre par son ID
+ * @param {number} id - ID du livre
+ * @returns {number} Nombre de lignes supprimées
+ */
+export function deleteBook(id) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const result = db.runSync('DELETE FROM books WHERE id = ?', [id]);
+  return result.changes;
+}
+
+/**
+ * Vérifie si un livre existe déjà dans la bibliothèque par son ISBN
+ * @param {string} isbn - ISBN du livre
+ * @returns {boolean} true si le livre existe
+ */
+export function bookExists(isbn) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  if (!isbn) {
+    return false;
+  }
+
+  const row = db.getFirstSync('SELECT id FROM books WHERE isbn = ?', [isbn]);
+  return row !== null;
+}
