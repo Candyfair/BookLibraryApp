@@ -12,10 +12,782 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/).
 ### 🎯 Phase en cours : Core Features (Phase 2)
 
 Prochains objectifs :
-- Implémenter BookService (Google Books + OpenLibrary)
-- Installer et configurer expo-sqlite
 - Implémenter DatabaseService (CRUD livres)
-- Créer l'écran de détail livre
+- Brancher le bouton "Ajouter" sur le DatabaseService
+
+---
+
+## [1.0.0-dev.12] - 2026-01-26
+
+### 📦 Ajouté
+
+**Nouvelles dépendances installées :**
+
+- `expo-sqlite` (~16.0.10) - Base de données locale SQLite pour le stockage des livres
+- `react-native-worklets` (0.5.1) - Runtime worklets pour React Native
+- `react-native-worklets-core` (^1.6.2) - Core worklets (requis par reanimated)
+
+**Outils de qualité de code (devDependencies) :**
+
+- `eslint` (^8.57.1) - Linting JavaScript/React
+- `@react-native/eslint-config` (^0.82.1) - Configuration ESLint pour React Native
+- `eslint-config-prettier` (^10.1.8) - Désactive les règles ESLint conflictuelles avec Prettier
+- `eslint-plugin-prettier` (^5.5.4) - Intégration Prettier comme règle ESLint
+- `eslint-plugin-react` (^7.37.5) - Règles ESLint spécifiques React
+- `eslint-plugin-react-native` (^5.0.0) - Règles ESLint spécifiques React Native
+- `prettier` (^3.7.4) - Formatage automatique du code
+
+### 🔧 Modifié
+
+**package.json**
+- Ajout de scripts lint et format :
+  - `lint` : `eslint .`
+  - `lint:fix` : `eslint . --fix`
+  - `format` : `prettier --write "**/*.{js,jsx,json,md}"`
+  - `format:check` : `prettier --check "**/*.{js,jsx,json,md}"`
+
+### 📝 Notes Techniques
+
+**expo-sqlite** est maintenant installé et prêt pour l'implémentation du DatabaseService.
+
+**Configuration ESLint & Prettier :**
+- ESLint configuré avec les règles React Native standard
+- Prettier intégré via `eslint-plugin-prettier` pour un formatage cohérent
+- `arrowParens: "always"` configuré dans Prettier
+
+---
+
+## [1.0.0-dev.11] - 2026-01-26
+
+### ✅ Ajouté
+
+**Modale détail livre - BookDetailBottomSheet** (`src/components/BookDetailBottomSheet.js`)
+- Création d'une bottom sheet modale réutilisable pour afficher les détails d'un livre
+- Même pattern que `ProfileBottomSheet` : `BottomSheetModal` à 92%, backdrop semi-transparent, swipe down pour fermer
+- Affichage conditionnel des informations du livre :
+  - Couverture (Image centrée, 150x220)
+  - Titre et auteur (centré)
+  - Description complète (scrollable)
+  - Catégories sous forme de badges bleus
+- Bouton fermer (icône close-circle-outline)
+- Composant accessible depuis n'importe quel écran via le hook `useBookDetailBottomSheet()`
+
+**Context API - BookDetailBottomSheetContext** (`src/contexts/BookDetailBottomSheetContext.js`)
+- Nouveau Context pour gérer l'état global de la modale détail livre
+- Provider `BookDetailBottomSheetProvider` avec :
+  - `selectedBook` : livre actuellement affiché dans la modale
+  - `openBookDetail(book)` : stocke le livre et ouvre la bottom sheet
+  - `closeBookDetail()` : ferme la bottom sheet
+  - `handleDismiss()` : nettoie `selectedBook` après fermeture
+- Hook `useBookDetailBottomSheet()` pour accès depuis n'importe quel composant
+
+**HomeScreen - Boutons d'actions** (`src/screens/HomeScreen.js`)
+- Ajout de 2 boutons d'action par résultat de recherche :
+  - **"Détails"** : ouvre la modale `BookDetailBottomSheet` avec `openBookDetail(book)`
+  - **"Ajouter"** : placeholder pour l'ajout en base de données locale (à brancher sur DatabaseService)
+- Intégration du hook `useBookDetailBottomSheet()` dans HomeScreen
+- Description des résultats réduite à 2 lignes (au lieu de 4) pour laisser place aux boutons
+
+### 🔧 Modifié
+
+**App.js**
+- Ajout de `BookDetailBottomSheetProvider` dans la hiérarchie des Providers
+- Ajout du composant `BookDetailBottomSheet` au niveau racine
+- Nouvelle hiérarchie :
+  ```
+  GestureHandlerRootView
+    └─ SafeAreaProvider
+        └─ BottomSheetModalProvider
+            └─ ProfileBottomSheetProvider
+                └─ BookDetailBottomSheetProvider
+                    ├─ RootNavigator
+                    ├─ ProfileBottomSheet
+                    └─ BookDetailBottomSheet
+  ```
+
+**HomeScreen** (`src/screens/HomeScreen.js`)
+- Import du hook `useBookDetailBottomSheet` depuis le Context
+- Ajout de `openBookDetail` pour ouvrir la modale au clic sur "Détails"
+- Réduction du `numberOfLines` de la description de 4 à 2 dans la liste de résultats
+
+### 📝 Notes Techniques
+
+**Architecture Bottom Sheets :**
+L'application utilise maintenant 2 bottom sheets modales gérées par Context API :
+1. `ProfileBottomSheet` : Profil utilisateur / Login
+2. `BookDetailBottomSheet` : Détails d'un livre
+
+Les deux suivent le même pattern :
+- Context avec Provider + Hook
+- `BottomSheetModal` de `@gorhom/bottom-sheet`
+- Montées au niveau racine (`App.js`)
+- Accessibles depuis n'importe quel écran
+
+**BookDetailBottomSheetContext API :**
+```javascript
+const {
+  bottomSheetRef,        // Ref vers la BottomSheetModal
+  selectedBook,          // Livre actuellement sélectionné (ou null)
+  openBookDetail,        // Ouvre la modale avec un livre : openBookDetail(book)
+  closeBookDetail,       // Ferme la modale
+  handleDismiss,         // Callback après fermeture (nettoie selectedBook)
+} = useBookDetailBottomSheet();
+```
+
+**Prochaine étape :** Installer expo-sqlite et implémenter DatabaseService pour brancher le bouton "Ajouter"
+
+---
+
+## [1.0.0-dev.10] - 2026-01-21
+
+### ✅ Ajouté
+
+**HomeScreen - Recherche textuelle complète** (`src/screens/HomeScreen.js`)
+- Intégration de `searchByQuery()` pour la recherche par titre/auteur
+- Affichage des résultats de recherche avec :
+  - Couverture du livre (ou placeholder gris si absente)
+  - Titre (2 lignes max)
+  - Auteur (1 ligne max)
+  - Description (4 lignes max avec ellipsis)
+- Indicateur de chargement "Recherche en cours..."
+- Gestion des erreurs avec message rouge
+- Pagination avec bouton "Charger plus" (20 résultats par page)
+- États de chargement séparés pour recherche initiale et chargement supplémentaire
+
+**BookService - Support de la pagination** (`src/services/BookService.js`)
+- Ajout du paramètre `startIndex` pour la pagination dans `searchByQuery()` et `fetchFromGoogleBooks()`
+- Retour enrichi avec `totalItems` et `hasMore` pour gérer la pagination côté client
+- Structure de retour : `{ items: Array, totalItems: number, hasMore: boolean }`
+
+### 🔧 Modifié
+
+**BookService** (`src/services/BookService.js`)
+- `searchByQuery(query, maxResults, startIndex)` : Nouveau paramètre `startIndex` (défaut: 0)
+- `fetchFromGoogleBooks(query, maxResults, startIndex)` : Nouveau paramètre `startIndex` (défaut: 0)
+- Retour modifié pour inclure les métadonnées de pagination
+
+### 📝 Notes Techniques
+
+**Pagination Google Books API :**
+- `startIndex` : Index de départ pour les résultats
+- `maxResults` : Nombre de résultats par page (max 40)
+- `totalItems` : Nombre total de résultats disponibles
+
+**Nouveaux états HomeScreen :**
+```javascript
+const [searched, setSearched] = useState(false);      // Recherche effectuée
+const [bookList, setBookList] = useState([]);         // Liste des livres
+const [hasMore, setHasMore] = useState(false);        // Plus de résultats disponibles
+const [error, setError] = useState(null);             // Message d'erreur
+const [isLoading, setIsLoading] = useState(false);    // Chargement initial
+const [isLoadingMore, setIsLoadingMore] = useState(false); // Chargement pagination
+```
+
+**Fonction handleLoadMore :**
+```javascript
+const handleLoadMore = async () => {
+  if (isLoadingMore || !hasMore) return;
+  setIsLoadingMore(true);
+
+  const result = await searchByQuery(searchQuery, RESULTS_PER_PAGE, bookList.length);
+  setBookList(prev => [...prev, ...result.items]);
+  setHasMore(result.hasMore);
+
+  setIsLoadingMore(false);
+};
+```
+
+**Prochaine étape :** Créer BookDetailScreen pour afficher les détails complets et permettre l'ajout à la bibliothèque
+
+---
+
+## [1.0.0-dev.9] - 2026-01-20
+
+### ✅ Ajouté
+
+**Scanner - Intégration API** (`src/screens/ScanScreen.js`)
+- Connexion du scanner au `BookService.searchByISBN()`
+- Appel automatique à l'API après détection d'un code-barres
+- Nouveaux états pour gérer le flux de recherche :
+  - `isLoading` : Indicateur de chargement pendant l'appel API
+  - `bookData` : Données du livre récupéré
+  - `error` : Message d'erreur si livre non trouvé ou problème réseau
+
+**Feedback utilisateur après scan :**
+- Affichage "Recherche en cours..." pendant l'appel API
+- Affichage du titre et auteur si livre trouvé (bandeau vert)
+- Affichage du message d'erreur si livre non trouvé (bandeau rouge)
+- Réinitialisation complète des états lors du "Scanner à nouveau"
+
+### 📝 Notes Techniques
+
+**Flux complet du scan :**
+1. Détection ISBN par la caméra (`onBarcodeScanned`)
+2. `handleBarcodeScanned` déclenche `searchByISBN(isbn)`
+3. Google Books API appelée en premier
+4. Si non trouvé, fallback vers OpenLibrary API
+5. Résultat affiché à l'utilisateur (succès ou erreur)
+
+**Code de la fonction handleBarcodeScanned :**
+```javascript
+const handleBarcodeScanned = async ({ data }) => {
+  if (scanned) return;
+  setScanned(true);
+  setScannedISBN(data);
+  setIsLoading(true);
+  setError(null);
+
+  try {
+    const book = await searchByISBN(data);
+    if (book) {
+      setBookData(book);
+    } else {
+      setError('Livre non trouvé dans les bases de données');
+    }
+  } catch (err) {
+    setError('Erreur lors de la recherche. Vérifiez votre connexion.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+```
+
+**Prochaine étape :** Créer BookDetailScreen pour afficher les détails complets et permettre l'ajout à la bibliothèque
+
+---
+
+## [1.0.0-dev.8] - 2026-01-20
+
+### ✅ Ajouté
+
+**Services - BookService** (`src/services/BookService.js`)
+- Implémentation complète du service de recherche de livres
+- Intégration **Google Books API** comme source principale
+- Intégration **OpenLibrary API** comme fallback
+- Fonctions exportées :
+  - `searchByISBN(isbn)` : Recherche par ISBN (Google Books puis OpenLibrary)
+  - `searchByQuery(query, maxResults)` : Recherche textuelle
+  - `fetchFromGoogleBooks(query, maxResults)` : Appel direct Google Books
+  - `fetchFromOpenLibrary(isbn)` : Appel direct OpenLibrary
+- Normalisation des données des deux APIs vers un format commun :
+  ```javascript
+  {
+    id, isbn, title, author, description, coverUrl,
+    publisher, publishedDate, pageCount, language,
+    categories, source
+  }
+  ```
+- Conversion automatique des URLs de couverture en HTTPS
+- Gestion des erreurs avec fallback automatique
+
+### 🔧 Modifié
+
+**Configuration Prettier** (`.prettierrc`)
+- Changement de `"arrowParens": "avoid"` vers `"arrowParens": "always"`
+- Les fonctions fléchées ont maintenant toujours des parenthèses autour des paramètres
+
+### 📝 Notes Techniques
+
+**Workflow de recherche :**
+1. `searchByISBN(isbn)` appelle d'abord Google Books avec `isbn:{isbn}`
+2. Si aucun résultat, fallback vers OpenLibrary `/isbn/{isbn}.json`
+3. Les données sont normalisées vers un format unifié
+
+**Normalisation Google Books :**
+- Extraction ISBN-13 prioritaire, sinon ISBN-10
+- Conversion des URLs de couverture HTTP → HTTPS
+- Gestion des auteurs multiples (jointure avec virgule)
+
+**Normalisation OpenLibrary :**
+- Construction URL couverture via cover ID
+- Extraction de la description (string ou objet avec `.value`)
+- Limitation des catégories à 5 maximum
+
+---
+
+## [1.0.0-dev.7] - 2026-01-19
+
+### ✅ Ajouté
+
+**Scanner ISBN** (`src/screens/ScanScreen.js`)
+- Écran complet de scan de codes-barres ISBN
+- Intégration `expo-camera` avec `CameraView` et `useCameraPermissions`
+- Détection automatique des codes-barres **EAN-13** et **EAN-8**
+- Gestion complète des permissions caméra :
+  - Écran de demande de permission avec bouton explicite
+  - Message d'erreur si permission refusée
+- Interface utilisateur du scanner :
+  - Cadre de visée avec coins décoratifs
+  - Ligne de scan animée (indication visuelle)
+  - Instructions textuelles pour l'utilisateur
+- Feedback visuel au scan réussi :
+  - Message de confirmation vert avec ISBN détecté
+  - Bouton "Scanner à nouveau" pour réinitialiser
+- Navigation : bouton retour intégré dans l'overlay
+
+### 📝 Notes Techniques
+
+**Configuration expo-camera pour le scan :**
+```javascript
+<CameraView
+  style={StyleSheet.absoluteFillObject}
+  facing="back"
+  barcodeScannerSettings={{
+    barcodeTypes: ['ean13', 'ean8'],
+  }}
+  onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+/>
+```
+
+**Gestion des permissions :**
+```javascript
+const [permission, requestPermission] = useCameraPermissions();
+
+// Trois états possibles :
+// 1. permission === null : Chargement
+// 2. permission.granted === false : Demande de permission
+// 3. permission.granted === true : Affichage du scanner
+```
+
+**Prochaine étape :** Connecter `handleBarcodeScanned` au `BookService.searchByISBN()`
+
+---
+
+## [1.0.0-dev.6] - 2025-12-17
+
+### ✅ Ajouté
+
+**UI/UX - Bottom Sheet pour Login et Profil**
+- Migration complète de l'écran Profil vers une **BottomSheet** (@gorhom/bottom-sheet)
+- Création de `ProfileBottomSheet` component (`src/components/ProfileBottomSheet.js`)
+- Création de `ProfileBottomSheetContext` pour gestion globale de l'état (`src/contexts/ProfileBottomSheetContext.js`)
+- Bottom sheet accessible depuis n'importe quel écran via l'icône profil du Header
+- Ouverture directe à 92% de la hauteur d'écran (laisse visible le header avec icônes)
+- Animation fluide à l'ouverture et à la fermeture
+
+**Architecture & Configuration**
+- Ajout de `BottomSheetModalProvider` dans `App.js` (requis par @gorhom/bottom-sheet)
+- Ajout de `GestureHandlerRootView` pour supporter les gestures de la bottom sheet
+- Context Provider pattern pour état global accessible depuis toute l'app
+
+### 🔧 Modifié
+
+**Header Component** (`src/components/Header.js`)
+- Remplacement de `navigation.navigate('Profil')` par `openBottomSheet()`
+- Intégration du hook `useProfileBottomSheet()` pour accès au Context
+- L'icône profil ouvre maintenant la bottom sheet au lieu de naviguer vers ProfileStack
+
+**App.js**
+- Restructuration de la hiérarchie des Providers :
+  ```
+  GestureHandlerRootView
+    └─ SafeAreaProvider
+        └─ BottomSheetModalProvider
+            └─ ProfileBottomSheetProvider
+                ├─ RootNavigator
+                └─ ProfileBottomSheet
+  ```
+
+**ProfileBottomSheet Component** (`src/components/ProfileBottomSheet.js`)
+- Utilisation de `BottomSheetModal` au lieu de `BottomSheet` (meilleure performance)
+- Utilisation de `BottomSheetScrollView` pour scrolling optimisé
+- Optimisation avec `useMemo` pour snapPoints (évite re-création)
+- Optimisation avec `useCallback` pour tous les handlers (évite re-renders)
+- Backdrop personnalisé avec `BottomSheetBackdrop` (overlay semi-transparent)
+- Configuration `pressBehavior="close"` (clic dehors ferme la sheet)
+- Styles inline via StyleSheet au lieu de styles inline directs (performance)
+- Séparation claire des responsabilités :
+  - `closeBottomSheet()` : Démarre l'animation de fermeture
+  - `onDismiss={handleDismiss}` : Met à jour l'état après l'animation
+
+### 🎨 Optimisations Performance
+
+**Gestion des animations**
+- Prop `index={0}` pour ouverture directe au premier snapPoint (92%)
+- Méthodes `present()` et `dismiss()` au lieu de `expand()` et `close()`
+- Callback `onDismiss` séparé de `closeBottomSheet` pour éviter re-render pendant l'animation
+- Configuration `enableDismissOnClose={true}` pour fermeture fluide
+- Désactivation de `enableOverDrag` pour éviter glitches visuels
+
+**Optimisations React**
+- `useMemo(() => ['92%'], [])` pour snapPoints
+- `useCallback` pour tous les handlers (renderBackdrop, handleLogin, handleLogout, etc.)
+- Styles via StyleSheet.create() au lieu d'objets inline
+- `showsVerticalScrollIndicator={false}` pour réduire les re-renders
+
+### 📝 Architecture Technique
+
+**ProfileBottomSheetContext API :**
+```javascript
+const {
+  bottomSheetRef,        // Ref vers la BottomSheetModal
+  isOpen,                // État d'ouverture (boolean)
+  openBottomSheet,       // Ouvre la bottom sheet
+  closeBottomSheet,      // Ferme la bottom sheet
+  handleDismiss,         // Callback après fermeture (onDismiss)
+} = useProfileBottomSheet();
+```
+
+**Workflow d'ouverture/fermeture :**
+1. Clic sur icône profil → `openBottomSheet()`
+2. `present()` appelé → Animation d'ouverture démarre
+3. Bottom sheet s'ouvre à `index={0}` (snapPoint 92%)
+4. Clic dehors ou swipe down → `closeBottomSheet()`
+5. `dismiss()` appelé → Animation de fermeture démarre
+6. Animation terminée → `onDismiss` callback → `handleDismiss()` → `setIsOpen(false)`
+
+**BottomSheetModal vs BottomSheet :**
+- `BottomSheet` : Monté dès le départ, toujours présent dans le DOM
+- `BottomSheetModal` : Monté uniquement à l'ouverture (⚡ meilleure performance)
+- Méthodes différentes : `present()/dismiss()` vs `expand()/close()`
+
+### 🐛 Corrections
+
+**Animations saccadées à l'ouverture**
+- ❌ Problème : Contenu visible avant l'animation
+- ✅ Solution : Migration vers `BottomSheetModal` (contenu monté uniquement à l'ouverture)
+
+**Animations saccadées à la fermeture**
+- ❌ Problème : `onDismiss={closeBottomSheet}` causait un re-render pendant l'animation
+- ✅ Solution : Séparation `closeBottomSheet()` (animation) et `handleDismiss()` (état)
+
+**Backdrop clignotant**
+- ❌ Problème : `renderBackdrop` recréé à chaque render
+- ✅ Solution : Encapsulation dans `useCallback` avec dependencies array vide
+
+**Ouverture à mi-hauteur au lieu de 92%**
+- ❌ Problème : Pas d'index spécifié, ouverture par défaut
+- ✅ Solution : Ajout de la prop `index={0}` sur BottomSheetModal
+
+### 📦 Configuration
+
+**SnapPoints :**
+- `['92%']` : Plein écran avec header visible (icônes burger + profil)
+- Ajustable via modification du pourcentage dans `ProfileBottomSheet.js:31`
+
+**Backdrop :**
+- Opacité : 0.5
+- Couleur : Noir semi-transparent
+- Comportement : Clic dehors ferme la bottom sheet
+
+**Indicateur de poignée :**
+- Couleur : `#94a3b8` (gris ardoise)
+- Largeur : 40px
+- Position : Centré en haut de la bottom sheet
+
+### 🔄 Impact sur ProfileScreen.js
+
+**État actuel :**
+- ProfileScreen.js existe toujours mais n'est plus accessible via navigation
+- ProfileStack reste dans le DrawerNavigator mais est masqué (`drawerItemStyle: { display: 'none' }`)
+- Tout le contenu de ProfileScreen a été réutilisé dans ProfileBottomSheet
+
+**Prochaines étapes (optionnel) :**
+- Possibilité de supprimer ProfileStack du DrawerNavigator
+- Possibilité de supprimer ProfileScreen.js (logique migrée dans BottomSheet)
+
+### 🧪 Tests Effectués
+
+- ✅ Ouverture de la bottom sheet depuis HomeScreen
+- ✅ Ouverture de la bottom sheet depuis LibraryScreen
+- ✅ Ouverture de la bottom sheet depuis StatScreen
+- ✅ Fermeture par swipe down
+- ✅ Fermeture par clic sur backdrop
+- ✅ Fermeture par bouton close (icône X)
+- ✅ Animation fluide à l'ouverture (92% sans saccades)
+- ✅ Animation fluide à la fermeture (contenu disparaît avec la sheet)
+- ✅ Pas de clignotement du backdrop
+- ✅ Pas de contenu visible avant l'animation
+
+---
+
+## [1.0.0-dev.5] - 2025-12-11
+
+### ✅ Ajouté
+
+**Navigation - Sous-menus de Filtres dans le Drawer**
+- Ajout de 4 sous-menus de filtres entre "Voir mes livres" et "Statistiques" :
+  - ⭐ **Favoris** : Filtre `favorite` (indenté)
+  - 📤 **Prêtés** : Filtre `lent` (indenté)
+  - 📥 **Empruntés** : Filtre `borrowed` (indenté)
+  - 🎁 **Ma wishlist** : Filtre `wishlist` (non indenté, au même niveau que les items principaux)
+- Navigation vers LibraryScreen avec paramètre `filter` correspondant
+- Composant `SubMenuItem` réutilisable avec prop `indented={true|false}`
+
+### 🔧 Modifié
+
+**CustomDrawerContent** (`src/components/CustomDrawerContent.js`)
+- Refactorisation complète : remplacement de `<DrawerItemList />` par rendu manuel des items
+- Mapping sur `state.routes` pour contrôler l'ordre et insérer les sous-menus
+- Extraction de `drawerIcon` depuis `descriptors[route.key].options`
+- Ajout de la prop `focused` aux `DrawerItem` pour coloration de l'item actif
+- Composant `SubMenuItem` avec gestion conditionnelle de l'indentation via classe `pl-12`
+- Labels hardcodés en français pour cohérence avec le reste de l'UI
+
+**DrawerNavigator** (`src/navigation/DrawerNavigator.js`)
+- Renommage des `name` des Drawer.Screen pour conventions en anglais :
+  - "Scanner un livre" → `AddBook`
+  - "Voir mes livres" → `Library`
+  - "Statistiques" → `Statistics`
+  - "Profil" → `Profil` (inchangé)
+- Les labels affichés restent en français (gérés dans CustomDrawerContent)
+
+### 📝 Notes Techniques
+
+**Architecture Drawer mise à jour :**
+```
+CustomDrawerContent
+  ├─ Scanner un livre (AddBook)
+  ├─ Voir mes livres (Library)
+  │   ├─ Favoris (indenté)
+  │   ├─ Prêtés (indenté)
+  │   ├─ Empruntés (indenté)
+  │   └─ Ma wishlist (non indenté) → NOUVEAU
+  └─ Statistiques (Statistics)
+```
+
+**Système de navigation avec filtres :**
+- Clic sur un sous-menu : `navigation.navigate('Library', { filter: 'favorite' })`
+- LibraryScreen recevra le paramètre via `route.params?.filter`
+- Implémentation du filtrage côté LibraryScreen à venir (Phase 2)
+
+**Composant SubMenuItem :**
+```javascript
+<SubMenuItem
+  label="Favoris"
+  filter="favorite"
+  icon="star"
+  indented={true}  // Optionnel, true par défaut
+/>
+```
+
+---
+
+## [1.0.0-dev.4] - 2025-12-09
+
+### ✅ Ajouté
+
+**Navigation**
+- Création du StatStack dans `src/navigation/StatStack.js`
+- Ajout de l'écran Statistiques dans le DrawerNavigator
+- Nouvelle entrée "Statistiques" visible dans le menu Drawer avec icône `stats-chart`
+
+**Écrans**
+- Création de `src/screens/StatScreen.js` (placeholder temporaire)
+  - Header réutilisable intégré
+  - SafeAreaView pour gestion des zones sûres
+  - Message "(à implémenter)" en attente de la logique de calcul des stats
+
+### 🔧 Modifié
+
+**CustomDrawerContent** (`src/components/CustomDrawerContent.js`)
+- Suppression des statistiques dans le header du drawer
+- Simplification du contenu : titre + navigation + version uniquement
+- Suppression de la section "Liens rapides" (Stats, Paramètres, Aide)
+- Les statistiques sont désormais accessibles via l'écran dédié dans le drawer
+
+**DrawerNavigator** (`src/navigation/DrawerNavigator.js`)
+- Renommage des entrées du drawer pour plus de clarté :
+  - "Accueil" → "Scanner un livre" (icône `barcode-outline`)
+  - "Bibliothèque" → "Voir mes livres" (icône `library-outline`)
+- Ajout de l'entrée "Statistiques" (icône `stats-chart`)
+- Profil reste masqué (`drawerItemStyle: { display: 'none' }`)
+
+### ❌ Supprimé
+
+**CustomDrawerContent**
+- Section statistiques en un coup d'œil (Total livres, Lus, Wishlist)
+- Section "Liens rapides" avec boutons Statistiques, Paramètres, Aide
+- Tous les composants Pressable et imports Ionicons associés
+- Spacer central (simplifié en un seul spacer)
+
+### 📝 Notes Techniques
+
+**Architecture navigation mise à jour :**
+```
+DrawerNavigator
+  ├─ Scanner un livre (HomeStack)
+  ├─ Voir mes livres (LibraryStack)
+  ├─ Statistiques (StatStack) → NOUVEAU
+  └─ Profil (ProfileStack) - masqué
+```
+
+**Drawer simplifié :**
+- Header : Titre uniquement
+- Navigation : Liste automatique des écrans visibles
+- Footer : Version + informations produit
+
+---
+
+## [1.0.0-dev.3] - 2025-12-08
+
+### 🔧 Modifié
+
+**Refonte UI - HomeScreen**
+- Repositionnement des éléments conformément à la maquette
+- Boutons "Rechercher" et "Scanner un livre" centrés verticalement dans l'écran
+- Suppression des sections "Derniers ajouts" et "Accès rapide" (prévues pour implémentation ultérieure)
+- Layout simplifié pour mettre l'accent sur l'action principale (scan/recherche)
+- Container principal avec `flex: 1` et `justifyContent: 'center'` pour centrage vertical parfait
+
+**Refonte UI - LibraryScreen**
+- Suppression de l'état vide redondant (déjà géré par `ListEmptyComponent` de FlatList)
+- Bouton flottant "+" repositionné : `bottom: 90` au lieu de `80` pour éviter chevauchement avec la navigation
+- Code nettoyé : suppression des éléments commentés et des imports inutiles
+
+### ❌ Supprimé
+
+**HomeScreen**
+- Section "Derniers ajouts" (liste horizontale de 3 livres fictifs)
+- Section "Accès rapide" (raccourcis vers Bibliothèque et Statistiques)
+- Import `Ionicons` non utilisé après suppression des sections
+
+**LibraryScreen**
+- État vide personnalisé redondant (conservé uniquement le `ListEmptyComponent`)
+- Import `Ionicons` non utilisé
+- Code commenté obsolète
+
+### 📝 Documentation
+
+- Mise à jour CLAUDE.md avec les changements UI du 8 décembre
+- Mise à jour CHANGELOG.md avec la version 1.0.0-dev.3
+
+---
+
+## [1.0.0-dev.2] - 2025-12-07
+
+### ✅ Ajouté
+
+**Composants Réutilisables**
+- Création du composant `<Header />` dans `src/components/Header.js`
+  - Bouton burger : ouvre/ferme le Drawer via `navigation.toggleDrawer()`
+  - Bouton profil : navigue vers ProfileStack via `navigation.navigate('Profil')`
+  - Prop `showProfileButton={false}` pour masquer le bouton profil (utilisé sur ProfileScreen)
+  - Utilise NativeWind (classes Tailwind) pour le styling
+
+**Architecture Navigation**
+- Suppression des headers natifs dans tous les Stacks (`headerShown: false`)
+- Intégration du composant `<Header />` dans tous les écrans (HomeScreen, LibraryScreen, ProfileScreen)
+- Utilisation de `useNavigation()` de `@react-navigation/native` dans Header
+
+### 🔧 Modifié
+
+**Configuration Babel** (babel.config.js)
+- Configuration complète pour NativeWind v4 :
+  ```javascript
+  presets: [
+    ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
+    'nativewind/babel',
+  ]
+  ```
+- Plugin `react-native-reanimated/plugin` maintenu en dernier
+
+**Fichiers Navigation**
+- `src/navigation/HomeStack.js` : `headerShown: false`
+- `src/navigation/LibraryStack.js` : `headerShown: false`
+- `src/navigation/ProfileStack.js` : `headerShown: false`
+- Suppression des fonctions `getScreenOptions` inutilisées
+
+**Fichiers Écrans**
+- `src/screens/HomeScreen.js` : Import et utilisation de `<Header />`
+- `src/screens/LibraryScreen.js` : Import et utilisation de `<Header />`
+- `src/screens/ProfileScreen.js` : Import et utilisation de `<Header showProfileButton={false} />`
+
+### 🐛 Corrigé
+
+**Problème 5 : NativeWind v4 ne fonctionnait pas**
+- **Symptôme** : Classes Tailwind non compilées, styles non appliqués
+- **Cause** : Configuration Babel incomplète pour NativeWind v4
+- **Solution** :
+  - Ajout de `jsxImportSource: 'nativewind'` dans babel-preset-expo
+  - Ajout du preset `nativewind/babel`
+  - Redémarrage Metro avec `--clear` pour régénérer le cache
+- **Résultat** : ✅ NativeWind v4 pleinement fonctionnel
+
+**Problème 6 : Icônes Header empilées verticalement**
+- **Symptôme** : Boutons burger et profil affichés l'un au-dessus de l'autre au lieu d'horizontalement
+- **Cause** : Classe `flex-row` seule insuffisante dans certains contextes
+- **Solution** : Ajout de `flex` + `flex-row` ensemble
+- **Alternative appliquée** : Utilisation de NativeWind après correction configuration Babel
+
+### 📝 Documentation
+
+- Mise à jour CLAUDE.md avec :
+  - Section "Refactorisation navigation" dans Accomplissements Récents
+  - Configuration Babel complète documentée
+  - Ajout du composant Header dans la structure du projet
+  - Note sur NativeWind v4 fonctionnel
+
+---
+
+## [1.0.0-dev.1] - 2025-12-05 à 2025-12-06
+
+### ✅ Ajouté
+
+**Restructuration Architecture**
+- Création du dossier `src/` pour tout le code source
+- Création du dossier `src/navigation/` avec fichiers séparés :
+  - `RootNavigator.js` : NavigationContainer principal
+  - `DrawerNavigator.js` : Configuration Drawer avec écrans
+  - `HomeStack.js` : Stack pour l'écran Accueil avec headers personnalisés
+  - `LibraryStack.js` : Stack pour la Bibliothèque avec headers personnalisés
+  - `ProfileStack.js` : Stack pour le Profil avec header burger uniquement
+- Migration de expo-barcode-scanner vers expo-camera (Expo SDK 54 compatible)
+- Réinstallation packages natifs :
+  - `expo-camera`
+  - `@react-native-google-signin/google-signin`
+  - `@invertase/react-native-apple-authentication`
+
+**Navigation**
+- Headers personnalisés dans chaque Stack :
+  - Bouton burger (gauche) : ouvre/ferme le Drawer
+  - Bouton profil (droite) : navigue vers ProfileStack (sauf ProfileStack)
+- Écran Profil masqué du Drawer via `drawerItemStyle: { display: 'none' }`
+- Accessible uniquement via icône profil dans les headers
+
+### 🔧 Modifié
+
+**Organisation Fichiers**
+- Tous les fichiers en anglais (noms de fichiers + fonctions)
+- Textes utilisateur conservés en français
+- Déplacement écrans dans `src/screens/`
+- Déplacement composants dans `src/components/`
+
+**Navigation**
+- Remplacement de `<TouchableOpacity>` par `<Pressable>` dans tous les fichiers de navigation
+- Configuration Drawer avec statistiques en header
+- ProfileStack avec header burger uniquement (pas de bouton profil)
+
+**Configuration**
+- `tailwind.config.js` : Content paths mis à jour vers `./src/**/*.{js,jsx,ts,tsx}`
+- `.eslintrc.js` : Ajout de `requireConfigFile: false` pour compatibilité Babel
+
+### ❌ Supprimé
+
+**Fichiers Conflictuels**
+- Suppression dossier `app/` contenant des fichiers Expo Router non utilisés
+- Suppression fichier `Drawer.js` à la racine (remplacé par architecture modulaire)
+
+**Packages Temporairement Retirés** (pour corriger builds)
+- `expo-barcode-scanner` : Incompatible Expo SDK 54, remplacé par expo-camera
+
+### 🐛 Corrigé
+
+**Problème 3 (suite) : Migration expo-barcode-scanner**
+- **Phase 1** : Suppression temporaire pour corriger build iOS
+- **Phase 2** : Réinstallation → échec build Android (incompatibilité SDK 54)
+- **Phase 3** : Migration vers `expo-camera` avec support `barCodeScannerSettings`
+- **Résultat** : ✅ Compatible Expo SDK 54, build Android Development fonctionnel
+
+**Problème 4 (résolu complètement)**
+- Tests réussis sur appareil Android physique avec Development Build
+- expo-camera installé et prêt à l'emploi
+
+### 📝 Documentation
+
+- Mise à jour CLAUDE.md avec architecture complète
+- Documentation migration expo-barcode-scanner → expo-camera
+- Ajout section "Structure du Projet" avec arborescence détaillée
 
 ---
 
@@ -95,21 +867,40 @@ Prochains objectifs :
 - react-native-safe-area-context: ~5.6.0
 - react-native-gesture-handler: ~2.28.0
 - react-native-reanimated: ~4.1.1
+- @gorhom/bottom-sheet: ^5.2.8
 
 **Styling**
 - nativewind: ^4.2.1
-- tailwindcss: ^3.4.18
+- tailwindcss: ^3.4.0
 
 **Expo & Core**
 - expo: ~54.0.26
 - expo-dev-client: ~6.0.19
 - expo-status-bar: ~3.0.8
+- expo-camera: ~17.0.10
+- expo-sqlite: ~16.0.10
 - react: 19.1.0
 - react-native: 0.81.5
+- react-native-worklets: 0.5.1
+- react-native-worklets-core: ^1.6.2
 
 **Utilitaires**
 - axios: ^1.13.2
 - @react-native-async-storage/async-storage: ^2.2.0
+
+**Authentification (non configurés)**
+- @react-native-google-signin/google-signin: ^16.0.0
+- @invertase/react-native-apple-authentication: ^2.5.0
+
+**DevDependencies**
+- babel-preset-expo: ^54.0.8
+- eslint: ^8.57.1
+- @react-native/eslint-config: ^0.82.1
+- eslint-config-prettier: ^10.1.8
+- eslint-plugin-prettier: ^5.5.4
+- eslint-plugin-react: ^7.37.5
+- eslint-plugin-react-native: ^5.0.0
+- prettier: ^3.7.4
 
 ---
 

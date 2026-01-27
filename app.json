@@ -39,6 +39,15 @@
       "eas": {
         "projectId": "41b31d57-375b-4256-96ac-ddbe988a1e37"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to scan barcodes."
+        }
+      ],
+      "expo-sqlite"
+    ]
   }
 }
