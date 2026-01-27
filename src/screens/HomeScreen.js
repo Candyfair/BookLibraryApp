@@ -13,6 +13,9 @@ import { Ionicons } from '@expo/vector-icons';
 // Context
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
+// Services
+import { addBook } from '../services/DatabaseService';
+
 // Composants
 import Header from '../components/Header';
 import { searchByQuery } from '../services/BookService';
@@ -202,7 +205,10 @@ export default function HomeScreen({ navigation }) {
                               </Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity className="flex-1 bg-blue-500 rounded-lg py-2 items-center">
+                            <TouchableOpacity
+                              onPress={() => addBook(book)}
+                              className="flex-1 bg-blue-500 rounded-lg py-2 items-center"
+                            >
                               <Text className="text-white text-sm font-semibold">
                                 Ajouter
                               </Text>

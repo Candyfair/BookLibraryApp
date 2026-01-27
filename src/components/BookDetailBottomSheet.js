@@ -10,6 +10,9 @@ import {
 // Context
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
+// Services
+import { addBook, getAllBooks } from '../services/DatabaseService';
+
 // API
 import { searchByQuery } from '../services/BookService';
 
@@ -114,7 +117,10 @@ export default function BookDetailBottomSheet() {
             {/* Bouton Ajouter à ma bibliothèque */}
             <TouchableOpacity
               onPress={() => {
-                console.log('Ajouter à ma bibliothèque:', selectedBook);
+                addBook(selectedBook);
+                console.log('Tous les livres:', getAllBooks());
+
+                closeBookDetail();
               }}
               className="bg-indigo-500 rounded-lg py-3 mt-4 items-center"
               activeOpacity={0.8}
