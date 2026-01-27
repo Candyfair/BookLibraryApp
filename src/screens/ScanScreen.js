@@ -1,19 +1,23 @@
-import { Text, View, Pressable, StyleSheet, Image } from 'react-native';
+import { Text, View, Pressable, StyleSheet } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 // API
-import { searchByISBN } from '../services/BookService';
+import { searchByISBN, searchByQuery } from '../services/BookService';
+
+// Context
+import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
 export default function ScanScreen({ navigation }) {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [scannedISBN, setScannedISBN] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [bookData, setBookData] = useState(null);
   const [error, setError] = useState(null);
+
+  const { openBookDetail } = useBookDetailBottomSheet();
 
   // Gestion du scan de code-barres
   const handleBarcodeScanned = async ({ data }) => {
@@ -27,7 +31,24 @@ export default function ScanScreen({ navigation }) {
       const book = await searchByISBN(data);
 
       if (book) {
-        setBookData(book);
+        const isIncomplete =
+          book.author === 'Auteur inconnu' ||
+          !book.coverUrl ||
+          !book.description;
+
+        let fallback = [];
+        let hasMore = false;
+        if (isIncomplete && book.title && book.title !== 'Titre inconnu') {
+          const result = await searchByQuery(book.title, 10, 0);
+          fallback = result.items.filter((item) => item.id !== book.id);
+          hasMore = result.hasMore;
+        }
+
+        openBookDetail(book, {
+          fallback,
+          query: book.title,
+          hasMore,
+        });
       } else {
         setError('Livre non trouvé dans les bases de données');
       }
@@ -43,7 +64,6 @@ export default function ScanScreen({ navigation }) {
   const handleScanAgain = () => {
     setScanned(false);
     setScannedISBN(null);
-    setBookData(null);
     setError(null);
   };
 
@@ -178,28 +198,16 @@ export default function ScanScreen({ navigation }) {
                 </View>
               </View>
 
-              {/* Affichage du résultat */}
-              {scanned && (
-                <View className="mx-6">
-                  {isLoading ? (
-                    <View className="bg-gray-800 rounded-lg py-4 items-center">
-                      <Text className="text-white">Recherche en cours...</Text>
-                    </View>
-                  ) : error ? (
-                    <View className="bg-red-500 rounded-lg py-3 px-4 mb-3">
-                      <Text className="text-white">{error}</Text>
-                    </View>
-                  ) : bookData ? (
-                    <View className="bg-slate-500 rounded-lg py-3 px-4 mb-3">
-                      <Image source={bookData.coverURL} />
-                      <Text className="text-white font-semibold">
-                        {bookData.title}
-                      </Text>
-                      <Text className="text-white/80">{bookData.author}</Text>
-                    </View>
-                  ) : null}
+              {/* État de chargement ou erreur */}
+              {isLoading ? (
+                <View className="bg-gray-800 rounded-lg py-4 items-center mb-3">
+                  <Text className="text-white">Recherche en cours...</Text>
                 </View>
-              )}
+              ) : error ? (
+                <View className="bg-red-500 rounded-lg py-3 px-4 mb-3">
+                  <Text className="text-white">{error}</Text>
+                </View>
+              ) : null}
 
               {/* Bouton scanner à nouveau */}
               <Pressable

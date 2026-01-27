@@ -10,9 +10,48 @@ import {
 // Context
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
+// API
+import { searchByQuery } from '../services/BookService';
+
 export default function BookDetailBottomSheet() {
-  const { bottomSheetRef, selectedBook, closeBookDetail, handleDismiss } =
-    useBookDetailBottomSheet();
+  const {
+    bottomSheetRef,
+    selectedBook,
+    fallbackResults,
+    fallbackQuery,
+    fallbackHasMore,
+    fallbackLoadingMore,
+    setFallbackLoadingMore,
+    appendFallbackResults,
+    closeBookDetail,
+    handleDismiss,
+    openBookDetail,
+  } = useBookDetailBottomSheet();
+
+  const handleLoadMore = useCallback(async () => {
+    if (fallbackLoadingMore || !fallbackHasMore || !fallbackQuery) return;
+
+    setFallbackLoadingMore(true);
+    try {
+      const result = await searchByQuery(
+        fallbackQuery,
+        10,
+        fallbackResults.length
+      );
+      appendFallbackResults(result.items, result.hasMore);
+    } catch (err) {
+      console.error('Erreur lors du chargement:', err.message);
+    } finally {
+      setFallbackLoadingMore(false);
+    }
+  }, [
+    fallbackLoadingMore,
+    fallbackHasMore,
+    fallbackQuery,
+    fallbackResults.length,
+    setFallbackLoadingMore,
+    appendFallbackResults,
+  ]);
 
   const snapPoints = useMemo(() => ['92%'], []);
 
@@ -43,7 +82,7 @@ export default function BookDetailBottomSheet() {
       {/* <BottomSheetScrollView contentContainerStyle={styles.scrollContent}> */}
       <BottomSheetScrollView>
         {selectedBook && (
-          <View className="px-6 pb-8">
+          <View className="px-6 pb-16">
             {/* Header avec bouton Fermer */}
             <View className="flex-row justify-end mb-4">
               <TouchableOpacity onPress={closeBookDetail}>
@@ -72,6 +111,19 @@ export default function BookDetailBottomSheet() {
               {selectedBook.author}
             </Text>
 
+            {/* Bouton Ajouter à ma bibliothèque */}
+            <TouchableOpacity
+              onPress={() => {
+                console.log('Ajouter à ma bibliothèque:', selectedBook);
+              }}
+              className="bg-indigo-500 rounded-lg py-3 mt-4 items-center"
+              activeOpacity={0.8}
+            >
+              <Text className="text-white font-semibold text-base">
+                Ajouter à ma bibliothèque
+              </Text>
+            </TouchableOpacity>
+
             {/* Métadonnées (éditeur, pages, langue, date) */}
             {/* ... champs affichés conditionnellement selon leur existence ... */}
 
@@ -90,6 +142,74 @@ export default function BookDetailBottomSheet() {
                     <Text className="text-blue-800 text-xs">{cat}</Text>
                   </View>
                 ))}
+              </View>
+            )}
+
+            {/* Résultats alternatifs (fallback recherche par titre) */}
+            {fallbackResults.length > 0 && (
+              <View className="mt-6 pt-6 border-t border-gray-200">
+                <Text className="text-base font-semibold text-gray-800 mb-3">
+                  Autres résultats pour « {selectedBook.title} »
+                </Text>
+                {fallbackResults.map((book, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => openBookDetail(book)}
+                    className="mb-3 flex-row gap-3"
+                  >
+                    {book.coverUrl ? (
+                      <Image
+                        source={{ uri: book.coverUrl }}
+                        style={{ width: 60, height: 88 }}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <View
+                        className="bg-gray-200 items-center justify-center"
+                        style={{ width: 60, height: 88 }}
+                      >
+                        <Ionicons
+                          name="book-outline"
+                          size={24}
+                          color="#94a3b8"
+                        />
+                      </View>
+                    )}
+                    <View className="flex-1 justify-center">
+                      <Text
+                        className="font-semibold text-gray-800"
+                        numberOfLines={2}
+                      >
+                        {book.title}
+                      </Text>
+                      <Text className="text-gray-500 text-sm" numberOfLines={1}>
+                        {book.author}
+                      </Text>
+                      {book.description && (
+                        <Text
+                          className="text-gray-400 text-xs mt-1"
+                          numberOfLines={2}
+                        >
+                          {book.description}
+                        </Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+
+                {/* Bouton charger plus */}
+                {fallbackHasMore && (
+                  <TouchableOpacity
+                    onPress={handleLoadMore}
+                    className="bg-gray-200 rounded-lg py-3 items-center mt-1"
+                    activeOpacity={0.8}
+                    disabled={fallbackLoadingMore}
+                  >
+                    <Text className="text-gray-700 font-semibold">
+                      {fallbackLoadingMore ? 'Chargement...' : 'Charger plus'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             )}
           </View>
