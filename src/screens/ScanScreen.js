@@ -37,12 +37,18 @@ export default function ScanScreen({ navigation }) {
           !book.description;
 
         let fallback = [];
+        let hasMore = false;
         if (isIncomplete && book.title && book.title !== 'Titre inconnu') {
           const result = await searchByQuery(book.title, 10, 0);
           fallback = result.items.filter((item) => item.id !== book.id);
+          hasMore = result.hasMore;
         }
 
-        openBookDetail(book, fallback);
+        openBookDetail(book, {
+          fallback,
+          query: book.title,
+          hasMore,
+        });
       } else {
         setError('Livre non trouvé dans les bases de données');
       }

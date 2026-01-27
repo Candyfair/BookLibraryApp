@@ -10,15 +10,48 @@ import {
 // Context
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
+// API
+import { searchByQuery } from '../services/BookService';
+
 export default function BookDetailBottomSheet() {
   const {
     bottomSheetRef,
     selectedBook,
     fallbackResults,
+    fallbackQuery,
+    fallbackHasMore,
+    fallbackLoadingMore,
+    setFallbackLoadingMore,
+    appendFallbackResults,
     closeBookDetail,
     handleDismiss,
     openBookDetail,
   } = useBookDetailBottomSheet();
+
+  const handleLoadMore = useCallback(async () => {
+    if (fallbackLoadingMore || !fallbackHasMore || !fallbackQuery) return;
+
+    setFallbackLoadingMore(true);
+    try {
+      const result = await searchByQuery(
+        fallbackQuery,
+        10,
+        fallbackResults.length
+      );
+      appendFallbackResults(result.items, result.hasMore);
+    } catch (err) {
+      console.error('Erreur lors du chargement:', err.message);
+    } finally {
+      setFallbackLoadingMore(false);
+    }
+  }, [
+    fallbackLoadingMore,
+    fallbackHasMore,
+    fallbackQuery,
+    fallbackResults.length,
+    setFallbackLoadingMore,
+    appendFallbackResults,
+  ]);
 
   const snapPoints = useMemo(() => ['92%'], []);
 
@@ -49,7 +82,7 @@ export default function BookDetailBottomSheet() {
       {/* <BottomSheetScrollView contentContainerStyle={styles.scrollContent}> */}
       <BottomSheetScrollView>
         {selectedBook && (
-          <View className="px-6 pb-8">
+          <View className="px-6 pb-16">
             {/* Header avec bouton Fermer */}
             <View className="flex-row justify-end mb-4">
               <TouchableOpacity onPress={closeBookDetail}>
@@ -150,6 +183,20 @@ export default function BookDetailBottomSheet() {
                     </View>
                   </TouchableOpacity>
                 ))}
+
+                {/* Bouton charger plus */}
+                {fallbackHasMore && (
+                  <TouchableOpacity
+                    onPress={handleLoadMore}
+                    className="bg-gray-200 rounded-lg py-3 items-center mt-1"
+                    activeOpacity={0.8}
+                    disabled={fallbackLoadingMore}
+                  >
+                    <Text className="text-gray-700 font-semibold">
+                      {fallbackLoadingMore ? 'Chargement...' : 'Charger plus'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             )}
           </View>

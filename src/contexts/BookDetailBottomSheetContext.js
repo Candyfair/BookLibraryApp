@@ -12,11 +12,24 @@ export function BookDetailBottomSheetProvider({ children }) {
   const bottomSheetRef = useRef(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [fallbackResults, setFallbackResults] = useState([]);
+  const [fallbackQuery, setFallbackQuery] = useState(null);
+  const [fallbackHasMore, setFallbackHasMore] = useState(false);
+  const [fallbackLoadingMore, setFallbackLoadingMore] = useState(false);
 
-  const openBookDetail = useCallback((book, fallback = []) => {
-    setSelectedBook(book); // stocke le livre sélectionné
-    setFallbackResults(fallback); // résultats alternatifs (recherche par titre)
-    bottomSheetRef.current?.present(); // ouvre la bottom sheet
+  const openBookDetail = useCallback(
+    (book, { fallback = [], query = null, hasMore = false } = {}) => {
+      setSelectedBook(book);
+      setFallbackResults(fallback);
+      setFallbackQuery(query);
+      setFallbackHasMore(hasMore);
+      bottomSheetRef.current?.present();
+    },
+    []
+  );
+
+  const appendFallbackResults = useCallback((newItems, hasMore) => {
+    setFallbackResults((prev) => [...prev, ...newItems]);
+    setFallbackHasMore(hasMore);
   }, []);
 
   const closeBookDetail = useCallback(() => {
@@ -24,8 +37,10 @@ export function BookDetailBottomSheetProvider({ children }) {
   }, []);
 
   const handleDismiss = useCallback(() => {
-    setSelectedBook(null); // nettoie quand la bottom sheet est fermée
+    setSelectedBook(null);
     setFallbackResults([]);
+    setFallbackQuery(null);
+    setFallbackHasMore(false);
   }, []);
 
   return (
@@ -34,6 +49,11 @@ export function BookDetailBottomSheetProvider({ children }) {
         bottomSheetRef,
         selectedBook,
         fallbackResults,
+        fallbackQuery,
+        fallbackHasMore,
+        fallbackLoadingMore,
+        setFallbackLoadingMore,
+        appendFallbackResults,
         openBookDetail,
         closeBookDetail,
         handleDismiss,
