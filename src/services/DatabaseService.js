@@ -44,3 +44,28 @@ export function initDatabase() {
 
   return db;
 }
+
+export function addBook(book) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const result = db.runSync(
+    `INSERT INTO books (isbn, title, author, description, cover_url, publisher, published_date, page_count, language, categories)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      book.isbn,
+      book.title,
+      book.author,
+      book.description,
+      book.coverUrl,
+      book.publisher,
+      book.publishedDate,
+      book.pageCount,
+      book.language,
+      JSON.stringify(book.categories || []),
+    ]
+  );
+
+  return result.lastInsertRowId;
+}

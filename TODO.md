@@ -32,8 +32,8 @@ Installer `expo-sqlite` et implémenter le `DatabaseService` pour permettre l'aj
 
 ### 2. Créer le DatabaseService
 
-- Fonction `initDatabase()` : créer les tables `books` et `user_book_data` si elles n'existent pas
-- Fonction `addBook(book)` : insérer un livre normalisé (depuis BookService) dans la table `books`
+- ✅ Fonction `initDatabase()` : créer les tables `books` et `user_book_data` si elles n'existent pas
+- ✅ Fonction `addBook(book)` : insérer un livre normalisé (depuis BookService) dans la table `books`
 - Fonction `getBookById(id)` : récupérer un livre par son ID
 - Fonction `getAllBooks()` : récupérer tous les livres de la bibliothèque
 - Fonction `getBooksByStatus(status)` : filtrer par statut (`to_read`, `reading`, `read`, `wishlist`)
