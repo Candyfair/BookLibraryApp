@@ -11,9 +11,11 @@ const BookDetailBottomSheetContext = createContext(null);
 export function BookDetailBottomSheetProvider({ children }) {
   const bottomSheetRef = useRef(null);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [fallbackResults, setFallbackResults] = useState([]);
 
-  const openBookDetail = useCallback((book) => {
+  const openBookDetail = useCallback((book, fallback = []) => {
     setSelectedBook(book); // stocke le livre sélectionné
+    setFallbackResults(fallback); // résultats alternatifs (recherche par titre)
     bottomSheetRef.current?.present(); // ouvre la bottom sheet
   }, []);
 
@@ -23,6 +25,7 @@ export function BookDetailBottomSheetProvider({ children }) {
 
   const handleDismiss = useCallback(() => {
     setSelectedBook(null); // nettoie quand la bottom sheet est fermée
+    setFallbackResults([]);
   }, []);
 
   return (
@@ -30,6 +33,7 @@ export function BookDetailBottomSheetProvider({ children }) {
       value={{
         bottomSheetRef,
         selectedBook,
+        fallbackResults,
         openBookDetail,
         closeBookDetail,
         handleDismiss,

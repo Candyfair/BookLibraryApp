@@ -11,8 +11,14 @@ import {
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
 export default function BookDetailBottomSheet() {
-  const { bottomSheetRef, selectedBook, closeBookDetail, handleDismiss } =
-    useBookDetailBottomSheet();
+  const {
+    bottomSheetRef,
+    selectedBook,
+    fallbackResults,
+    closeBookDetail,
+    handleDismiss,
+    openBookDetail,
+  } = useBookDetailBottomSheet();
 
   const snapPoints = useMemo(() => ['92%'], []);
 
@@ -89,6 +95,60 @@ export default function BookDetailBottomSheet() {
                   <View key={i} className="bg-blue-100 rounded-full px-3 py-1">
                     <Text className="text-blue-800 text-xs">{cat}</Text>
                   </View>
+                ))}
+              </View>
+            )}
+
+            {/* Résultats alternatifs (fallback recherche par titre) */}
+            {fallbackResults.length > 0 && (
+              <View className="mt-6 pt-6 border-t border-gray-200">
+                <Text className="text-base font-semibold text-gray-800 mb-3">
+                  Autres résultats pour « {selectedBook.title} »
+                </Text>
+                {fallbackResults.map((book, i) => (
+                  <TouchableOpacity
+                    key={i}
+                    onPress={() => openBookDetail(book)}
+                    className="mb-3 flex-row gap-3"
+                  >
+                    {book.coverUrl ? (
+                      <Image
+                        source={{ uri: book.coverUrl }}
+                        style={{ width: 60, height: 88 }}
+                        resizeMode="contain"
+                      />
+                    ) : (
+                      <View
+                        className="bg-gray-200 items-center justify-center"
+                        style={{ width: 60, height: 88 }}
+                      >
+                        <Ionicons
+                          name="book-outline"
+                          size={24}
+                          color="#94a3b8"
+                        />
+                      </View>
+                    )}
+                    <View className="flex-1 justify-center">
+                      <Text
+                        className="font-semibold text-gray-800"
+                        numberOfLines={2}
+                      >
+                        {book.title}
+                      </Text>
+                      <Text className="text-gray-500 text-sm" numberOfLines={1}>
+                        {book.author}
+                      </Text>
+                      {book.description && (
+                        <Text
+                          className="text-gray-400 text-xs mt-1"
+                          numberOfLines={2}
+                        >
+                          {book.description}
+                        </Text>
+                      )}
+                    </View>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}

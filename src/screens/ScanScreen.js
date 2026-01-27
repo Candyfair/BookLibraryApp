@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
 // API
-import { searchByISBN } from '../services/BookService';
+import { searchByISBN, searchByQuery } from '../services/BookService';
 
 // Context
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
@@ -31,7 +31,18 @@ export default function ScanScreen({ navigation }) {
       const book = await searchByISBN(data);
 
       if (book) {
-        openBookDetail(book);
+        const isIncomplete =
+          book.author === 'Auteur inconnu' ||
+          !book.coverUrl ||
+          !book.description;
+
+        let fallback = [];
+        if (isIncomplete && book.title && book.title !== 'Titre inconnu') {
+          const result = await searchByQuery(book.title, 10, 0);
+          fallback = result.items.filter((item) => item.id !== book.id);
+        }
+
+        openBookDetail(book, fallback);
       } else {
         setError('Livre non trouvé dans les bases de données');
       }
