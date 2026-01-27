@@ -262,8 +262,8 @@ Une application mobile permettant de **scanner des livres via ISBN**, récupére
 | `react-native-safe-area-context` | 5.6.0   | Safe areas (notch, etc.)   |
 | `react-native-gesture-handler`   | 2.28.0  | Gestion gestures natives   |
 | `react-native-reanimated`        | 4.1.1   | Animations performantes    |
-| `react-native-worklets`         | 0.5.1   | Runtime worklets           |
-| `react-native-worklets-core`    | 1.6.2   | Core worklets (reanimated) |
+| `react-native-worklets`          | 0.5.1   | Runtime worklets           |
+| `react-native-worklets-core`     | 1.6.2   | Core worklets (reanimated) |
 
 > **Note :** Le projet utilise **React Navigation** (Drawer + Stack) et **non Expo Router**. Un dossier `app/` contenant des fichiers avec Expo Router a été supprimé pour éviter toute confusion.
 
@@ -335,10 +335,10 @@ const { openBookDetail } = useBookDetailBottomSheet();
 
 ### Stockage & Données
 
-| Package                                     | Usage                                           | Statut         |
-| ------------------------------------------- | ----------------------------------------------- | -------------- |
-| `expo-sqlite`                               | Base de données locale (livres, notes, statuts) | ✅ Installé    |
-| `@react-native-async-storage/async-storage` | Préférences utilisateur, cache temporaire       | ✅ Installé    |
+| Package                                     | Usage                                           | Statut      |
+| ------------------------------------------- | ----------------------------------------------- | ----------- |
+| `expo-sqlite`                               | Base de données locale (livres, notes, statuts) | ✅ Installé |
+| `@react-native-async-storage/async-storage` | Préférences utilisateur, cache temporaire       | ✅ Installé |
 
 ### Fonctionnalités Natives
 
@@ -353,17 +353,17 @@ const { openBookDetail } = useBookDetailBottomSheet();
 
 ### Qualité de Code (devDependencies)
 
-| Package                        | Version | Usage                           |
-| ------------------------------ | ------- | ------------------------------- |
-| `eslint`                       | 8.57.1  | Linting JavaScript/React        |
-| `@react-native/eslint-config`  | 0.82.1  | Config ESLint pour React Native |
-| `eslint-config-prettier`       | 10.1.8  | Désactive règles conflictuelles |
-| `eslint-plugin-prettier`       | 5.5.4   | Intégration Prettier/ESLint     |
-| `eslint-plugin-react`          | 7.37.5  | Règles ESLint pour React        |
-| `eslint-plugin-react-native`   | 5.0.0   | Règles ESLint pour React Native |
-| `prettier`                     | 3.7.4   | Formatage de code               |
-| `babel-preset-expo`            | 54.0.8  | Preset Babel pour Expo          |
-| `tailwindcss`                  | 3.4.0   | Framework CSS utilitaire        |
+| Package                       | Version | Usage                           |
+| ----------------------------- | ------- | ------------------------------- |
+| `eslint`                      | 8.57.1  | Linting JavaScript/React        |
+| `@react-native/eslint-config` | 0.82.1  | Config ESLint pour React Native |
+| `eslint-config-prettier`      | 10.1.8  | Désactive règles conflictuelles |
+| `eslint-plugin-prettier`      | 5.5.4   | Intégration Prettier/ESLint     |
+| `eslint-plugin-react`         | 7.37.5  | Règles ESLint pour React        |
+| `eslint-plugin-react-native`  | 5.0.0   | Règles ESLint pour React Native |
+| `prettier`                    | 3.7.4   | Formatage de code               |
+| `babel-preset-expo`           | 54.0.8  | Preset Babel pour Expo          |
+| `tailwindcss`                 | 3.4.0   | Framework CSS utilitaire        |
 
 > **Note :** Les packages natifs d'authentification nécessitent une configuration supplémentaire :
 >
@@ -1408,9 +1408,7 @@ Projet personnel - Tous droits réservés (pour le MVP)
 
 ### TODOs Personnels
 
-- Quand le scan trouve un titre, il faut faire une recherche par titre plutôt que le laisser trouver l'ISBN (trop d'échec !)
-  - Aussi : pourquoi est-ce que l'auteur est toujours "inconnu" lors d'une recherche ISBN ?
-  - Logger le résultat d'une recherche par ISBN pour comprendre ce qui est récupéré
+-
 
 ### Idées & Réflexions
 
@@ -1435,7 +1433,7 @@ Maquette :
 
 ### Questions à Résoudre
 
-- Quand le scan ne trouve pas les ISBN, faut-il faire plutôt une recherche par titre ?
+-
 
 ---
 
