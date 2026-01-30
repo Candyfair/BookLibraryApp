@@ -9,11 +9,9 @@ import { initDatabase } from './src/services/DatabaseService';
 // Navigation
 import RootNavigator from './src/navigation/RootNavigator';
 
-// Context & Components
+// Context
 import { ProfileBottomSheetProvider } from './src/contexts/ProfileBottomSheetContext';
 import { BookDetailBottomSheetProvider } from './src/contexts/BookDetailBottomSheetContext';
-import ProfileBottomSheet from './src/components/ProfileBottomSheet';
-import BookDetailBottomSheet from './src/components/BookDetailBottomSheet';
 
 export default function App() {
   initDatabase();
@@ -25,8 +23,6 @@ export default function App() {
           <ProfileBottomSheetProvider>
             <BookDetailBottomSheetProvider>
               <RootNavigator />
-              <ProfileBottomSheet />
-              <BookDetailBottomSheet />
             </BookDetailBottomSheetProvider>
           </ProfileBottomSheetProvider>
         </BottomSheetModalProvider>

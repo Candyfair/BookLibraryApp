@@ -1,22 +1,24 @@
 import { useCallback, useMemo } from 'react';
-import { Image, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
+import { useNavigation } from '@react-navigation/native';
 
 // Context
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
 // Services
-import { addBook, getAllBooks } from '../services/DatabaseService';
+import { addBook, bookExists } from '../services/DatabaseService';
 
 // API
 import { searchByQuery } from '../services/BookService';
 
 export default function BookDetailBottomSheet() {
+  const navigation = useNavigation();
   const {
     bottomSheetRef,
     selectedBook,
@@ -30,6 +32,39 @@ export default function BookDetailBottomSheet() {
     handleDismiss,
     openBookDetail,
   } = useBookDetailBottomSheet();
+
+  /**
+   * Ajoute le livre à la bibliothèque et redirige vers l'écran d'édition
+   */
+  const handleAddBook = () => {
+    if (!selectedBook) return;
+
+    try {
+      // Vérifie si le livre existe déjà
+      if (selectedBook.isbn && bookExists(selectedBook.isbn)) {
+        Alert.alert(
+          'Livre déjà présent',
+          'Ce livre est déjà dans votre bibliothèque.'
+        );
+        return;
+      }
+
+      // Ajoute le livre à la base de données
+      const bookId = addBook(selectedBook);
+
+      // Ferme la modale
+      closeBookDetail();
+
+      // Redirige vers l'écran d'édition du livre
+      navigation.navigate('Library', {
+        screen: 'BookEdit',
+        params: { bookId },
+      });
+    } catch (err) {
+      console.error("Erreur lors de l'ajout du livre:", err);
+      Alert.alert('Erreur', "Impossible d'ajouter le livre");
+    }
+  };
 
   const handleLoadMore = useCallback(async () => {
     if (fallbackLoadingMore || !fallbackHasMore || !fallbackQuery) return;
@@ -116,12 +151,7 @@ export default function BookDetailBottomSheet() {
 
             {/* Bouton Ajouter à ma bibliothèque */}
             <TouchableOpacity
-              onPress={() => {
-                addBook(selectedBook);
-                console.log('Tous les livres:', getAllBooks());
-
-                closeBookDetail();
-              }}
+              onPress={handleAddBook}
               className="bg-indigo-500 rounded-lg py-3 mt-4 items-center"
               activeOpacity={0.8}
             >

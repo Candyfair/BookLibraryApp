@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
@@ -14,7 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useBookDetailBottomSheet } from '../contexts/BookDetailBottomSheetContext';
 
 // Services
-import { addBook } from '../services/DatabaseService';
+import { addBook, bookExists } from '../services/DatabaseService';
 
 // Composants
 import Header from '../components/Header';
@@ -95,6 +96,34 @@ export default function HomeScreen({ navigation }) {
       console.error('Erreur lors du chargement:', err.message);
     } finally {
       setIsLoadingMore(false);
+    }
+  };
+
+  /**
+   * Ajoute un livre à la bibliothèque et redirige vers l'écran d'édition
+   */
+  const handleAddBook = (book) => {
+    try {
+      // Vérifie si le livre existe déjà
+      if (book.isbn && bookExists(book.isbn)) {
+        Alert.alert(
+          'Livre déjà présent',
+          'Ce livre est déjà dans votre bibliothèque.'
+        );
+        return;
+      }
+
+      // Ajoute le livre à la base de données
+      const bookId = addBook(book);
+
+      // Redirige vers l'écran d'édition du livre
+      navigation.navigate('Library', {
+        screen: 'BookEdit',
+        params: { bookId },
+      });
+    } catch (err) {
+      console.error("Erreur lors de l'ajout du livre:", err);
+      Alert.alert('Erreur', "Impossible d'ajouter le livre");
     }
   };
 
@@ -206,7 +235,7 @@ export default function HomeScreen({ navigation }) {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                              onPress={() => addBook(book)}
+                              onPress={() => handleAddBook(book)}
                               className="flex-1 bg-blue-500 rounded-lg py-2 items-center"
                             >
                               <Text className="text-white text-sm font-semibold">

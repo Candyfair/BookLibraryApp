@@ -5,16 +5,18 @@ import {
   TouchableOpacity,
   ScrollView,
   Pressable,
+  Image,
 } from 'react-native';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-
-// Navigation
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 
 // Components
 import Header from '../components/Header';
+
+// Services
+import { getAllBooks } from '../services/DatabaseService';
 
 /**
  * Library Screen - Affiche la collection de livres de l'utilisateur
@@ -41,8 +43,23 @@ export default function LibraryScreen({ navigation }) {
   const [activeGenresFilter, setActiveGenresFilter] = useState('all');
   const [bookmarks, setBookmarks] = useState(false);
 
-  // Données de test - À remplacer par les vrais livres depuis SQLite
+  // Livres chargés depuis SQLite
   const [books, setBooks] = useState([]);
+
+  // Charge les livres depuis la base de données à chaque focus de l'écran
+  useFocusEffect(
+    useCallback(() => {
+      const loadBooks = () => {
+        try {
+          const fetchedBooks = getAllBooks();
+          setBooks(fetchedBooks);
+        } catch (err) {
+          console.error('Erreur lors du chargement des livres:', err);
+        }
+      };
+      loadBooks();
+    }, [])
+  );
 
   // Filtres de genres disponibles
   const genres = [
@@ -65,19 +82,25 @@ export default function LibraryScreen({ navigation }) {
 
   /**
    * Rendu d'une carte livre dans la grille
-   * TODO: Remplacer par un vrai composant BookCard
    */
   const renderBookItem = ({ item }) => (
     <TouchableOpacity
       className="flex-1 m-2 bg-white rounded-lg shadow-sm overflow-hidden"
       activeOpacity={0.8}
-      // TODO: Navigation vers BookDetailScreen
-      onPress={() => console.log('Livre sélectionné:', item.id)}
+      onPress={() => navigation.navigate('BookEdit', { bookId: item.id })}
     >
-      {/* Image de couverture - Placeholder */}
-      <View className="aspect-[2/3] bg-gray-200 items-center justify-center">
-        <Ionicons name="book" size={48} color="#cbd5e1" />
-      </View>
+      {/* Image de couverture */}
+      {item.coverUrl ? (
+        <Image
+          source={{ uri: item.coverUrl }}
+          className="aspect-[2/3] w-full"
+          resizeMode="cover"
+        />
+      ) : (
+        <View className="aspect-[2/3] bg-gray-200 items-center justify-center">
+          <Ionicons name="book" size={48} color="#cbd5e1" />
+        </View>
+      )}
 
       {/* Infos livre */}
       <View className="p-3">

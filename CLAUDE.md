@@ -7,6 +7,40 @@
 
 ## 🆕 Dernières Mises à Jour (Janvier 2026)
 
+### ✅ BookEditScreen + Connexion boutons d'ajout - Implémenté (30 jan 2026)
+
+**BookEditScreen - Écran de détail et d'édition d'un livre :**
+
+- ✅ Création de `BookEditScreen` (`src/screens/BookEditScreen.js`) - Écran complet de détail/édition
+- ✅ Affichage de tous les champs de la BDD : titre, auteur, ISBN, description, éditeur, date, pages, langue, catégories, couverture
+- ✅ Champs éditables avec TextInput
+- ✅ Détection automatique des modifications non sauvegardées
+- ✅ Bouton "Sauvegarder" (actif uniquement si modifications)
+- ✅ Confirmation avant de quitter si modifications non sauvegardées
+- ✅ Bouton "Supprimer ce livre" avec confirmation
+- ✅ Métadonnées en lecture seule (dates de création/modification)
+- ✅ KeyboardAvoidingView pour iOS
+
+**Connexion des boutons d'ajout à la base de données :**
+
+- ✅ HomeScreen : bouton "Ajouter" connecté à `addBook()` + navigation vers BookEditScreen
+- ✅ BookDetailBottomSheet : bouton "Ajouter à ma bibliothèque" connecté à `addBook()` + navigation vers BookEditScreen
+- ✅ Vérification des doublons via `bookExists(isbn)` avant ajout
+- ✅ Gestion des erreurs avec Alert
+
+**LibraryScreen - Affichage des livres depuis SQLite :**
+
+- ✅ Chargement des livres via `getAllBooks()` à chaque focus de l'écran
+- ✅ Affichage des couvertures réelles (ou placeholder)
+- ✅ Clic sur un livre ouvre BookEditScreen
+
+**Navigation :**
+
+- ✅ Ajout de la route `BookEdit` dans LibraryStack
+- ✅ Déplacement des bottom sheets dans RootNavigator (correction erreur `useNavigation`)
+
+---
+
 ### ✅ Modale détail livre + boutons d'actions - Implémenté (26 jan 2026)
 
 **BookDetailBottomSheet - Modale réutilisable de détail livre :**
@@ -21,13 +55,13 @@
 **HomeScreen - Boutons d'actions par résultat de recherche :**
 
 - ✅ Bouton "Détails" : ouvre la modale `BookDetailBottomSheet` avec le livre sélectionné
-- ✅ Bouton "Ajouter" : placeholder pour l'ajout en base de données locale (à brancher sur DatabaseService)
+- ✅ Bouton "Ajouter" : connecté à `addBook()` + navigation vers BookEditScreen
 - ✅ Intégration du hook `useBookDetailBottomSheet()` dans HomeScreen
 
 **App.js - Intégration du Provider :**
 
 - ✅ Ajout de `BookDetailBottomSheetProvider` dans la hiérarchie des Providers
-- ✅ Ajout du composant `BookDetailBottomSheet` au niveau racine
+- ✅ Bottom sheets déplacées dans RootNavigator (à l'intérieur du NavigationContainer)
 
 ---
 
@@ -216,9 +250,12 @@ const moreResults = await searchByQuery('Le Seigneur des Anneaux', 20, 20);
 1. ~~🔗 Connecter le scanner au BookService (appel `searchByISBN` après scan)~~ ✅
 2. ~~📖 Créer la modale BookDetailBottomSheet (affichage détails livre)~~ ✅
 3. ~~💾 Installer et configurer expo-sqlite~~ ✅
-4. 🗄️ Implémenter DatabaseService (CRUD livres)
-5. 🔗 Brancher le bouton "Ajouter" sur le DatabaseService
-6. 🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde
+4. ~~🗄️ Implémenter DatabaseService (CRUD livres)~~ ✅
+5. ~~🔗 Brancher le bouton "Ajouter" sur le DatabaseService~~ ✅
+6. ~~🔗 Intégrer le flux complet : Scan → API → Affichage → Sauvegarde~~ ✅
+7. 📝 Ajouter les champs `user_book_data` dans BookEditScreen (statut, favori, notes, rating)
+8. 🔍 Brancher les filtres de LibraryScreen sur le DatabaseService
+9. 📊 Implémenter l'écran Statistiques
 
 ---
 
@@ -398,6 +435,8 @@ BookLibraryApp/
 │   ├── screens/                    # Écrans de l'application
 │   │   ├── HomeScreen.js           # Écran d'accueil (recherche + scan)
 │   │   ├── LibraryScreen.js        # Grille de livres + filtres
+│   │   ├── BookEditScreen.js       # Détail/édition d'un livre (NOUVEAU)
+│   │   ├── ScanScreen.js           # Scanner de codes-barres ISBN
 │   │   ├── StatScreen.js           # Statistiques (placeholder)
 │   │   └── ProfileScreen.js        # Profil utilisateur + auth
 │   │
@@ -411,11 +450,11 @@ BookLibraryApp/
 │   │   ├── ProfileBottomSheetContext.js    # Context bottom sheet profil
 │   │   └── BookDetailBottomSheetContext.js # Context bottom sheet détail livre
 │   │
-│   ├── services/                   # (À créer) Logique métier
-│   │   ├── BookService.js          # API Google Books + OpenLibrary
-│   │   ├── DatabaseService.js      # SQLite (CRUD livres)
-│   │   ├── AuthService.js          # Authentification Google/Apple
-│   │   └── StatsService.js         # Calcul statistiques
+│   ├── services/                   # Logique métier
+│   │   ├── BookService.js          # API Google Books + OpenLibrary ✅
+│   │   ├── DatabaseService.js      # SQLite (CRUD livres) ✅
+│   │   ├── AuthService.js          # Authentification Google/Apple (à créer)
+│   │   └── StatsService.js         # Calcul statistiques (à créer)
 │   │
 │   ├── utils/                      # (À créer) Utilitaires
 │   │   ├── api.js                  # Config Axios, intercepteurs
@@ -439,18 +478,12 @@ BookLibraryApp/
 
 > **Changements récents :**
 >
+> - ✅ **Nouveau (30 jan 2026)** : BookEditScreen pour détail/édition des livres
+> - ✅ **Nouveau (30 jan 2026)** : Connexion des boutons d'ajout au DatabaseService
+> - ✅ **Nouveau (30 jan 2026)** : LibraryScreen charge les livres depuis SQLite
 > - ✅ **Architecture navigation modulaire** : Fichiers séparés dans `src/navigation/`
 > - ✅ **Composant Header réutilisable** : `<Header />` dans `src/components/Header.js`
->   - Utilise NativeWind (classes Tailwind)
->   - Bouton burger : `navigation.toggleDrawer()` (ouvre/ferme le Drawer)
->   - Bouton profil : `navigation.navigate('Profil')` (navigue vers ProfileStack)
->   - Prop `showProfileButton={false}` pour masquer le bouton profil (ProfileScreen)
-> - ✅ **Headers natifs supprimés** : `headerShown: false` dans tous les Stacks
-> - ✅ **Profil masqué du Drawer** : `drawerItemStyle: { display: 'none' }` (accessible via icône)
-> - ✅ **Composants Pressable** : Remplacement de TouchableOpacity partout
-> - ✅ **Nouveau (9 déc)** : StatStack ajouté avec StatScreen (placeholder)
-> - ✅ **Nouveau (9 déc)** : Drawer simplifié (titre + navigation + version)
-> - ✅ **Nouveau (9 déc)** : Renommage entrées Drawer ("Scanner un livre", "Voir mes livres", "Statistiques")
+> - ✅ **Bottom sheets** : ProfileBottomSheet et BookDetailBottomSheet dans RootNavigator
 > - ✅ Noms de fichiers et fonctions en anglais
 > - ✅ Textes utilisateur en français
 
@@ -922,30 +955,39 @@ const openLibResult = await fetchFromOpenLibrary('9782253004226');
 
 ---
 
-### 2. **DatabaseService** (Priorité 1)
+### 2. ~~**DatabaseService**~~ ✅ Implémenté (26 jan 2026)
 
-**Fichier** : `services/DatabaseService.js`
+**Fichier** : `src/services/DatabaseService.js`
 
-**Méthodes :**
+**Méthodes disponibles :**
 
 ```javascript
-// Initialisation DB
-initDatabase() → Promise<void>
+import {
+  initDatabase,
+  addBook,
+  getBookById,
+  getAllBooks,
+  getBooksByStatus,
+  updateBook,
+  deleteBook,
+  bookExists,
+} from '../services/DatabaseService';
+
+// Initialisation DB (appelée dans App.js)
+initDatabase();
 
 // CRUD Livres
-addBook(book) → Promise<id>
-updateBook(id, book) → Promise<void>
-deleteBook(id) → Promise<void>
-getBookById(id) → Promise<Book>
-getAllBooks() → Promise<Book[]>
+const bookId = addBook(book);           // Retourne lastInsertRowId
+const book = getBookById(id);           // Retourne livre normalisé ou null
+const books = getAllBooks();            // Retourne tableau de livres
+const changes = updateBook(id, data);   // Retourne nombre de lignes modifiées
+const deleted = deleteBook(id);         // Retourne nombre de lignes supprimées
 
 // Filtres
-getBooksByStatus(status) → Promise<Book[]>
-getBooksByGenre(genre) → Promise<Book[]>
-searchBooks(query) → Promise<Book[]>
+const filteredBooks = getBooksByStatus('to_read'); // to_read, reading, read, wishlist
 
-// Statistiques
-getStats() → Promise<Stats>
+// Vérification doublon
+const exists = bookExists(isbn);        // Retourne boolean
 ```
 
 ---
@@ -965,26 +1007,34 @@ getStats() → Promise<Stats>
 
 ---
 
-### 4. ~~**BookDetailScreen**~~ → **BookDetailBottomSheet** ✅ Implémenté (26 jan 2026)
+### 4. ~~**BookDetailScreen**~~ → **BookDetailBottomSheet** + **BookEditScreen** ✅ Implémenté (30 jan 2026)
 
 **Fichiers** :
 
-- `src/components/BookDetailBottomSheet.js` - Composant bottom sheet
+- `src/components/BookDetailBottomSheet.js` - Bottom sheet pour aperçu livre (avant ajout)
 - `src/contexts/BookDetailBottomSheetContext.js` - Context API
+- `src/screens/BookEditScreen.js` - Écran détail/édition livre (après ajout)
 
-**Fonctionnalités implémentées :**
+**BookDetailBottomSheet - Fonctionnalités implémentées :**
 
 - ✅ Bottom sheet modale réutilisable (même pattern que ProfileBottomSheet)
 - ✅ Affichage couverture, titre, auteur, description, catégories
 - ✅ Accessible via `openBookDetail(book)` depuis n'importe quel écran
+- ✅ Bouton "Ajouter à ma bibliothèque" connecté à `addBook()` + navigation
 - ✅ Bouton fermer, swipe down, tap backdrop pour fermer
+
+**BookEditScreen - Fonctionnalités implémentées :**
+
+- ✅ Affichage de tous les champs de la BDD (titre, auteur, ISBN, description, etc.)
+- ✅ Champs éditables avec TextInput
+- ✅ Détection automatique des modifications non sauvegardées
+- ✅ Bouton "Sauvegarder" connecté à `updateBook()`
+- ✅ Bouton "Supprimer" connecté à `deleteBook()` avec confirmation
+- ✅ Métadonnées en lecture seule (dates création/modification)
 
 **Fonctionnalités à venir :**
 
-- Boutons action (Marquer comme lu, Ajouter wishlist, etc.)
-- Champs personnalisables (Notes, Rating, Prêt/Emprunt)
-- Métadonnées complètes (éditeur, pages, langue, date)
-- Édition/Suppression livre (après DatabaseService)
+- Champs `user_book_data` (statut, favori, notes, rating, prêt/emprunt)
 
 ---
 
@@ -1303,7 +1353,7 @@ export default function MonComposant({ onPress }) {
 - [x] Restructuration : migration vers dossier `src/` avec noms en anglais
 - [x] Migration de expo-barcode-scanner vers expo-camera (Expo SDK 54 compatible)
 
-### Phase 2 : Core Features 🚧 (En cours)
+### Phase 2 : Core Features ✅ (Complétée - 30 janvier 2026)
 
 - [x] Scanner ISBN avec expo-camera (✅ 19 jan 2026)
 - [x] BookService (Google Books + OpenLibrary) (✅ 20 jan 2026)
@@ -1311,15 +1361,18 @@ export default function MonComposant({ onPress }) {
 - [x] Recherche textuelle avec pagination (✅ 21 jan 2026)
 - [x] Modale détail livre (BookDetailBottomSheet) (✅ 26 jan 2026)
 - [x] Boutons d'actions dans les résultats de recherche (✅ 26 jan 2026)
-- [ ] DatabaseService (SQLite)
-- [ ] CRUD livres complet
+- [x] DatabaseService (SQLite) (✅ 26 jan 2026)
+- [x] CRUD livres complet (✅ 30 jan 2026)
+- [x] BookEditScreen - détail/édition livre (✅ 30 jan 2026)
+- [x] Connexion boutons d'ajout au DatabaseService (✅ 30 jan 2026)
+- [x] LibraryScreen affiche les livres depuis SQLite (✅ 30 jan 2026)
 
-### Phase 3 : Enhanced Features
+### Phase 3 : Enhanced Features 🚧 (En cours)
 
-- [ ] Filtres avancés bibliothèque
+- [ ] Champs `user_book_data` dans BookEditScreen (statut, favori, notes, rating)
+- [ ] Filtres avancés bibliothèque (par statut, genre, favoris)
 - [ ] Gestion prêts/emprunts
-- [ ] Notes et rating personnels
-- [ ] Écran Statistiques
+- [ ] Écran Statistiques (StatsService)
 
 ### Phase 4 : Polish
 

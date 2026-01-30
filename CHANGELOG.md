@@ -12,8 +12,118 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/).
 ### 🎯 Phase en cours : Core Features (Phase 2)
 
 Prochains objectifs :
-- Implémenter DatabaseService (CRUD livres)
-- Brancher le bouton "Ajouter" sur le DatabaseService
+- Ajouter les champs `user_book_data` dans BookEditScreen (statut, favori, notes, rating)
+- Brancher les filtres de LibraryScreen sur le DatabaseService
+
+---
+
+## [1.0.0-dev.13] - 2026-01-30
+
+### ✅ Ajouté
+
+**BookEditScreen - Écran de détail/édition d'un livre** (`src/screens/BookEditScreen.js`)
+- Nouvel écran pour afficher et éditer tous les champs d'un livre de la BDD
+- Champs éditables : titre, auteur, ISBN, description, éditeur, date de publication, nombre de pages, langue, catégories, URL de couverture
+- Affichage de la couverture du livre (ou placeholder si absente)
+- Détection automatique des modifications non sauvegardées
+- Bouton "Sauvegarder" (actif uniquement si modifications)
+- Confirmation avant de quitter si modifications non sauvegardées
+- Bouton "Supprimer ce livre" avec confirmation (Alert)
+- Métadonnées en lecture seule (dates de création/modification)
+- KeyboardAvoidingView pour une meilleure UX sur iOS
+
+**Navigation vers BookEditScreen**
+- Ajout de la route `BookEdit` dans LibraryStack
+- Navigation depuis HomeScreen après ajout d'un livre
+- Navigation depuis BookDetailBottomSheet après ajout d'un livre
+- Navigation depuis LibraryScreen au clic sur un livre
+
+### 🔧 Modifié
+
+**HomeScreen** (`src/screens/HomeScreen.js`)
+- Nouvelle fonction `handleAddBook(book)` :
+  - Vérifie si le livre existe déjà via `bookExists(isbn)`
+  - Ajoute le livre via `addBook(book)`
+  - Redirige vers `BookEditScreen` avec le `bookId`
+  - Gestion des erreurs avec Alert
+- Import de `Alert` depuis react-native
+- Import de `bookExists` depuis DatabaseService
+
+**BookDetailBottomSheet** (`src/components/BookDetailBottomSheet.js`)
+- Nouvelle fonction `handleAddBook()` :
+  - Vérifie si le livre existe déjà via `bookExists(isbn)`
+  - Ajoute le livre via `addBook(selectedBook)`
+  - Ferme la modale via `closeBookDetail()`
+  - Redirige vers `BookEditScreen` avec le `bookId`
+  - Gestion des erreurs avec Alert
+- Import de `useNavigation` depuis react-navigation
+- Import de `Alert` depuis react-native
+- Import de `bookExists` depuis DatabaseService
+- Suppression de l'import `getAllBooks` (non utilisé)
+
+**LibraryScreen** (`src/screens/LibraryScreen.js`)
+- Chargement des livres depuis SQLite via `useFocusEffect` et `getAllBooks()`
+- Rechargement automatique à chaque focus de l'écran
+- Affichage des couvertures réelles des livres (ou placeholder)
+- Navigation vers `BookEditScreen` au clic sur un livre
+- Import de `Image` depuis react-native
+- Import de `useFocusEffect` depuis react-navigation
+- Import de `getAllBooks` depuis DatabaseService
+
+**LibraryStack** (`src/navigation/LibraryStack.js`)
+- Ajout de la route `BookEdit` vers `BookEditScreen`
+- Import de `BookEditScreen`
+
+**RootNavigator** (`src/navigation/RootNavigator.js`)
+- Déplacement de `ProfileBottomSheet` et `BookDetailBottomSheet` à l'intérieur du `NavigationContainer`
+- Correction de l'erreur "Couldn't find a navigation object" lors de l'utilisation de `useNavigation()` dans les bottom sheets
+
+**App.js**
+- Suppression des imports `ProfileBottomSheet` et `BookDetailBottomSheet` (déplacés dans RootNavigator)
+- Nettoyage de la hiérarchie des composants
+
+### 🐛 Corrigé
+
+**Erreur "Couldn't find a navigation object"**
+- **Cause** : `BookDetailBottomSheet` utilisait `useNavigation()` mais était rendu en dehors du `NavigationContainer`
+- **Solution** : Déplacement des bottom sheets dans `RootNavigator.js` à l'intérieur du `NavigationContainer`
+
+### 📝 Architecture mise à jour
+
+**Hiérarchie des composants (App.js) :**
+```
+GestureHandlerRootView
+  └─ SafeAreaProvider
+      └─ BottomSheetModalProvider
+          └─ ProfileBottomSheetProvider
+              └─ BookDetailBottomSheetProvider
+                  └─ RootNavigator
+                      └─ NavigationContainer
+                          ├─ DrawerNavigator
+                          ├─ ProfileBottomSheet
+                          └─ BookDetailBottomSheet
+```
+
+**Flux d'ajout d'un livre :**
+```
+1. Recherche (HomeScreen) ou Scan (ScanScreen)
+2. Clic sur "Ajouter" ou "Ajouter à ma bibliothèque"
+3. Vérification doublon via bookExists(isbn)
+4. Insertion via addBook(book)
+5. Récupération du bookId retourné
+6. Navigation vers Library > BookEdit avec bookId
+7. Affichage de tous les champs éditables
+8. Possibilité de modifier et sauvegarder
+```
+
+**Boutons d'ajout connectés :**
+
+| Bouton | Localisation | Comportement |
+|--------|-------------|--------------|
+| "Ajouter" | HomeScreen (résultats recherche) | `addBook()` → navigation BookEditScreen |
+| "Ajouter à ma bibliothèque" | BookDetailBottomSheet | `addBook()` → ferme modale → navigation BookEditScreen |
+| "Ajouter un livre" | LibraryScreen (état vide) | Navigation vers scanner/recherche |
+| Bouton "+" | LibraryScreen (FAB) | Navigation vers scanner/recherche |
 
 ---
 
