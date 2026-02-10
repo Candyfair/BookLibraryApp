@@ -34,6 +34,7 @@ export default function BookEditScreen({ navigation, route }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Champs éditables
   const [title, setTitle] = useState('');
@@ -108,13 +109,49 @@ export default function BookEditScreen({ navigation, route }) {
       };
 
       updateBook(bookId, updatedData);
+      setBook({ ...book, ...updatedData });
       setHasChanges(false);
+      setIsEditing(false);
       Alert.alert('Succès', 'Livre mis à jour avec succès');
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder les modifications');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Annule les modifications et quitte le mode édition
+  const handleCancelEdit = () => {
+    if (hasChanges) {
+      Alert.alert(
+        'Annuler les modifications',
+        'Voulez-vous vraiment annuler vos modifications ?',
+        [
+          { text: 'Continuer à éditer', style: 'cancel' },
+          {
+            text: 'Annuler',
+            style: 'destructive',
+            onPress: () => {
+              // Réinitialise les champs avec les valeurs du livre
+              setTitle(book.title || '');
+              setAuthor(book.author || '');
+              setIsbn(book.isbn || '');
+              setDescription(book.description || '');
+              setPublisher(book.publisher || '');
+              setPublishedDate(book.publishedDate || '');
+              setPageCount(book.pageCount ? String(book.pageCount) : '');
+              setLanguage(book.language || '');
+              setCategories(book.categories ? book.categories.join(', ') : '');
+              setCoverUrl(book.coverUrl || '');
+              setHasChanges(false);
+              setIsEditing(false);
+            },
+          },
+        ]
+      );
+    } else {
+      setIsEditing(false);
     }
   };
 
@@ -144,7 +181,7 @@ export default function BookEditScreen({ navigation, route }) {
 
   // Retour avec confirmation si changements non sauvegardés
   const handleBack = () => {
-    if (hasChanges) {
+    if (isEditing && hasChanges) {
       Alert.alert(
         'Modifications non sauvegardées',
         'Voulez-vous sauvegarder vos modifications avant de quitter ?',
@@ -208,17 +245,26 @@ export default function BookEditScreen({ navigation, route }) {
             Détail du livre
           </Text>
 
-          <TouchableOpacity
-            onPress={handleSave}
-            disabled={!hasChanges || isSaving}
-            className={`p-2 ${hasChanges ? 'opacity-100' : 'opacity-40'}`}
-          >
-            <Text
-              className={`font-semibold ${hasChanges ? 'text-blue-500' : 'text-gray-400'}`}
+          {isEditing ? (
+            <TouchableOpacity
+              onPress={handleSave}
+              disabled={!hasChanges || isSaving}
+              className={`p-2 ${hasChanges ? 'opacity-100' : 'opacity-40'}`}
             >
-              {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
-            </Text>
-          </TouchableOpacity>
+              <Text
+                className={`font-semibold ${hasChanges ? 'text-blue-500' : 'text-gray-400'}`}
+              >
+                {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              onPress={() => setIsEditing(true)}
+              className="p-2"
+            >
+              <Text className="font-semibold text-blue-500">Modifier</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -241,19 +287,25 @@ export default function BookEditScreen({ navigation, route }) {
               )}
             </View>
 
-            {/* Champs éditables */}
+            {/* Champs */}
             <View className="space-y-4">
               {/* Titre */}
               <View>
                 <Text className="text-sm font-medium text-gray-600 mb-1">
-                  Titre *
+                  Titre {isEditing && '*'}
                 </Text>
-                <TextInput
-                  value={title}
-                  onChangeText={handleFieldChange(setTitle)}
-                  placeholder="Titre du livre"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={title}
+                    onChangeText={handleFieldChange(setTitle)}
+                    placeholder="Titre du livre"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {title || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Auteur */}
@@ -261,12 +313,18 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Auteur
                 </Text>
-                <TextInput
-                  value={author}
-                  onChangeText={handleFieldChange(setAuthor)}
-                  placeholder="Nom de l'auteur"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={author}
+                    onChangeText={handleFieldChange(setAuthor)}
+                    placeholder="Nom de l'auteur"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {author || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* ISBN */}
@@ -274,13 +332,19 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   ISBN
                 </Text>
-                <TextInput
-                  value={isbn}
-                  onChangeText={handleFieldChange(setIsbn)}
-                  placeholder="ISBN-10 ou ISBN-13"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                  keyboardType="numeric"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={isbn}
+                    onChangeText={handleFieldChange(setIsbn)}
+                    placeholder="ISBN-10 ou ISBN-13"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                    keyboardType="numeric"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {isbn || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Description */}
@@ -288,16 +352,22 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Description
                 </Text>
-                <TextInput
-                  value={description}
-                  onChangeText={handleFieldChange(setDescription)}
-                  placeholder="Résumé du livre"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                  multiline
-                  numberOfLines={4}
-                  textAlignVertical="top"
-                  style={{ minHeight: 100 }}
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={description}
+                    onChangeText={handleFieldChange(setDescription)}
+                    placeholder="Résumé du livre"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                    multiline
+                    numberOfLines={4}
+                    textAlignVertical="top"
+                    style={{ minHeight: 100 }}
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {description || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Éditeur */}
@@ -305,12 +375,18 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Éditeur
                 </Text>
-                <TextInput
-                  value={publisher}
-                  onChangeText={handleFieldChange(setPublisher)}
-                  placeholder="Nom de l'éditeur"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={publisher}
+                    onChangeText={handleFieldChange(setPublisher)}
+                    placeholder="Nom de l'éditeur"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {publisher || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Date de publication */}
@@ -318,12 +394,18 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Date de publication
                 </Text>
-                <TextInput
-                  value={publishedDate}
-                  onChangeText={handleFieldChange(setPublishedDate)}
-                  placeholder="ex: 2024 ou 15/03/2024"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={publishedDate}
+                    onChangeText={handleFieldChange(setPublishedDate)}
+                    placeholder="ex: 2024 ou 15/03/2024"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {publishedDate || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Nombre de pages */}
@@ -331,13 +413,19 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Nombre de pages
                 </Text>
-                <TextInput
-                  value={pageCount}
-                  onChangeText={handleFieldChange(setPageCount)}
-                  placeholder="ex: 350"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                  keyboardType="numeric"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={pageCount}
+                    onChangeText={handleFieldChange(setPageCount)}
+                    placeholder="ex: 350"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                    keyboardType="numeric"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {pageCount || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Langue */}
@@ -345,12 +433,18 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Langue
                 </Text>
-                <TextInput
-                  value={language}
-                  onChangeText={handleFieldChange(setLanguage)}
-                  placeholder="ex: fr, en"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={language}
+                    onChangeText={handleFieldChange(setLanguage)}
+                    placeholder="ex: fr, en"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {language || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
               {/* Catégories */}
@@ -358,28 +452,36 @@ export default function BookEditScreen({ navigation, route }) {
                 <Text className="text-sm font-medium text-gray-600 mb-1">
                   Catégories
                 </Text>
-                <TextInput
-                  value={categories}
-                  onChangeText={handleFieldChange(setCategories)}
-                  placeholder="Fiction, Fantasy, Roman (séparés par des virgules)"
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                />
+                {isEditing ? (
+                  <TextInput
+                    value={categories}
+                    onChangeText={handleFieldChange(setCategories)}
+                    placeholder="Fiction, Fantasy, Roman (séparés par des virgules)"
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {categories || 'Non renseigné'}
+                  </Text>
+                )}
               </View>
 
-              {/* URL de couverture */}
-              <View className="mt-4">
-                <Text className="text-sm font-medium text-gray-600 mb-1">
-                  URL de la couverture
-                </Text>
-                <TextInput
-                  value={coverUrl}
-                  onChangeText={handleFieldChange(setCoverUrl)}
-                  placeholder="https://..."
-                  className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-                  autoCapitalize="none"
-                  keyboardType="url"
-                />
-              </View>
+              {/* URL de couverture - visible seulement en édition */}
+              {isEditing && (
+                <View className="mt-4">
+                  <Text className="text-sm font-medium text-gray-600 mb-1">
+                    URL de la couverture
+                  </Text>
+                  <TextInput
+                    value={coverUrl}
+                    onChangeText={handleFieldChange(setCoverUrl)}
+                    placeholder="https://..."
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                    autoCapitalize="none"
+                    keyboardType="url"
+                  />
+                </View>
+              )}
 
               {/* Métadonnées (lecture seule) */}
               <View className="mt-6 pt-4 border-t border-gray-200">
@@ -393,19 +495,38 @@ export default function BookEditScreen({ navigation, route }) {
                 )}
               </View>
 
-              {/* Bouton Supprimer */}
-              <TouchableOpacity
-                onPress={handleDelete}
-                className="mt-6 mb-8 bg-red-50 border border-red-200 rounded-lg py-3 items-center"
-                activeOpacity={0.8}
-              >
-                <View className="flex-row items-center">
-                  <Ionicons name="trash-outline" size={20} color="#ef4444" />
-                  <Text className="text-red-500 font-semibold ml-2">
-                    Supprimer ce livre
-                  </Text>
+              {/* Boutons en mode édition */}
+              {isEditing && (
+                <View className="mt-6 mb-8">
+                  {/* Bouton Annuler */}
+                  <TouchableOpacity
+                    onPress={handleCancelEdit}
+                    className="bg-gray-100 border border-gray-300 rounded-lg py-3 items-center mb-3"
+                    activeOpacity={0.8}
+                  >
+                    <Text className="text-gray-700 font-semibold">
+                      Annuler les modifications
+                    </Text>
+                  </TouchableOpacity>
+
+                  {/* Bouton Supprimer */}
+                  <TouchableOpacity
+                    onPress={handleDelete}
+                    className="bg-red-50 border border-red-200 rounded-lg py-3 items-center"
+                    activeOpacity={0.8}
+                  >
+                    <View className="flex-row items-center">
+                      <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                      <Text className="text-red-500 font-semibold ml-2">
+                        Supprimer ce livre
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
+              )}
+
+              {/* Espace en bas en mode lecture */}
+              {!isEditing && <View className="mb-8" />}
             </View>
           </View>
         </ScrollView>
