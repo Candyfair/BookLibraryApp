@@ -67,16 +67,26 @@ export function addBook(book) {
     ]
   );
 
-  return result.lastInsertRowId;
+  const bookId = result.lastInsertRowId;
+
+  // Crée l'entrée user_book_data associée
+  db.runSync(
+    `INSERT INTO user_book_data (book_id, status, is_favorite, personal_rating, notes)
+     VALUES (?, 'to_read', 0, NULL, NULL)`,
+    [bookId]
+  );
+
+  return bookId;
 }
 
 /**
  * Normalise une ligne SQLite (snake_case) vers le format JS (camelCase)
  * @param {Object} row - Ligne brute de SQLite
+ * @param {boolean} includeUserData - Inclure les données user_book_data
  * @returns {Object} Livre au format normalisé
  */
-function normalizeRow(row) {
-  return {
+function normalizeRow(row, includeUserData = false) {
+  const book = {
     id: row.id,
     isbn: row.isbn,
     title: row.title,
@@ -91,20 +101,41 @@ function normalizeRow(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+
+  if (includeUserData) {
+    book.status = row.status || 'to_read';
+    book.isFavorite = row.is_favorite === 1;
+    book.personalRating = row.personal_rating;
+    book.notes = row.notes;
+    book.lentTo = row.lent_to;
+    book.lentDate = row.lent_date;
+    book.borrowedFrom = row.borrowed_from;
+    book.borrowedDate = row.borrowed_date;
+    book.readDate = row.read_date;
+  }
+
+  return book;
 }
 
 /**
- * Récupère un livre par son ID
+ * Récupère un livre par son ID avec ses données utilisateur
  * @param {number} id - ID du livre
- * @returns {Object|null} Livre normalisé ou null si non trouvé
+ * @returns {Object|null} Livre normalisé avec user_book_data ou null si non trouvé
  */
 export function getBookById(id) {
   if (!db) {
     throw new Error('Database not initialized. Call initDatabase() first');
   }
 
-  const row = db.getFirstSync('SELECT * FROM books WHERE id = ?', [id]);
-  return row ? normalizeRow(row) : null;
+  const row = db.getFirstSync(
+    `SELECT b.*, ubd.status, ubd.is_favorite, ubd.personal_rating, ubd.notes,
+            ubd.lent_to, ubd.lent_date, ubd.borrowed_from, ubd.borrowed_date, ubd.read_date
+     FROM books b
+     LEFT JOIN user_book_data ubd ON ubd.book_id = b.id
+     WHERE b.id = ?`,
+    [id]
+  );
+  return row ? normalizeRow(row, true) : null;
 }
 
 /**
@@ -187,6 +218,58 @@ export function updateBook(id, data) {
 
   const result = db.runSync(
     `UPDATE books SET ${setClauses.join(', ')} WHERE id = ?`,
+    values
+  );
+
+  return result.changes;
+}
+
+/**
+ * Met à jour les données utilisateur d'un livre
+ * @param {number} bookId - ID du livre
+ * @param {Object} data - Données à mettre à jour (format camelCase)
+ * @returns {number} Nombre de lignes modifiées
+ */
+export function updateUserBookData(bookId, data) {
+  if (!db) {
+    throw new Error('Database not initialized. Call initDatabase() first');
+  }
+
+  const fieldMap = {
+    status: 'status',
+    isFavorite: 'is_favorite',
+    personalRating: 'personal_rating',
+    notes: 'notes',
+    lentTo: 'lent_to',
+    lentDate: 'lent_date',
+    borrowedFrom: 'borrowed_from',
+    borrowedDate: 'borrowed_date',
+    readDate: 'read_date',
+  };
+
+  const setClauses = [];
+  const values = [];
+
+  for (const [jsKey, sqlColumn] of Object.entries(fieldMap)) {
+    if (jsKey in data) {
+      setClauses.push(`${sqlColumn} = ?`);
+      let value = data[jsKey];
+      // Convertit boolean en integer pour is_favorite
+      if (jsKey === 'isFavorite') {
+        value = value ? 1 : 0;
+      }
+      values.push(value);
+    }
+  }
+
+  if (setClauses.length === 0) {
+    return 0;
+  }
+
+  values.push(bookId);
+
+  const result = db.runSync(
+    `UPDATE user_book_data SET ${setClauses.join(', ')} WHERE book_id = ?`,
     values
   );
 

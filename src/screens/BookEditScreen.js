@@ -9,12 +9,29 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
 // Services
-import { getBookById, updateBook, deleteBook } from '../services/DatabaseService';
+import {
+  getBookById,
+  updateBook,
+  updateUserBookData,
+  deleteBook,
+} from '../services/DatabaseService';
+
+// Components
+import StarRating from '../components/StarRating';
+
+// Constantes pour les statuts
+const STATUS_OPTIONS = [
+  { value: 'to_read', label: 'À lire' },
+  { value: 'reading', label: 'En cours' },
+  { value: 'read', label: 'Lu' },
+  { value: 'wishlist', label: 'Wishlist' },
+];
 
 /**
  * BookEditScreen - Écran de détail et d'édition d'un livre
@@ -36,7 +53,7 @@ export default function BookEditScreen({ navigation, route }) {
   const [hasChanges, setHasChanges] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Champs éditables
+  // Champs éditables (infos livre)
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
   const [isbn, setIsbn] = useState('');
@@ -47,6 +64,16 @@ export default function BookEditScreen({ navigation, route }) {
   const [language, setLanguage] = useState('');
   const [categories, setCategories] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
+
+  // Champs éditables (données utilisateur)
+  const [status, setStatus] = useState('to_read');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [personalRating, setPersonalRating] = useState(null);
+  const [notes, setNotes] = useState('');
+  const [lentTo, setLentTo] = useState('');
+  const [lentDate, setLentDate] = useState('');
+  const [borrowedFrom, setBorrowedFrom] = useState('');
+  const [borrowedDate, setBorrowedDate] = useState('');
 
   // Charge le livre depuis la BDD
   useEffect(() => {
@@ -71,6 +98,16 @@ export default function BookEditScreen({ navigation, route }) {
           fetchedBook.categories ? fetchedBook.categories.join(', ') : ''
         );
         setCoverUrl(fetchedBook.coverUrl || '');
+
+        // Initialise les données utilisateur
+        setStatus(fetchedBook.status || 'to_read');
+        setIsFavorite(fetchedBook.isFavorite || false);
+        setPersonalRating(fetchedBook.personalRating || null);
+        setNotes(fetchedBook.notes || '');
+        setLentTo(fetchedBook.lentTo || '');
+        setLentDate(fetchedBook.lentDate || '');
+        setBorrowedFrom(fetchedBook.borrowedFrom || '');
+        setBorrowedDate(fetchedBook.borrowedDate || '');
       }
     } catch (error) {
       console.error('Erreur lors du chargement du livre:', error);
@@ -92,7 +129,8 @@ export default function BookEditScreen({ navigation, route }) {
 
     setIsSaving(true);
     try {
-      const updatedData = {
+      // Mise à jour des infos du livre
+      const updatedBookData = {
         title: title.trim(),
         author: author.trim(),
         isbn: isbn.trim() || null,
@@ -108,8 +146,22 @@ export default function BookEditScreen({ navigation, route }) {
         coverUrl: coverUrl.trim() || null,
       };
 
-      updateBook(bookId, updatedData);
-      setBook({ ...book, ...updatedData });
+      // Mise à jour des données utilisateur
+      const updatedUserData = {
+        status,
+        isFavorite,
+        personalRating,
+        notes: notes.trim() || null,
+        lentTo: lentTo.trim() || null,
+        lentDate: lentDate.trim() || null,
+        borrowedFrom: borrowedFrom.trim() || null,
+        borrowedDate: borrowedDate.trim() || null,
+      };
+
+      updateBook(bookId, updatedBookData);
+      updateUserBookData(bookId, updatedUserData);
+
+      setBook({ ...book, ...updatedBookData, ...updatedUserData });
       setHasChanges(false);
       setIsEditing(false);
       Alert.alert('Succès', 'Livre mis à jour avec succès');
@@ -144,6 +196,15 @@ export default function BookEditScreen({ navigation, route }) {
               setLanguage(book.language || '');
               setCategories(book.categories ? book.categories.join(', ') : '');
               setCoverUrl(book.coverUrl || '');
+              // Réinitialise les données utilisateur
+              setStatus(book.status || 'to_read');
+              setIsFavorite(book.isFavorite || false);
+              setPersonalRating(book.personalRating || null);
+              setNotes(book.notes || '');
+              setLentTo(book.lentTo || '');
+              setLentDate(book.lentDate || '');
+              setBorrowedFrom(book.borrowedFrom || '');
+              setBorrowedDate(book.borrowedDate || '');
               setHasChanges(false);
               setIsEditing(false);
             },
@@ -270,7 +331,7 @@ export default function BookEditScreen({ navigation, route }) {
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           <View className="p-4">
             {/* Couverture */}
-            <View className="items-center mb-6">
+            <View className="items-center mb-4">
               {coverUrl ? (
                 <Image
                   source={{ uri: coverUrl }}
@@ -285,6 +346,205 @@ export default function BookEditScreen({ navigation, route }) {
                   <Ionicons name="book-outline" size={48} color="#9ca3af" />
                 </View>
               )}
+            </View>
+
+            {/* Section données personnelles (sous la couverture) */}
+            <View className="mb-6 p-4 bg-white rounded-lg border border-gray-200">
+              {/* Statut */}
+              <View>
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Statut
+                </Text>
+                {isEditing ? (
+                  <View className="flex-row flex-wrap">
+                    {STATUS_OPTIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option.value}
+                        onPress={() => {
+                          setStatus(option.value);
+                          setHasChanges(true);
+                        }}
+                        className={`mr-2 mb-2 px-4 py-2 rounded-full border ${
+                          status === option.value
+                            ? 'bg-blue-500 border-blue-500'
+                            : 'bg-white border-gray-300'
+                        }`}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          className={`font-medium ${
+                            status === option.value
+                              ? 'text-white'
+                              : 'text-gray-700'
+                          }`}
+                        >
+                          {option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : (
+                  <View className="flex-row flex-wrap">
+                    <View className="px-4 py-2 rounded-full bg-blue-100 border border-blue-200">
+                      <Text className="font-medium text-blue-700">
+                        {STATUS_OPTIONS.find((o) => o.value === status)?.label ||
+                          'Non défini'}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+
+              {/* Note personnelle et Favori sur la même ligne */}
+              <View className="mt-4 flex-row items-center justify-between">
+                <View>
+                  <Text className="text-sm font-medium text-gray-600 mb-2">
+                    Ma note
+                  </Text>
+                  <StarRating
+                    rating={personalRating}
+                    onRatingChange={(value) => {
+                      setPersonalRating(value);
+                      setHasChanges(true);
+                    }}
+                    disabled={!isEditing}
+                    size={24}
+                  />
+                </View>
+
+                <View className="items-center">
+                  <Text className="text-sm font-medium text-gray-600 mb-2">
+                    Favori
+                  </Text>
+                  {isEditing ? (
+                    <Switch
+                      value={isFavorite}
+                      onValueChange={(value) => {
+                        setIsFavorite(value);
+                        setHasChanges(true);
+                      }}
+                      trackColor={{ false: '#d1d5db', true: '#3b82f6' }}
+                      thumbColor={isFavorite ? '#ffffff' : '#f4f4f5'}
+                    />
+                  ) : (
+                    <Ionicons
+                      name={isFavorite ? 'heart' : 'heart-outline'}
+                      size={24}
+                      color={isFavorite ? '#ef4444' : '#d1d5db'}
+                    />
+                  )}
+                </View>
+              </View>
+
+              {/* Notes personnelles */}
+              <View className="mt-4">
+                <Text className="text-sm font-medium text-gray-600 mb-1">
+                  Notes personnelles
+                </Text>
+                {isEditing ? (
+                  <TextInput
+                    value={notes}
+                    onChangeText={handleFieldChange(setNotes)}
+                    placeholder="Mes impressions, citations préférées..."
+                    className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                    style={{ minHeight: 80 }}
+                  />
+                ) : (
+                  <Text className="text-gray-800 text-base">
+                    {notes || 'Aucune note'}
+                  </Text>
+                )}
+              </View>
+
+              {/* Prêt / Emprunt */}
+              <View className="mt-4 pt-4 border-t border-gray-100">
+                <Text className="text-sm font-semibold text-gray-700 mb-3">
+                  Prêt / Emprunt
+                </Text>
+
+                <View className="flex-row">
+                  {/* Prêté à */}
+                  <View className="flex-1 mr-2">
+                    <Text className="text-xs font-medium text-gray-500 mb-1">
+                      Prêté à
+                    </Text>
+                    {isEditing ? (
+                      <TextInput
+                        value={lentTo}
+                        onChangeText={handleFieldChange(setLentTo)}
+                        placeholder="Nom"
+                        className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-800 text-sm"
+                      />
+                    ) : (
+                      <Text className="text-gray-800 text-sm">
+                        {lentTo || '-'}
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* Date prêt */}
+                  <View className="flex-1 ml-2">
+                    <Text className="text-xs font-medium text-gray-500 mb-1">
+                      Date
+                    </Text>
+                    {isEditing ? (
+                      <TextInput
+                        value={lentDate}
+                        onChangeText={handleFieldChange(setLentDate)}
+                        placeholder="JJ/MM/AAAA"
+                        className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-800 text-sm"
+                      />
+                    ) : (
+                      <Text className="text-gray-800 text-sm">
+                        {lentDate || '-'}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+
+                <View className="flex-row mt-3">
+                  {/* Emprunté à */}
+                  <View className="flex-1 mr-2">
+                    <Text className="text-xs font-medium text-gray-500 mb-1">
+                      Emprunté à
+                    </Text>
+                    {isEditing ? (
+                      <TextInput
+                        value={borrowedFrom}
+                        onChangeText={handleFieldChange(setBorrowedFrom)}
+                        placeholder="Nom"
+                        className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-800 text-sm"
+                      />
+                    ) : (
+                      <Text className="text-gray-800 text-sm">
+                        {borrowedFrom || '-'}
+                      </Text>
+                    )}
+                  </View>
+
+                  {/* Date emprunt */}
+                  <View className="flex-1 ml-2">
+                    <Text className="text-xs font-medium text-gray-500 mb-1">
+                      Date
+                    </Text>
+                    {isEditing ? (
+                      <TextInput
+                        value={borrowedDate}
+                        onChangeText={handleFieldChange(setBorrowedDate)}
+                        placeholder="JJ/MM/AAAA"
+                        className="bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-gray-800 text-sm"
+                      />
+                    ) : (
+                      <Text className="text-gray-800 text-sm">
+                        {borrowedDate || '-'}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
             </View>
 
             {/* Champs */}
